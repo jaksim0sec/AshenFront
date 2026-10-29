@@ -4,6 +4,8 @@ Run `npm start`, then open **병사** in the game header or `/soldier-workshop.h
 
 ## Current reference and physique
 
+National fittings now follow the four exports in `assets/soldiers/fitting-references/`: each nation’s lieutenant sets all of its officer caps; Velian private sets every blue helmet; Arken corporal sets the left/right sleeve placement and rotation across ranks and nations. Each rank keeps its own patch artwork, original aspect ratio and visibility. Different patch shapes use native calibrated dimensions. These fittings also survive **체면동화** and update earlier drafts once through `fittingsRevision`. Other body geometry, rifles and animation are unchanged.
+
 `assets/soldiers/physique-reference.json` is the supplied **ashenfront-arken-private-1.json**. The published16-profile catalog and factory defaults use its exact Arken private geometry and layer order. Other nations/ranks retain their own artwork, uniforms and insignia.
 
 **체면동화** copies the complete geometry for identical assets, including hat position, dimensions, pivot, rotation and scale. Different national hats/caps use their original head-fit registration points and uniform scaling. Insignia are transferred from their registered body/arm attachment. The transfer starts from asset calibration, rather than the target's previous draft, so stale hat offsets cannot survive or accumulate. Repeated unification is idempotent. Source PNG aspect ratios remain locked.

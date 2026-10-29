@@ -1,6 +1,7 @@
 import {ASPECTS} from './aspects.mjs';
 import {UNIFORM_PARTS,ASSEMBLIES,BODY_STYLE} from './uniforms.mjs';
 import {REFERENCE_PROFILE,PHYSIQUE_REVISION} from './reference.mjs';
+import {FITTING_REFERENCES} from './fittings.mjs';
 /** Assembly proportions come from the current archive, with one global scale/translation. */
 export const NATIONS=['arken','velian'];
 export const RANKS=['private','corporal','sergeant','warrant','lieutenant','captain','major','colonel'];
@@ -31,7 +32,7 @@ export function createCatalog(){
  }
  profiles['arken:private']=structuredClone(REFERENCE_PROFILE);
  profiles['arken:private'].parts.rifle.w*=RIFLE_ENLARGEMENT;profiles['arken:private'].parts.rifle.h*=RIFLE_ENLARGEMENT;
- return unifyPhysique({format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,layerRevision:LAYER_REVISION,rifleRevision:RIFLE_REVISION,profiles},'arken:private');
+ return applyFittings(unifyPhysique({format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,layerRevision:LAYER_REVISION,rifleRevision:RIFLE_REVISION,profiles},'arken:private'));
 }
 function validPart(p){
  if(!p||!ASSETS.includes(p.asset)||typeof p.visible!=='boolean')throw Error('등록되지 않은 파츠입니다.');
@@ -67,6 +68,19 @@ function transferPart(base,current,target){
  const fitX=current.x+c*px-s*py,fitY=current.y+s*px+c*py,dx=(target.x-base.x)*factor,dy=(target.y-base.y)*factor;
  return {...target,x:fitX+cos*dx-sin*dy,y:fitY+sin*dx+cos*dy,w:target.w*factor,h:target.h*factor,rotation:target.rotation+angle};
 }
+function fitHat(profile){
+ const old=profile.parts.hat,ref=Object.values(FITTING_REFERENCES).find(p=>p.parts.hat.asset===old.asset)??REFERENCE_PROFILE;
+ const hat=transferPart(ref.parts.head,profile.parts.head,ref.parts.hat);return {...hat,visible:old.visible};
+}
+function fitSleeve(profile,key){
+ const old=profile.parts[key],ref=FITTING_REFERENCES['arken:corporal'],parent=key==='sleeveLeft'?'armLeft':'armRight',sample=ref.parts[key];
+ const calibrated=old.asset===sample.asset?{...sample}:transferPart(UNIFORM_PARTS[sample.asset],sample,UNIFORM_PARTS[old.asset]);
+ return {...transferPart(ref.parts[parent],profile.parts[parent],calibrated),visible:old.visible};
+}
+function applyFittings(c){
+ for(const p of Object.values(c.profiles)){if(p.parts.hat.asset!=='black/helmet')p.parts.hat=fitHat(p);for(const key of ['sleeveLeft','sleeveRight'])p.parts[key]=fitSleeve(p,key);}
+ c.fittingsRevision=1;return c;
+}
 /** Match identical assets exactly; fit different national artwork through its registered pivot. */
 export function unifyPhysique(c,sourceId){
  validateCatalog(c);if(!Object.hasOwn(c.profiles,sourceId))throw Error('기준 병사가 없습니다.');
@@ -75,10 +89,11 @@ export function unifyPhysique(c,sourceId){
   for(const key of ['head','body','legLeft','legRight','armLeft','armRight','hat','rifle']){
    const src=source.parts[key],old=p.parts[key];
    p.parts[key]=src.asset===old.asset?{...src,visible:old.visible}:transferPart(UNIFORM_PARTS[src.asset],src,UNIFORM_PARTS[old.asset]);
+   if(key==='hat'&&src.asset!==old.asset)p.parts[key]=fitHat(p);
    p.parts[key].visible=old.visible;keepAspect(p.parts[key]);
   }
   for(const [key,parent] of [['shoulderLeft','body'],['shoulderRight','body'],['sleeveLeft','armLeft'],['sleeveRight','armRight']]){
-   const old=p.parts[key],anchor=p.parts[parent];p.parts[key]=transferPart(UNIFORM_PARTS[anchor.asset],anchor,UNIFORM_PARTS[old.asset]);p.parts[key].visible=old.visible;keepAspect(p.parts[key]);
+   const old=p.parts[key],anchor=p.parts[parent];p.parts[key]=key.startsWith('sleeve')?fitSleeve(p,key):transferPart(UNIFORM_PARTS[anchor.asset],anchor,UNIFORM_PARTS[old.asset]);p.parts[key].visible=old.visible;keepAspect(p.parts[key]);
   }
  }
  next.bodyStyle=BODY_STYLE;next.physiqueRevision=PHYSIQUE_REVISION;validateCatalog(next);return next;
@@ -89,5 +104,5 @@ export function migratePhysique(c){
  // Upgrade the layer order once without discarding saved part positions or later edits.
  if(c.layerRevision!==LAYER_REVISION){for(const p of Object.values(c.profiles))p.layers=[...DEFAULT_LAYERS];c.layerRevision=LAYER_REVISION;}
  if(c.physiqueRevision!==PHYSIQUE_REVISION){c.profiles['arken:private']=structuredClone(REFERENCE_PROFILE);if(c.rifleRevision===RIFLE_REVISION){c.profiles['arken:private'].parts.rifle.w*=RIFLE_ENLARGEMENT;c.profiles['arken:private'].parts.rifle.h*=RIFLE_ENLARGEMENT;}c=unifyPhysique(c,'arken:private');}
- if(c.rifleRevision!==RIFLE_REVISION){for(const p of Object.values(c.profiles)){p.parts.rifle.w*=RIFLE_ENLARGEMENT;p.parts.rifle.h*=RIFLE_ENLARGEMENT;}c.rifleRevision=RIFLE_REVISION;}return c;
+ if(c.rifleRevision!==RIFLE_REVISION){for(const p of Object.values(c.profiles)){p.parts.rifle.w*=RIFLE_ENLARGEMENT;p.parts.rifle.h*=RIFLE_ENLARGEMENT;}c.rifleRevision=RIFLE_REVISION;}if(c.fittingsRevision!==1)c=applyFittings(c);return c;
 }

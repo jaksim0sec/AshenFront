@@ -7,13 +7,13 @@ import {unifyPhysique} from '../src/characters/model.mjs';
 import {ASPECTS} from '../src/characters/aspects.mjs';
 test('published physique matches the supplied reference without drifting helmets or altered artwork',()=>{
  const rig=JSON.parse(readFileSync(new URL('../assets/soldiers/rig.json',import.meta.url))),manifest=JSON.parse(readFileSync(new URL('../assets/soldiers/manifest.json',import.meta.url))),catalog=createCatalog(),reference=JSON.parse(readFileSync(new URL('../assets/soldiers/physique-reference.json',import.meta.url))).profile;
- reference.parts.rifle.w*=1.2;reference.parts.rifle.h*=1.2;assert.equal(Object.keys(manifest.assets).length,36);assert.deepEqual(catalog.profiles['arken:private'],reference);
+ reference.parts.rifle.w*=1.2;reference.parts.rifle.h*=1.2;assert.equal(Object.keys(manifest.assets).length,36);for(const key of Object.keys(reference.parts).filter(k=>!k.startsWith('sleeve')))assert.deepEqual(catalog.profiles['arken:private'].parts[key],reference.parts[key]);
  for(const [id,meta] of Object.entries(manifest.assets))assert.equal(createHash('sha256').update(readFileSync(new URL('../'+meta.path,import.meta.url))).digest('hex'),rig.parts[id].png_sha256);
  for(const profile of Object.values(catalog.profiles)){
   assert.deepEqual(profile.layers,reference.layers);assert.deepEqual(profile.parts.head,reference.parts.head);
   for(const part of Object.values(profile.parts))assert(Math.abs(part.w/part.h-ASPECTS[part.asset])<1e-10);
   if(profile.parts.hat.asset===reference.parts.hat.asset)assert.deepEqual(profile.parts.hat,reference.parts.hat);
-  assert.equal(profile.parts.hat.x,reference.parts.hat.x);assert.equal(profile.parts.hat.y,reference.parts.hat.y);
+  if(profile.parts.hat.asset==='black/helmet'){assert.equal(profile.parts.hat.x,reference.parts.hat.x);assert.equal(profile.parts.hat.y,reference.parts.hat.y);}
  }
  editPart(catalog,'arken:private','hat',{x:2,y:-151,pivotX:.48,w:133,rotation:.08});
  const first=unifyPhysique(catalog,'arken:private'),second=unifyPhysique(first,'arken:private');assert.deepEqual(second,first,'repeated unification must be idempotent');
@@ -41,3 +41,13 @@ test('editable rifle dimensions preserve actual SVG grip and muzzle positions',(
 test('falling and large edited poses have complete cache bounds instead of a fixed avatar crop',async()=>{const {poseBounds}=await import('../src/characters/animation.mjs');const c=createCatalog();editPart(c,'arken:captain','hat',{x:300,w:240});for(const time of [0,.3,.65,1.1]){const pose=poseCharacter(c.profiles['arken:captain'],{state:'death',time}),b=poseBounds(pose);for(const d of pose.draws.filter(d=>!d.clip))for(const [x,y] of [[0,0],[d.w,d.h]]){const p=transformPoint(d.matrix,x,y);assert(p.x>=b.left&&p.x<=b.right&&p.y>=b.top&&p.y<=b.bottom);}}});
 test('part dragging in a rotated death pose uses the animated parent basis',async()=>{const {partPositionBasis}=await import('../src/characters/animation.mjs');const p=createCatalog().profiles['velian:captain'],options={state:'death',time:.6,facing:-1},basis=partPositionBasis(p,'hat',options),q=structuredClone(p);q.parts.hat.x+=8;q.parts.hat.y-=3;const a=poseCharacter(p,options).draws.find(d=>d.part==='hat'),b=poseCharacter(q,options).draws.find(d=>d.part==='hat');assert(Math.abs((b.matrix[4]-a.matrix[4])-(basis.a*8-basis.c*3))<1e-6);assert(Math.abs((b.matrix[5]-a.matrix[5])-(basis.b*8-basis.d*3))<1e-6);});
 test('cached walking samples repeat at the actual gait duration',async()=>{const {sampleAnimation}=await import('../src/characters/renderer.mjs');const period=Math.PI*2/10;for(const t of [.05,.15,.27,.4])assert.equal(sampleAnimation({state:'walk',time:t}).time,sampleAnimation({state:'walk',time:t+period}).time);});
+
+test('national officer caps, blue helmets and sleeve insignia follow user fitting references',async()=>{
+ const {FITTING_REFERENCES:refs}=await import('../src/characters/fittings.mjs');const c=createCatalog();
+ for(const catalog of [c,unifyPhysique(c,'arken:private')])for(const p of Object.values(catalog.profiles)){
+  const hatRef=Object.values(refs).find(r=>r.parts.hat.asset===p.parts.hat.asset);
+  if(hatRef)for(const key of ['x','y','w','h','pivotX','pivotY','rotation'])assert(Math.abs(p.parts.hat[key]-hatRef.parts.hat[key])<1e-10,p.nation+':'+p.rank+' '+key);
+  if(p.nation==='arken')for(const side of ['sleeveLeft','sleeveRight']){const actual=p.parts[side],expected=refs['arken:corporal'].parts[side];for(const k of ['x','y','rotation'])assert(Math.abs(actual[k]-expected[k])<1e-10);}
+ }
+ assert.deepEqual(unifyPhysique(unifyPhysique(c,'arken:private'),'arken:private'),unifyPhysique(c,'arken:private'));
+});
