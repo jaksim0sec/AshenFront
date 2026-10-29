@@ -1,0 +1,1597 @@
+{
+  "browser": "154.0.8037.57",
+  "host": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "note": "Headless Chromium mobile viewport on cloud CPU. No CPU throttling; not physical Android. Each sample 4 wall seconds after warmup, camera follows a living friendly shooter; debug fixture load/fast-forward excluded from long-task window.",
+  "results": [
+    {
+      "map": 64,
+      "initialActors": 80,
+      "liveActors": 61,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": false,
+      "sampleMs": 4014.1999999997206,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "navFields": 2,
+        "navBytes": 49152,
+        "navExpansions": 0,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 3,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 7,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 6,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 7,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 8,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          }
+        ],
+        "maxWait": 35,
+        "renderP95": 1,
+        "renderP99": 1.6000000000931323,
+        "longTasks": [],
+        "simP95": 0.39999999990686774,
+        "simP99": 0.5,
+        "frameP95": 16.700000000000728,
+        "rendered": 26,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 64,
+      "initialActors": 80,
+      "liveActors": 61,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 1.0,
+      "low": false,
+      "sampleMs": 4014.899999999907,
+      "simTicksDuringSample": 81,
+      "stats": {
+        "navFields": 2,
+        "navBytes": 49152,
+        "navExpansions": 0,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 3,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 7,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 6,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 7,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 8,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          }
+        ],
+        "maxWait": 35,
+        "renderP95": 0.8000000002793968,
+        "renderP99": 2.3999999999068677,
+        "longTasks": [],
+        "simP95": 0.39999999990686774,
+        "simP99": 0.6000000000931323,
+        "frameP95": 16.799999999999727,
+        "rendered": 8,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 6
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 64,
+      "initialActors": 80,
+      "liveActors": 60,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": true,
+      "sampleMs": 4019.600000000093,
+      "simTicksDuringSample": 81,
+      "stats": {
+        "navFields": 2,
+        "navBytes": 49152,
+        "navExpansions": 0,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 3,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 7,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 6,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 7,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 8,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          }
+        ],
+        "maxWait": 35,
+        "renderP95": 2,
+        "renderP99": 3.7999999998137355,
+        "longTasks": [],
+        "simP95": 0.3000000002793968,
+        "simP99": 0.5,
+        "frameP95": 16.799999999999272,
+        "rendered": 17,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 6
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 128,
+      "initialActors": 180,
+      "liveActors": 146,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": false,
+      "sampleMs": 4013.600000000093,
+      "simTicksDuringSample": 81,
+      "stats": {
+        "navFields": 4,
+        "navBytes": 393216,
+        "navExpansions": 33,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 3,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 8,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 6,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 7,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 8,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 9,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 10,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 11,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 5,
+            "reason": "suppressed"
+          },
+          {
+            "id": 12,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 5,
+            "reason": "suppressed"
+          },
+          {
+            "id": 13,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 9,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 14,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 15,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 16,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 8,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 17,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 18,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          }
+        ],
+        "maxWait": 124,
+        "renderP95": 1.7999999998137355,
+        "renderP99": 3.6000000000931323,
+        "longTasks": [],
+        "simP95": 0.7999999998137355,
+        "simP99": 2.1000000000931323,
+        "frameP95": 16.700000000000728,
+        "rendered": 62,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 128,
+      "initialActors": 180,
+      "liveActors": 146,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 1.0,
+      "low": false,
+      "sampleMs": 4015.399999999907,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "navFields": 4,
+        "navBytes": 393216,
+        "navExpansions": 67,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 3,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 8,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 6,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 7,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 8,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 9,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 10,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 11,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 5,
+            "reason": "suppressed"
+          },
+          {
+            "id": 12,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 5,
+            "reason": "suppressed"
+          },
+          {
+            "id": 13,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 9,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 14,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 15,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 16,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 8,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 17,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 18,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          }
+        ],
+        "maxWait": 122,
+        "renderP95": 0.6000000000931323,
+        "renderP99": 0.8000000002793968,
+        "longTasks": [],
+        "simP95": 0.5,
+        "simP99": 0.6000000000931323,
+        "frameP95": 16.700000000000728,
+        "rendered": 13,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 5
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 128,
+      "initialActors": 180,
+      "liveActors": 146,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": true,
+      "sampleMs": 4010.100000000093,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "navFields": 4,
+        "navBytes": 393216,
+        "navExpansions": 0,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 3,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 6,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 7,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 8,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 9,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 10,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 11,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 5,
+            "reason": "suppressed"
+          },
+          {
+            "id": 12,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 5,
+            "reason": "suppressed"
+          },
+          {
+            "id": 13,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 9,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 14,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 15,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 16,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 8,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 17,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 18,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          }
+        ],
+        "maxWait": 127,
+        "renderP95": 1.1999999997206032,
+        "renderP99": 2.6000000000931323,
+        "longTasks": [],
+        "simP95": 0.5,
+        "simP99": 0.6000000000931323,
+        "frameP95": 16.800000000000182,
+        "rendered": 66,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 7
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 256,
+      "initialActors": 360,
+      "liveActors": 336,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": false,
+      "sampleMs": 4016.8000000002794,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "navFields": 4,
+        "navBytes": 1572864,
+        "navExpansions": 0,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 3,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 6,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 7,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 8,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 9,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 10,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 11,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 12,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 13,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 14,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 9,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 15,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 16,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 17,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 18,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 19,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 20,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 21,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 22,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 23,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 24,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 25,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 26,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 27,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 28,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 29,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 30,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 31,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 32,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 33,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 34,
+            "status": "moving",
+            "arrived": 0,
+            "living": 8,
+            "reason": null
+          },
+          {
+            "id": 35,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 36,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 9,
+            "reason": "suppressed"
+          }
+        ],
+        "maxWait": 71,
+        "renderP95": 0.900000000372529,
+        "renderP99": 1.1000000000931323,
+        "longTasks": [],
+        "simP95": 1.2000000001862645,
+        "simP99": 2.2999999998137355,
+        "frameP95": 16.700000000000728,
+        "rendered": 11,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 5
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 256,
+      "initialActors": 360,
+      "liveActors": 335,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 1.0,
+      "low": false,
+      "sampleMs": 4014.7999999998137,
+      "simTicksDuringSample": 81,
+      "stats": {
+        "navFields": 4,
+        "navBytes": 1572864,
+        "navExpansions": 0,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 3,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 6,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 7,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 8,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 9,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 10,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 11,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 12,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 13,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 14,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 9,
+            "reason": "blocked_by_ally"
+          },
+          {
+            "id": 15,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 16,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 17,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 18,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 19,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 20,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 21,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 22,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 23,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 24,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 25,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 26,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "waiting_for_capacity"
+          },
+          {
+            "id": 27,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 28,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 29,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 30,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 31,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 32,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 33,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 34,
+            "status": "moving",
+            "arrived": 0,
+            "living": 8,
+            "reason": null
+          },
+          {
+            "id": 35,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 36,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 9,
+            "reason": "suppressed"
+          }
+        ],
+        "maxWait": 75,
+        "renderP95": 0.6000000000931323,
+        "renderP99": 0.8000000002793968,
+        "longTasks": [],
+        "simP95": 1.5,
+        "simP99": 1.7000000001862645,
+        "frameP95": 16.799999999999272,
+        "rendered": 6,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 5
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 256,
+      "initialActors": 360,
+      "liveActors": 332,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": true,
+      "sampleMs": 4010.2000000001863,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "navFields": 4,
+        "navBytes": 1572864,
+        "navExpansions": 0,
+        "arrivals": [
+          {
+            "id": 1,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 2,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 3,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 4,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 5,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 6,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 7,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 8,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 9,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 10,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 11,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 12,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 13,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 14,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 9,
+            "reason": "suppressed"
+          },
+          {
+            "id": 15,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 16,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 17,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 18,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 7,
+            "reason": "suppressed"
+          },
+          {
+            "id": 19,
+            "status": "arrived",
+            "arrived": 10,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 20,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 21,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 22,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 23,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 24,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 25,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 26,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 8,
+            "reason": "waiting_for_capacity"
+          },
+          {
+            "id": 27,
+            "status": "blocked",
+            "arrived": 0,
+            "living": 10,
+            "reason": "waiting_for_capacity"
+          },
+          {
+            "id": 28,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 29,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 6,
+            "reason": "suppressed"
+          },
+          {
+            "id": 30,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 31,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 32,
+            "status": "moving",
+            "arrived": 0,
+            "living": 9,
+            "reason": null
+          },
+          {
+            "id": 33,
+            "status": "moving",
+            "arrived": 0,
+            "living": 10,
+            "reason": null
+          },
+          {
+            "id": 34,
+            "status": "moving",
+            "arrived": 0,
+            "living": 8,
+            "reason": null
+          },
+          {
+            "id": 35,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 8,
+            "reason": "suppressed"
+          },
+          {
+            "id": 36,
+            "status": "paused_suppressed",
+            "arrived": 0,
+            "living": 9,
+            "reason": "suppressed"
+          }
+        ],
+        "maxWait": 71,
+        "renderP95": 0.8999999999068677,
+        "renderP99": 1.6000000000931323,
+        "longTasks": [],
+        "simP95": 1.6000000000931323,
+        "simP99": 1.8000000002793968,
+        "frameP95": 16.800000000000182,
+        "rendered": 32,
+        "cacheBytes": 3305760,
+        "cacheBuilds": 8
+      },
+      "pageErrors": []
+    }
+  ]
+}

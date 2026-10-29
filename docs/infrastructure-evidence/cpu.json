@@ -1,0 +1,805 @@
+{
+  "node": "v24.19.0",
+  "os": "linux 6.18.55",
+  "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "note": "Accelerated cloud CPU. Real combat and suppression enabled. Stop at real outcome or explicit measurement horizon; no artificial gameplay time limit.",
+  "results": [
+    {
+      "width": 64,
+      "height": 48,
+      "initialActors": 80,
+      "liveActors": 2,
+      "seed": 42,
+      "ticks": 3035,
+      "winner": "A",
+      "p95": 0.22968199999999683,
+      "p99": 0.4774630000000002,
+      "max": 4.495022999999996,
+      "navFields": 2,
+      "navBytes": 49152,
+      "metrics": {
+        "navExpansions": 0,
+        "moves": 2997,
+        "shots": 889,
+        "queries": 7248,
+        "losChecks": 2158,
+        "movingTicks": {
+          "A": 1852,
+          "B": 2779
+        },
+        "blocked": {
+          "congestion": 2550,
+          "suppressed": 6825
+        },
+        "captures": {
+          "A": 1,
+          "B": 2
+        },
+        "navTotal": 22951,
+        "navPeak": 2048,
+        "navQueuePeak": 2
+      },
+      "arrived": [
+        {
+          "id": 1,
+          "orderId": 18,
+          "status": "partial",
+          "arrived": 0,
+          "living": 2,
+          "reason": "waiting_for_capacity",
+          "maxWait": 45
+        },
+        {
+          "id": 2,
+          "orderId": 10,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 83
+        },
+        {
+          "id": 3,
+          "orderId": 11,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 50
+        },
+        {
+          "id": 4,
+          "orderId": 9,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 26
+        },
+        {
+          "id": 5,
+          "orderId": 17,
+          "status": "partial",
+          "arrived": 0,
+          "living": 1,
+          "reason": "waiting_for_capacity",
+          "maxWait": 58
+        },
+        {
+          "id": 6,
+          "orderId": 12,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 33
+        },
+        {
+          "id": 7,
+          "orderId": 14,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 12
+        },
+        {
+          "id": 8,
+          "orderId": 13,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 46
+        }
+      ],
+      "checksum": "4d228f98"
+    },
+    {
+      "width": 128,
+      "height": 96,
+      "initialActors": 180,
+      "liveActors": 42,
+      "seed": 42,
+      "ticks": 1551,
+      "winner": "A",
+      "p95": 0.44840600000003406,
+      "p99": 0.8435890000000086,
+      "max": 3.0553800000000138,
+      "navFields": 3,
+      "navBytes": 294912,
+      "metrics": {
+        "navExpansions": 0,
+        "moves": 11995,
+        "shots": 1603,
+        "queries": 15260,
+        "losChecks": 2811,
+        "movingTicks": {
+          "A": 7707,
+          "B": 7196
+        },
+        "blocked": {
+          "congestion": 7159,
+          "suppressed": 8293
+        },
+        "captures": {
+          "A": 8,
+          "B": 9
+        },
+        "navTotal": 76714,
+        "navPeak": 2048,
+        "navQueuePeak": 4
+      },
+      "arrived": [
+        {
+          "id": 1,
+          "orderId": 1,
+          "status": "arrived",
+          "arrived": 10,
+          "living": 10,
+          "reason": null,
+          "maxWait": 0
+        },
+        {
+          "id": 2,
+          "orderId": 20,
+          "status": "moving",
+          "arrived": 0,
+          "living": 3,
+          "reason": null,
+          "maxWait": 22
+        },
+        {
+          "id": 3,
+          "orderId": 26,
+          "status": "moving",
+          "arrived": 0,
+          "living": 1,
+          "reason": null,
+          "maxWait": 27
+        },
+        {
+          "id": 4,
+          "orderId": 28,
+          "status": "moving",
+          "arrived": 0,
+          "living": 1,
+          "reason": null,
+          "maxWait": 23
+        },
+        {
+          "id": 5,
+          "orderId": 21,
+          "status": "moving",
+          "arrived": 0,
+          "living": 2,
+          "reason": null,
+          "maxWait": 31
+        },
+        {
+          "id": 6,
+          "orderId": 34,
+          "status": "moving",
+          "arrived": 0,
+          "living": 6,
+          "reason": null,
+          "maxWait": 33
+        },
+        {
+          "id": 7,
+          "orderId": 31,
+          "status": "moving",
+          "arrived": 0,
+          "living": 2,
+          "reason": null,
+          "maxWait": 18
+        },
+        {
+          "id": 8,
+          "orderId": 24,
+          "status": "moving",
+          "arrived": 0,
+          "living": 4,
+          "reason": null,
+          "maxWait": 0
+        },
+        {
+          "id": 9,
+          "orderId": 27,
+          "status": "moving",
+          "arrived": 1,
+          "living": 3,
+          "reason": null,
+          "maxWait": 39
+        },
+        {
+          "id": 10,
+          "orderId": 35,
+          "status": "moving",
+          "arrived": 0,
+          "living": 10,
+          "reason": null,
+          "maxWait": 9
+        },
+        {
+          "id": 11,
+          "orderId": 22,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 21
+        },
+        {
+          "id": 12,
+          "orderId": 25,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "waiting_for_capacity",
+          "maxWait": 43
+        },
+        {
+          "id": 13,
+          "orderId": 32,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 26
+        },
+        {
+          "id": 14,
+          "orderId": 19,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "waiting_for_capacity",
+          "maxWait": 42
+        },
+        {
+          "id": 15,
+          "orderId": 33,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 7
+        },
+        {
+          "id": 16,
+          "orderId": 29,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 45
+        },
+        {
+          "id": 17,
+          "orderId": 23,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 37
+        },
+        {
+          "id": 18,
+          "orderId": 30,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 6
+        }
+      ],
+      "checksum": "51960342"
+    },
+    {
+      "width": 256,
+      "height": 192,
+      "initialActors": 360,
+      "liveActors": 58,
+      "seed": 42,
+      "ticks": 2610,
+      "winner": "B",
+      "p95": 0.7124000000000024,
+      "p99": 0.9444669999999178,
+      "max": 3.3349580000000287,
+      "navFields": 4,
+      "navBytes": 1572864,
+      "metrics": {
+        "navExpansions": 0,
+        "moves": 50793,
+        "shots": 3509,
+        "queries": 55015,
+        "losChecks": 6519,
+        "movingTicks": {
+          "A": 25363,
+          "B": 30952
+        },
+        "blocked": {
+          "congestion": 22111,
+          "suppressed": 14907
+        },
+        "captures": {
+          "A": 6,
+          "B": 7
+        },
+        "navTotal": 295291,
+        "navPeak": 2048,
+        "navQueuePeak": 4
+      },
+      "arrived": [
+        {
+          "id": 1,
+          "orderId": 79,
+          "status": "moving",
+          "arrived": 0,
+          "living": 10,
+          "reason": null,
+          "maxWait": 0
+        },
+        {
+          "id": 2,
+          "orderId": 44,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 37
+        },
+        {
+          "id": 3,
+          "orderId": 53,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "waiting_for_capacity",
+          "maxWait": 28
+        },
+        {
+          "id": 4,
+          "orderId": 56,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 35
+        },
+        {
+          "id": 5,
+          "orderId": 48,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 29
+        },
+        {
+          "id": 6,
+          "orderId": 78,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 0
+        },
+        {
+          "id": 7,
+          "orderId": 57,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 27
+        },
+        {
+          "id": 8,
+          "orderId": 46,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 42
+        },
+        {
+          "id": 9,
+          "orderId": 77,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 6
+        },
+        {
+          "id": 10,
+          "orderId": 50,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 11
+        },
+        {
+          "id": 11,
+          "orderId": 38,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 11
+        },
+        {
+          "id": 12,
+          "orderId": 64,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 63
+        },
+        {
+          "id": 13,
+          "orderId": 52,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 30
+        },
+        {
+          "id": 14,
+          "orderId": 49,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "waiting_for_capacity",
+          "maxWait": 36
+        },
+        {
+          "id": 15,
+          "orderId": 71,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 31
+        },
+        {
+          "id": 16,
+          "orderId": 42,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "waiting_for_capacity",
+          "maxWait": 42
+        },
+        {
+          "id": 17,
+          "orderId": 60,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 21
+        },
+        {
+          "id": 18,
+          "orderId": 76,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 10
+        },
+        {
+          "id": 19,
+          "orderId": 36,
+          "status": "arrived",
+          "arrived": 10,
+          "living": 10,
+          "reason": null,
+          "maxWait": 0
+        },
+        {
+          "id": 20,
+          "orderId": 43,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "waiting_for_capacity",
+          "maxWait": 29
+        },
+        {
+          "id": 21,
+          "orderId": 54,
+          "status": "moving",
+          "arrived": 0,
+          "living": 2,
+          "reason": null,
+          "maxWait": 4
+        },
+        {
+          "id": 22,
+          "orderId": 70,
+          "status": "moving",
+          "arrived": 0,
+          "living": 6,
+          "reason": null,
+          "maxWait": 44
+        },
+        {
+          "id": 23,
+          "orderId": 45,
+          "status": "moving",
+          "arrived": 0,
+          "living": 3,
+          "reason": null,
+          "maxWait": 8
+        },
+        {
+          "id": 24,
+          "orderId": 61,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 1
+        },
+        {
+          "id": 25,
+          "orderId": 62,
+          "status": "moving",
+          "arrived": 0,
+          "living": 5,
+          "reason": null,
+          "maxWait": 23
+        },
+        {
+          "id": 26,
+          "orderId": 40,
+          "status": "moving",
+          "arrived": 0,
+          "living": 1,
+          "reason": null,
+          "maxWait": 41
+        },
+        {
+          "id": 27,
+          "orderId": 55,
+          "status": "moving",
+          "arrived": 0,
+          "living": 4,
+          "reason": null,
+          "maxWait": 16
+        },
+        {
+          "id": 28,
+          "orderId": 59,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 43
+        },
+        {
+          "id": 29,
+          "orderId": 37,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 36
+        },
+        {
+          "id": 30,
+          "orderId": 67,
+          "status": "moving",
+          "arrived": 0,
+          "living": 6,
+          "reason": null,
+          "maxWait": 27
+        },
+        {
+          "id": 31,
+          "orderId": 51,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": null,
+          "maxWait": 41
+        },
+        {
+          "id": 32,
+          "orderId": 47,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "waiting_for_capacity",
+          "maxWait": 18
+        },
+        {
+          "id": 33,
+          "orderId": 58,
+          "status": "moving",
+          "arrived": 0,
+          "living": 6,
+          "reason": null,
+          "maxWait": 2
+        },
+        {
+          "id": 34,
+          "orderId": 41,
+          "status": "cancelled",
+          "arrived": 0,
+          "living": 0,
+          "reason": "suppressed",
+          "maxWait": 40
+        },
+        {
+          "id": 35,
+          "orderId": 39,
+          "status": "moving",
+          "arrived": 0,
+          "living": 1,
+          "reason": null,
+          "maxWait": 7
+        },
+        {
+          "id": 36,
+          "orderId": 72,
+          "status": "moving",
+          "arrived": 0,
+          "living": 4,
+          "reason": null,
+          "maxWait": 20
+        }
+      ],
+      "checksum": "d43a8014"
+    }
+  ],
+  "trials": [
+    {
+      "seed": 1,
+      "winner": "A",
+      "ticks": 1608,
+      "checksum": "7b84616e"
+    },
+    {
+      "seed": 2,
+      "winner": "B",
+      "ticks": 1720,
+      "checksum": "9ed41d8b"
+    },
+    {
+      "seed": 3,
+      "winner": "B",
+      "ticks": 1682,
+      "checksum": "984e560f"
+    },
+    {
+      "seed": 4,
+      "winner": "B",
+      "ticks": 1738,
+      "checksum": "8bcffb64"
+    },
+    {
+      "seed": 5,
+      "winner": "B",
+      "ticks": 1737,
+      "checksum": "30efaf0e"
+    },
+    {
+      "seed": 6,
+      "winner": "A",
+      "ticks": 1765,
+      "checksum": "30de565c"
+    },
+    {
+      "seed": 7,
+      "winner": "A",
+      "ticks": 2035,
+      "checksum": "51d9b8d8"
+    },
+    {
+      "seed": 8,
+      "winner": "A",
+      "ticks": 1465,
+      "checksum": "2bcb1825"
+    },
+    {
+      "seed": 9,
+      "winner": "A",
+      "ticks": 1801,
+      "checksum": "424ee5a8"
+    },
+    {
+      "seed": 10,
+      "winner": "A",
+      "ticks": 1689,
+      "checksum": "1f8ddcef"
+    },
+    {
+      "seed": 11,
+      "winner": "B",
+      "ticks": 1592,
+      "checksum": "989147eb"
+    },
+    {
+      "seed": 12,
+      "winner": "A",
+      "ticks": 2591,
+      "checksum": "7f2e1009"
+    },
+    {
+      "seed": 13,
+      "winner": "A",
+      "ticks": 1529,
+      "checksum": "a17313ed"
+    },
+    {
+      "seed": 14,
+      "winner": "A",
+      "ticks": 1688,
+      "checksum": "c1146d27"
+    },
+    {
+      "seed": 15,
+      "winner": "B",
+      "ticks": 1853,
+      "checksum": "e49d9540"
+    },
+    {
+      "seed": 16,
+      "winner": "A",
+      "ticks": 1307,
+      "checksum": "819fcd29"
+    },
+    {
+      "seed": 17,
+      "winner": "A",
+      "ticks": 1851,
+      "checksum": "bef2e574"
+    },
+    {
+      "seed": 18,
+      "winner": "A",
+      "ticks": 1942,
+      "checksum": "ce869134"
+    },
+    {
+      "seed": 19,
+      "winner": "A",
+      "ticks": 2828,
+      "checksum": "6aabf482"
+    },
+    {
+      "seed": 20,
+      "winner": "B",
+      "ticks": 1360,
+      "checksum": "85a8ee2a"
+    }
+  ]
+}
