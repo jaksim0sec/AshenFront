@@ -51,3 +51,10 @@ test('national officer caps, blue helmets and sleeve insignia follow user fittin
  }
  assert.deepEqual(unifyPhysique(unifyPhysique(c,'arken:private'),'arken:private'),unifyPhysique(c,'arken:private'));
 });
+
+test('death is a connected falling body, with no detached limbs or drifting equipment',()=>{
+ const p=createCatalog().profiles['arken:private'];for(const facing of [-1,1]){
+  const anchors=time=>{const pose=poseCharacter(p,{state:'death',time,facing});return new Map(pose.draws.map(d=>[d.part,transformPoint(d.matrix,d.w*p.parts[d.part].pivotX,d.h*p.parts[d.part].pivotY)]));};
+  const initial=anchors(0),origin=initial.get('body');for(const t of [.2,.5,.8,1.2]){const next=anchors(t),body=next.get('body');for(const [key,a]of initial)assert(Math.abs(Math.hypot(a.x-origin.x,a.y-origin.y)-Math.hypot(next.get(key).x-body.x,next.get(key).y-body.y))<1e-8,key+' detached');}
+ }
+});

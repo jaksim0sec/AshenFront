@@ -18,7 +18,7 @@ The native images are from `uniform-parts-crops-1.zip`, with the four whole-arm 
 
 The rifle is now20% larger (141.6×35.4 rig units), with its original4:1 aspect ratio. Existing drafts enlarge once via `rifleRevision`; later edits retain their selected size.
 
-Death follows the staged whole-part release in FlowerWars-MINI (`0d4e7a5`, character engine): an initial stagger and foot-anchored fall, staggered part release, a short arc, spin, ground contact and damped bounce, then fade over the final0.35s of a1.7s sequence. Hats stay with heads and insignia with their clothing. No new art or limb segments are added. The battlefield corpse lifetime, cache sampling and workshop timeline use the same duration.
+Death now keeps the entire soldier connected: a brief loss of balance, an accelerating sideways fall, ground impact, a small damped rebound and a still body before fading. Head, hat, arms, legs, insignia and rifle share one body transform; none detach or scatter. Ground correction moves the complete silhouette together. Breathing stops at death. The battlefield, cache and editor share the1.7s duration.
 
 Firing keeps the edited rifle position fixed, eliminating aim-dependent jumps between arm-reach solutions. The arms rotate/translate as whole images without changing their configured scale. Their original palms follow the fore-end, trigger and bolt anchors.
 
@@ -46,7 +46,7 @@ The helper validates before atomically replacing `assets/soldiers/catalog.json`;
 
 ## Focused verification
 
-`node --test --test-isolation=none tests/characters.test.mjs`:13 passed. Checks include exact reference geometry, identical helmet transforms, repeated unification without drift, old-draft migration, unchanged PNG checksums, original aspect ratios, fixed arm scale, actual barrel-ray alignment through recoil/reload and both facings, reflected cache targets, rifle grip attachment, JSON round trips and pose bounds.
+`node --test --test-isolation=none tests/characters.test.mjs`:15 passed. Checks include exact reference geometry, identical helmet transforms, repeated unification without drift, old-draft migration, unchanged PNG checksums, original aspect ratios, fixed arm scale, actual barrel-ray alignment through recoil/reload and both facings, reflected cache targets, rifle grip attachment, JSON round trips and pose bounds.
 
 A real Chromium capture compares nation/rank physique and left/right firing, upward/downward aim and reload poses: `docs/soldier-evidence/physique-and-aim.png`. A focused live-game check also confirms the rendered barrel ray reaches four projected target directions, with no page errors.
 
