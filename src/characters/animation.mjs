@@ -2,6 +2,7 @@
 export const IDENTITY=[1,0,0,1,0,0];
 export function multiply(a,b){return[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];}
 export function transformPoint(m,x,y){return{x:m[0]*x+m[2]*y+m[4],y:m[1]*x+m[3]*y+m[5]};}
+function inverse(m){const det=m[0]*m[3]-m[1]*m[2];return[m[3]/det,-m[1]/det,-m[2]/det,m[0]/det,(m[2]*m[5]-m[3]*m[4])/det,(m[1]*m[4]-m[0]*m[5])/det];}
 export const translate=(x,y)=>[1,0,0,1,x,y];
 export const rotate=a=>[Math.cos(a),Math.sin(a),-Math.sin(a),Math.cos(a),0,0];
 const scale=(x,y)=>[x,0,0,y,0,0];
@@ -19,7 +20,7 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,facing=1,phase=
  const hit=state==='hit'?(1-smooth(time/.4))*Math.sin(time*30)*5:0,death=state==='death'?smooth((time-.1)/.65):0;
  const root=multiply(scale(facing<0?-1:1,1),multiply(translate(hit+death*20,death*6),rotate(death*1.35)));
  const upper=multiply(translate(-recoil*5,bob+recoil*1.2),rotate(walk?wave*.015:recoil*-.025));
- const head=multiply(upper,multiply(translate(0,parts.head.y+parts.head.h*.45),multiply(rotate(breath*.009+recoil*.035),translate(0,-parts.head.y-parts.head.h*.45))));
+ const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035),translate(-parts.head.x,-parts.head.y))));
  const gun=parts.rifle,carry=state==='shoot'?clamp(aim,-.85,.85):-.9+(walk?wave*.025:0),gunAngle=gun.rotation+carry-recoil*.045+settle*.025;
  const gunMatrix=multiply(upper,matrix(gun,gun.x-recoil*4,gun.y+(state==='shoot'?0:walk?10:state==='idle'?8:0),gunAngle));
  // Trigger hand lifts, draws the bolt, returns to the grip; support hand stays fixed.
@@ -35,7 +36,8 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,facing=1,phase=
   if(key==='rifle'){add(key,gunMatrix);continue;}
   if(key==='armLeft'||key==='armRight'){add(key,attachments[key==='armLeft'?'left':'right'].matrix);continue;}
   if(key.startsWith('sleeve')){const left=key==='sleeveLeft',arm=parts[left?'armLeft':'armRight'],base=attachments[left?'left':'right'].matrix;
-   const sx=arm.w*.5+(p.x-(left?-49:49)),sy=arm.h*.52+(p.y+65);add(key,multiply(base,matrix(p,sx,sy,p.rotation)));continue;}
+   // Keep the archive's canvas placement at rest; inherit only the animated arm delta.
+   const local=multiply(inverse(matrix(arm)),matrix(p));add(key,multiply(base,local));continue;}
   if(key.startsWith('leg')){const stride=(key==='legLeft'?1:-1)*wave*.28;add(key,matrix(p,p.x,p.y+(walk?Math.max(0,-wave*(key==='legLeft'?1:-1))*5:0),p.rotation+stride));continue;}
   if(key==='head'||key==='hat'){add(key,multiply(head,matrix(p)));continue;}
   add(key,multiply(upper,matrix(p)));

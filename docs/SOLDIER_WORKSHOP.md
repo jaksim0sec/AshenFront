@@ -1,56 +1,43 @@
-# Current correction: original parts and reference proportions
-
-The earlier arm subdivision and artificial elbows have been removed. Each arm is now one complete original PNG, moved as a whole. Idle soldiers keep their arms down; firing moves those original parts to the rifle grips. No elbow pieces or joint lines are added.
-
-Default proportions now follow the supplied assembled reference: a larger combined head/hat silhouette, a compact coat and short visible legs. Every PNG keeps its measured original visible-image aspect ratio; fitting, animation and editing use uniform scaling. Placement and overlap create the silhouette, rather than horizontal/vertical stretching.
-
-**체면동화** applies the current soldier's head/body/arm/leg proportions to all16 country/rank profiles in one undoable change. National artwork, rank insignia and per-asset hand/pivot calibration are preserved. Hats and insignia follow the resized parent with uniform scaling. The result is saved to the browser, exported in the final JSON and used by the actual game. Earlier automatic drafts migrate proportionally so relative edits are retained.
-
-Only a targeted aspect/whole-image consistency check and a real editor/button visual check were performed for this correction; broad suites and profiling were not repeated, as requested. The previous verification record below belongs to the earlier implementation.
-
----
-
 # Soldier parts and animation workshop
 
 Run `npm start`, then open **병사** in the game header or `/soldier-workshop.html`.
 
-The workshop provides two countries × eight ranks, independently editable and exported together as `ashenfront-soldiers-final.json`. Arken uses the supplied `arken` family; the game's Velian faction uses the ZIP's `belnian` family. User-approved faction flags from commit d727223 are preserved and displayed. Rank presentation is visual only: army leaders use captain artwork, squad leaders sergeant artwork, other infantry private artwork. There are no new combat stats or military unit classes.
+## Current artwork and proportions
+
+The current source is **uniform-parts-crops-1.zip**. All36 native PNGs are copied byte for byte; Arken uses `black`, Velian uses `blue`, and both use the same shared head and legs. The archive's `rig.json` is preserved in `assets/soldiers/rig.json`. Its assembly coordinates, uniform scales, native pivots, rotations and ascending layer order now define the default appearance. The earlier archive and its hand-calibrated defaults are replaced.
+
+The entire640×800 assembly receives one global scale (`100 / 312`) and foot-origin translation (`320, 732.6`) to fit the existing battlefield. Visible torso width is therefore100 game rig units, head width280/312×100, hat width390/312×100, arm height218/312×100 and leg height126/312×100. Full native crops, including transparent padding, are rendered without changing pixel data or raster aspect ratios. Scaling is never applied twice. Source PNG checksums, visible bounds and the canvas conversion are recorded in `assets/soldiers/manifest.json`.
+
+The archive provides six appearances per nation. These map to the existing eight game ranks: private; the three successive enlisted insignia; plain-epaulette officer for lieutenant/captain; striped-epaulette officer for major/colonel. Left and right insignia use their respective original files. No additional rank artwork, elbow parts or limb segments are generated. Approved faction flags remain unchanged.
+
+Each arm remains one whole PNG. Idle poses use the exact archive placement. Sleeve insignia inherit the animated arm's change from its original matrix, preserving source placement and uniform scaling. Firing positions the whole original arms at the temporary SVG rifle's grip anchors. Existing recoil, bolt cycling, flash, casing, tracer, hit, walk and falling animations remain view-only.
 
 ## Edit and export
 
-1. Select country, rank and part. Drag the part or enter position, size, angle, scale and pivot values. Arm and rifle hand anchors are editable. The head/hat movement link can be turned off. Source aspect ratios stay locked; scale is uniform. Shoulder and sleeve patches follow their attachment points.
-2. Preview breathing, walking, firing/bolt cycling, hit response and falling. Flip direction, aim vertically, pause, scrub the timeline and show/hide joint/grip guides. The eight-rank comparison strip uses the same renderer.
-3. Change layer order, visibility or the supplied image. Undo/redo, current-profile reset and completion/next controls are available. Repeated DOM change events do not duplicate undo entries. Dragging through rotated animation parents uses the inverse parent transform.
-4. Export the full final JSON or a single-rank JSON. Both can be imported again. Unknown image paths, external URLs, invalid numbers and incompatible schemas are rejected before existing edits change.
-5. Local drafts and editing position are stored in this browser. **전장에 적용** saves the draft and opens the real game; an already-open game receives the same validated catalog via a storage event. Export JSON to move edits to another browser. Clearing a draft restores the published default catalog.
+1. Select country, rank and part. Drag or enter position, size, angle, uniform scale and pivot values. Source aspect ratios stay locked. Head/hat movement can be linked. Preview, pause, scrub, aim, flip and inspect the eight-rank strip.
+2. **체면동화** applies the selected soldier's physique to all16 profiles in one undoable operation, preserving each nation's original raster aspect ratios, artwork and rank insignia.
+3. Change images, visibility or layer order; undo/redo and reset the current profile. Export all profiles as `ashenfront-soldiers-final.json`, or export/import a single profile. Unknown image paths, external URLs and invalid numbers are rejected.
+4. **전장에 적용** saves the draft and opens the game. An already-open game receives the same catalog through a storage event. Export JSON for another browser; clearing a draft restores published defaults.
 
-To publish an exported configuration into the repository:
+This artwork generation uses browser storage key `ashenfront.soldier-workshop.v2`. Old drafts remain under the previous key but are not applied to incompatible replacement crops. Old-archive JSON is rejected rather than silently restoring its proportions.
+
+To publish exported adjustments:
 
 ```sh
 node tools/apply-soldier-catalog.mjs ashenfront-soldiers-final.json --check
 node tools/apply-soldier-catalog.mjs ashenfront-soldiers-final.json
 ```
 
-The helper validates all input before atomically replacing `assets/soldiers/catalog.json`. A single-profile export merges into the existing published catalog. Clear an old browser draft to see the newly published defaults.
+The helper validates before atomically replacing `assets/soldiers/catalog.json`. Single-profile exports merge into the published catalog. Clear a browser draft to see new published defaults.
 
-## Assets and visual implementation
+`tools/import-uniform-parts.py <archive.zip>` reproducibly imports PNGs and generates `src/characters/uniforms.mjs` and `aspects.mjs` from this archive. The generator validates all hashes, dimensions, uniform scales and preset matrices before replacing assets. Published catalog adjustments are managed separately with the helper above.
 
-All41 source PNGs retain their original ZIP bytes. `assets/soldiers/manifest.json` records archive/PNG SHA-256 values and alpha bounds. The ZIP's `rig.json` was intentionally not read, copied or loaded. Placement, image pivots and skin-palm anchors were calibrated from the actual supplied artwork and inspected in real Chromium captures. Large transparent padding around the Arken helmet is handled by measured alpha bounds, rather than trusting the source canvas size.
+## Focused verification for this replacement
 
-The temporary rifle is an original local SVG silhouette. While firing, both hands are attached to the actual SVG's normalized grip positions at editable dimensions, with one complete, uniformly transformed original PNG per arm. Firing includes aim, recoil, a timed muzzle flash, bolt-hand movement, case ejection, return to aim, a short traveling tracer and impact accents. Walking can blend with firing. Death/hit/breathing animation is view-only. Shot/elimination events add actor IDs so visuals follow the correct soldier; they do not schedule extra damage or consume simulation randomness.
+- `node --test --test-isolation=none tests/characters.test.mjs`:12 passed. This includes checksums for all36 PNGs, all four transformed crop corners and layer order for every nation/rank against the supplied assembly matrices, aspect preservation, weapon grips, JSON round trips, animation bounds and dragging.
+- `node tools/apply-soldier-catalog.mjs assets/soldiers/catalog.json --check`: valid16-profile published catalog.
+- Real Chromium desktop check:37 decoded images including SVG, both nations' idle/firing previews, one complete image per arm, **체면동화** applied to all16 profiles, and actual game loading; no page errors.
 
-Sprites remain anchored to the real H0/H1/H2 feet and the existing trench foreground mask. Moving-shot origins use the rendered interpolated muzzle and retain that cosmetic origin thereafter. Death frames and larger edits use transformed pose bounds, rather than a fixed crop. The sampled frame cache uses LRU eviction, at most256 frames /16MiB and384px maximum bitmap side. Distant/low-power poses use fewer samples. Idle/walking phase shifts share cycle frames instead of multiplying the cache by actor phase. Live editor rendering uses full-resolution parts and is not subject to the gameplay frame cache.
+Only focused checks were run for this replacement. Broad game tests, performance profiling, mobile and physical-device validation were not repeated. Earlier evidence in `docs/soldier-evidence/` belongs to the previous artwork. Current development captures are in ignored `artifacts/soldiers/new-uniform-*.png`.
 
-FlowerWars-MINI at0d4e7a513c6fe02ab864fb6335792bd9d2280312 was inspected for its archer grip/release behavior and adjustment/export workflow. No FlowerWars code, characters, weapons, repository files or assets were modified or copied.
-
-## Executed verification and limits
-
-- Full Node suite:62 passed,0 failed. Focused character suite:11 passed, including real drawn SVG grips at resized dimensions, image-palm alignment, mirrored firing, rotated dragging, pose bounds and cycle sampling.
-- Actual workshop browser checks at1400×1000/DPR1 and390×844/DPR2:42 decoded images including the SVG;16 independent profiles; six rendered state/phase samples; JSON download/import; invalid import rejection; undo/redo; real touch drag; reload persistence; live game updates. No page errors.
-- Additional browser checks verify a moving muzzle/tracer origin, render-independent authoritative checksum, adaptive cached death bounds and cache memory/count limits.
-- Existing game interaction suite passed at390×844 and1280×800, DPR1/2, including moving selection, commands, support, match end and trench foreground pixels.
-- Published catalog validation passed through the apply helper's `--check` path.
-
-Initial profiling of real soldier battles exposed cache churn in a180-actor distant view (render p95 about38ms, with long tasks). The subsequent cache work shares phases, uses actual clipped part bounds and LRU eviction. At the user's request, extended/repeated profiling and additional broad tests were stopped; final performance improvements are **not** claimed as measured. Large battlefields remain developer fixtures. Physical Android performance and sustained thermal/memory testing were not performed.
-
-Files in `docs/soldier-evidence/` retain the executed results and representative development captures. Assembly captures include the diagnostic guides and precede the final normalized-grip/cache refinements; they are development evidence, not a promise of pixel-identical final frames. Generated phase captures, exports and extra screenshots remain in ignored `artifacts/soldiers/`.
+The gameplay sprite cache still uses transformed bounds, a256-frame /16MiB LRU limit and384px maximum bitmap side. No new performance measurements are claimed. FlowerWars-MINI was used previously as animation/editor reference; its repository remains unmodified.

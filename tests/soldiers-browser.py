@@ -2,6 +2,7 @@
 import json, os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+IMAGE_COUNT=len(json.loads(Path('assets/soldiers/manifest.json').read_text())['assets'])+1
 BASE=os.environ.get('BASE_URL','http://127.0.0.1:8010');out=Path('artifacts/soldiers');out.mkdir(parents=True,exist_ok=True)
 reports=[]
 with sync_playwright() as p:
@@ -10,7 +11,7 @@ with sync_playwright() as p:
   context=browser.new_context(viewport={'width':w,'height':h},device_scale_factor=dpr,has_touch=True,accept_downloads=True);page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(BASE+'/soldier-workshop.html');page.wait_for_function('window.__soldierWorkshop && __soldierWorkshop.ready && __soldierWorkshop.pose')
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
-  assert page.evaluate('__soldierWorkshop.renderer.images.size')==42
+  assert page.evaluate('__soldierWorkshop.renderer.images.size')==IMAGE_COUNT
   assert page.locator('#error').inner_text()==''
   # Save several exact phase samples for direct visual inspection; image content must change.
   hashes=[]
@@ -52,9 +53,9 @@ with sync_playwright() as p:
   game.evaluate('''()=>{const w=__ashen.state,u=w.units[0];[u.moveTo,u.moveProgress]=__oldMove;w.events=w.events.filter(e=>e.eventId!==99991);}''')
   assert game.evaluate('__ashen.step(0)')==checksum_before,'rendering changed authoritative game state'
   # Cached death frames use full transformed bounds, including larger edited hats.
-  assert game.evaluate('''async()=>{const {poseCharacter,poseBounds}=await import('/src/characters/animation.mjs'),{sampleAnimation}=await import('/src/characters/renderer.mjs');const r=__ashen.scene.soldiers,c=structuredClone(r.catalog);c.profiles['arken:captain'].parts.hat.x=300;c.profiles['arken:captain'].parts.hat.w=240;r.setCatalog(c);const options={state:'death',time:.65,facing:1};r.draw(__ashen.scene.canvas.getContext('2d'),'A','captain',options);const frame=[...r.cache.values()].at(-1),b=poseBounds(poseCharacter(c.profiles['arken:captain'],sampleAnimation(options)));return JSON.stringify(frame.bounds)===JSON.stringify(b)&&frame.bitmap.width<=384&&frame.bitmap.height<=384;}''')
+  assert game.evaluate('''async()=>{const {poseCharacter,poseBounds}=await import('/src/characters/animation.mjs'),{sampleAnimation}=await import('/src/characters/renderer.mjs');const r=__ashen.scene.soldiers,c=structuredClone(r.catalog);c.profiles['arken:captain'].parts.hat.x=300;c.profiles['arken:captain'].parts.hat.w=240;r.setCatalog(c);const options={state:'death',time:.65,facing:1};r.draw(__ashen.scene.canvas.getContext('2d'),'A','captain',options);const frame=[...r.cache.values()].at(-1),b=poseBounds(poseCharacter(r.catalog.profiles['arken:captain'],sampleAnimation(options)));return JSON.stringify(frame.bounds)===JSON.stringify(b)&&frame.bitmap.width<=384&&frame.bitmap.height<=384;}''')
   game.evaluate('__ashen.step(180)');assert game.evaluate('__ashen.scene.soldiers.stats.cachedFrames')<=256
   assert game.evaluate('__ashen.scene.soldiers.stats.cacheBytes')<=16*1024*1024
-  reports.append({'viewport':[w,h],'dpr':dpr,'images':42,'profiles':16,'animationStates':6,'roundTrip':'passed','touchDrag':'passed','liveGameUpdates':'passed','pageErrors':errors});assert not errors,errors;context.close()
+  reports.append({'viewport':[w,h],'dpr':dpr,'images':IMAGE_COUNT,'profiles':16,'animationStates':6,'roundTrip':'passed','touchDrag':'passed','liveGameUpdates':'passed','pageErrors':errors});assert not errors,errors;context.close()
  browser.close()
 (out/'browser-results.json').write_text(json.dumps(reports,indent=2));print(json.dumps(reports))

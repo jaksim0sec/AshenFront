@@ -1,501 +1,664 @@
 {
   "format": "ashenfront-soldier-assets",
   "version": 1,
-  "sourceArchive": "soldier-parts-v2-clean-hats-replaced.zip",
-  "archiveSha256": "a990d6043db9205709786732e6fd242df166afa48b94403544e31f69b331af33",
-  "note": "Original PNG bytes preserved. Crop bounds measured from alpha; source rig.json was not used. Velian profiles select the supplied belnian art family.",
+  "sourceArchive": "uniform-parts-crops-1.zip",
+  "archiveSha256": "1c0d816989a1b71c7f599293074f3f38f730574478b5e81fd698a5e7482ef462",
+  "note": "Unchanged native PNG crops. Full-crop rendering preserves padding and aspect ratio. Assembly coordinates, uniform scales and layers come from this archive rig.json. Arken uses black; Velian uses blue.",
+  "assemblyToGame": {
+    "scale": 0.32051282051282054,
+    "originPx": [
+      320,
+      732.6
+    ]
+  },
   "assets": {
-    "arken/arm_left": {
-      "path": "assets/soldiers/arken/arm_left.png",
-      "width": 175,
-      "height": 217,
+    "blue/helmet": {
+      "path": "assets/soldiers/blue/helmet.png",
+      "width": 361,
+      "height": 268,
       "crop": [
         0,
         0,
-        174,
-        216
+        361,
+        268
       ],
-      "sha256": "95eaddceeb414cd99b11b890a9b947a89ba329d1e45d6bf85eb9f4d91cb5be73"
+      "visibleBounds": [
+        4,
+        4,
+        353,
+        260
+      ],
+      "sha256": "4d0c48cd6b2e69fbcb7762ee3c596929f65df2925affa7d8b4486fbfae7d6531"
     },
-    "arken/arm_right": {
-      "path": "assets/soldiers/arken/arm_right.png",
-      "width": 175,
-      "height": 217,
+    "blue/officer_cap": {
+      "path": "assets/soldiers/blue/officer_cap.png",
+      "width": 380,
+      "height": 225,
       "crop": [
         0,
         0,
-        175,
-        216
+        380,
+        225
       ],
-      "sha256": "14e8f674a72d3c2061c70980edac62d80da01954efd7ea181b7977e3ccdb0eff"
+      "visibleBounds": [
+        4,
+        4,
+        372,
+        217
+      ],
+      "sha256": "0d7b2719a0c5e0fca3e02d89bf918c7fd6414fdde59cf77167ecd65547853063"
     },
-    "arken/board_1_left": {
-      "path": "assets/soldiers/arken/board_1_left.png",
-      "width": 106,
-      "height": 161,
+    "blue/torso_enlisted": {
+      "path": "assets/soldiers/blue/torso_enlisted.png",
+      "width": 396,
+      "height": 376,
       "crop": [
         0,
         0,
-        106,
-        161
+        396,
+        376
       ],
-      "sha256": "d1d94fa64019d372a2951f5bf9c69800de81b3f18cdc574df945b9bac71932aa"
+      "visibleBounds": [
+        4,
+        4,
+        388,
+        368
+      ],
+      "sha256": "a971465692623b6cdf4688c520ed5c91e24f23ec75716efb2e04afe120c4e769"
     },
-    "arken/board_1_right": {
-      "path": "assets/soldiers/arken/board_1_right.png",
-      "width": 105,
-      "height": 161,
+    "blue/torso_officer": {
+      "path": "assets/soldiers/blue/torso_officer.png",
+      "width": 408,
+      "height": 373,
       "crop": [
         0,
         0,
-        105,
-        161
+        408,
+        373
       ],
-      "sha256": "53da087aced372848c8f05746c696a3bc32f0ab33c1cbc83b750e9a0348abc5b"
-    },
-    "arken/board_2_left": {
-      "path": "assets/soldiers/arken/board_2_left.png",
-      "width": 102,
-      "height": 162,
-      "crop": [
-        0,
-        1,
-        102,
-        161
+      "visibleBounds": [
+        4,
+        4,
+        400,
+        365
       ],
-      "sha256": "26f1aac165ef4b621bc17188bd0ebf0a50b78fe2338b4940da760f4748ea8214"
+      "sha256": "fdc2af4cb14374ac2e9e029db23cc7e23b275e43c9e005f03ef4310b1d879fce"
     },
-    "arken/board_2_right": {
-      "path": "assets/soldiers/arken/board_2_right.png",
-      "width": 103,
-      "height": 161,
+    "blue/arm_left": {
+      "path": "assets/soldiers/blue/arm_left.png",
+      "width": 191,
+      "height": 225,
       "crop": [
         0,
         0,
-        102,
-        161
+        191,
+        225
       ],
-      "sha256": "ae855922f2daee82656f2075bb2d08cc8a0156955c616bdf6b953336d8d8c122"
-    },
-    "arken/board_3_left": {
-      "path": "assets/soldiers/arken/board_3_left.png",
-      "width": 104,
-      "height": 164,
-      "crop": [
-        0,
-        1,
-        104,
-        164
+      "visibleBounds": [
+        4,
+        4,
+        183,
+        217
       ],
-      "sha256": "55ec31f94886e39cafbb94e42dd1d9f166e52ce22036a4201d288b57de5f7b93"
+      "sha256": "f6ea8d3b69f94c3b72fedbb1422c00173092c4719fde1f05be01b20a1e464b2d"
     },
-    "arken/board_3_right": {
-      "path": "assets/soldiers/arken/board_3_right.png",
-      "width": 106,
-      "height": 164,
-      "crop": [
-        0,
-        1,
-        106,
-        164
-      ],
-      "sha256": "e775adcb5c58d167b8dd5e461dbfdfea2a1f91f4e67701988f5e8b603dcbeb2f"
-    },
-    "arken/board_4_left": {
-      "path": "assets/soldiers/arken/board_4_left.png",
-      "width": 107,
-      "height": 169,
-      "crop": [
-        0,
-        1,
-        107,
-        169
-      ],
-      "sha256": "b5c0967e671a1ed358508d0e8b9047e1a879e650f3bb585bc39900f7053e7176"
-    },
-    "arken/board_4_right": {
-      "path": "assets/soldiers/arken/board_4_right.png",
-      "width": 109,
-      "height": 170,
-      "crop": [
-        0,
-        1,
-        109,
-        169
-      ],
-      "sha256": "e0c67c007fc774dea97efee8b40613442cfdb2d898fb6b4418c196202dfabb38"
-    },
-    "arken/cap_cord": {
-      "path": "assets/soldiers/arken/cap_cord.png",
-      "width": 306,
-      "height": 201,
-      "crop": [
-        0,
-        0,
-        305,
-        201
-      ],
-      "sha256": "ebd7f05ffcbe9ac20d4f4e34f0117552fca52a4e49e88bc73194e113111d4698"
-    },
-    "arken/cap_plain": {
-      "path": "assets/soldiers/arken/cap_plain.png",
-      "width": 299,
-      "height": 200,
-      "crop": [
-        0,
-        1,
-        299,
-        200
-      ],
-      "sha256": "68facfa3f7d97de6e5ee9fe96309e8302008d55d84d9172425da8b9e47089ba4"
-    },
-    "arken/helmet": {
-      "path": "assets/soldiers/arken/helmet.png",
-      "width": 1391,
-      "height": 1131,
-      "crop": [
-        0,
-        109,
-        1322,
-        976
-      ],
-      "sha256": "085b63dae1f485db5f28ec64e4254575bf74cb71c6812842350e92cca4d6927b"
-    },
-    "arken/sleeve_1": {
-      "path": "assets/soldiers/arken/sleeve_1.png",
-      "width": 155,
-      "height": 67,
-      "crop": [
-        0,
-        0,
-        154,
-        67
-      ],
-      "sha256": "d5b71d7e651c167930eca2918471ccc4d2191cfd0bb71a6044b81c8fdbefb3cd"
-    },
-    "arken/sleeve_2": {
-      "path": "assets/soldiers/arken/sleeve_2.png",
-      "width": 158,
-      "height": 91,
-      "crop": [
-        0,
-        0,
-        158,
-        91
-      ],
-      "sha256": "fe91c0107e4287646ed037669e26df68efa7d6d433d363e1b59dacff9507278a"
-    },
-    "arken/sleeve_3": {
-      "path": "assets/soldiers/arken/sleeve_3.png",
-      "width": 149,
-      "height": 115,
-      "crop": [
-        0,
-        1,
-        149,
-        114
-      ],
-      "sha256": "ddc5a4158ff3ebe5abe791136ec9925e3e0c2dd22681e5bcee581e105372ce98"
-    },
-    "arken/sleeve_4": {
-      "path": "assets/soldiers/arken/sleeve_4.png",
-      "width": 144,
-      "height": 132,
-      "crop": [
-        0,
-        0,
-        144,
-        132
-      ],
-      "sha256": "1adf33800a99ca02f3b97602f0f548551db80b2f61b339534e052809774cc7e6"
-    },
-    "arken/torso_enlisted": {
-      "path": "assets/soldiers/arken/torso_enlisted.png",
-      "width": 255,
-      "height": 256,
-      "crop": [
-        1,
-        0,
-        255,
-        255
-      ],
-      "sha256": "bd5ebbcbb563ab3e9fa266dab18e9fc1232487305a48d13dace5bf1c944e1a9e"
-    },
-    "arken/torso_officer": {
-      "path": "assets/soldiers/arken/torso_officer.png",
-      "width": 256,
-      "height": 255,
-      "crop": [
-        1,
-        0,
-        256,
-        255
-      ],
-      "sha256": "6f7994f3b05c2748755089ab0c610bd6c80ec5b67eeb6ef62856f9f26ae74b81"
-    },
-    "belnian/arm_left": {
-      "path": "assets/soldiers/belnian/arm_left.png",
-      "width": 220,
-      "height": 239,
-      "crop": [
-        0,
-        0,
-        219,
-        238
-      ],
-      "sha256": "bbaa653f185f32e742f259c74458b074381951200c597f0d5eb7bb7a3611f573"
-    },
-    "belnian/arm_right": {
-      "path": "assets/soldiers/belnian/arm_right.png",
-      "width": 219,
-      "height": 238,
-      "crop": [
-        0,
-        0,
-        219,
-        238
-      ],
-      "sha256": "546ffca039d79fe6d7bf1109661f7a19bbeba0f42dd842b42cef17d3e5741dbe"
-    },
-    "belnian/board_1_left": {
-      "path": "assets/soldiers/belnian/board_1_left.png",
-      "width": 109,
-      "height": 160,
-      "crop": [
-        0,
-        1,
-        109,
-        160
-      ],
-      "sha256": "82899e0d4e64f4e35e91e5c119287ac8b0de627ab0e2337a3aacc55563c1ec14"
-    },
-    "belnian/board_1_right": {
-      "path": "assets/soldiers/belnian/board_1_right.png",
-      "width": 111,
-      "height": 161,
-      "crop": [
-        1,
-        1,
-        111,
-        160
-      ],
-      "sha256": "6098b5aa215bb87bf531dc06214dcbacde184fb95c2c028421f8f01a08c7408d"
-    },
-    "belnian/board_2_left": {
-      "path": "assets/soldiers/belnian/board_2_left.png",
-      "width": 109,
-      "height": 162,
-      "crop": [
-        0,
-        1,
-        109,
-        162
-      ],
-      "sha256": "e650b43e7af13d02b479e50f3dbdbe1c75d035a499490ebbff80eca17fee31b4"
-    },
-    "belnian/board_2_right": {
-      "path": "assets/soldiers/belnian/board_2_right.png",
-      "width": 109,
-      "height": 162,
-      "crop": [
-        0,
-        1,
-        109,
-        162
-      ],
-      "sha256": "cf5c2081431761bee1fdd7dc56f9bb6311637663051df3f778a46dffe4d3b1fb"
-    },
-    "belnian/board_3_left": {
-      "path": "assets/soldiers/belnian/board_3_left.png",
-      "width": 110,
-      "height": 162,
-      "crop": [
-        0,
-        1,
-        110,
-        162
-      ],
-      "sha256": "13afa7bda1f9c2eeac51c5d1a33fc332cbacd7192e8325d64ec5fbcd477c749d"
-    },
-    "belnian/board_3_right": {
-      "path": "assets/soldiers/belnian/board_3_right.png",
-      "width": 111,
-      "height": 162,
-      "crop": [
-        0,
-        1,
-        111,
-        162
-      ],
-      "sha256": "e2bac72b591ad05e2ab8ac8480c26c23746eb96a0e4784634d8130833429cfbb"
-    },
-    "belnian/board_4_left": {
-      "path": "assets/soldiers/belnian/board_4_left.png",
-      "width": 111,
-      "height": 163,
-      "crop": [
-        0,
-        0,
-        110,
-        163
-      ],
-      "sha256": "36dd7c4c50855100f802bdb1ece7b89ae8e35c8479461123eb3bf9e54aa2a915"
-    },
-    "belnian/board_4_right": {
-      "path": "assets/soldiers/belnian/board_4_right.png",
-      "width": 110,
-      "height": 163,
-      "crop": [
-        0,
-        0,
-        110,
-        163
-      ],
-      "sha256": "30895698143a8f4b1cecfff087d79805d013d2c881b90ca365429e5951dfff4e"
-    },
-    "belnian/cap_cord": {
-      "path": "assets/soldiers/belnian/cap_cord.png",
-      "width": 351,
-      "height": 219,
-      "crop": [
-        1,
-        0,
-        351,
-        218
-      ],
-      "sha256": "4217396e1942398045736c6015b4f79ff4e27782a880bf06c9d0d4680e9196d4"
-    },
-    "belnian/cap_plain": {
-      "path": "assets/soldiers/belnian/cap_plain.png",
-      "width": 352,
-      "height": 212,
-      "crop": [
-        1,
-        0,
-        352,
-        212
-      ],
-      "sha256": "841684bbb62840d13d8587af7afd9ca2b41d5c1be63018569c299c7b0782018e"
-    },
-    "belnian/helmet": {
-      "path": "assets/soldiers/belnian/helmet.png",
-      "width": 375,
-      "height": 272,
-      "crop": [
-        0,
-        0,
-        375,
-        264
-      ],
-      "sha256": "ec9fafff0d87ced8c3ef7dc2b8ff3b748f7472c098298ffb56e9626730602f3e"
-    },
-    "belnian/sleeve_1": {
-      "path": "assets/soldiers/belnian/sleeve_1.png",
-      "width": 164,
-      "height": 69,
-      "crop": [
-        0,
-        0,
-        164,
-        69
-      ],
-      "sha256": "a760310c5614d55f9fd925bdfca68b95309b47e756c480d908c7dc4c75e358b4"
-    },
-    "belnian/sleeve_2": {
-      "path": "assets/soldiers/belnian/sleeve_2.png",
-      "width": 166,
-      "height": 94,
-      "crop": [
-        0,
-        0,
-        166,
-        94
-      ],
-      "sha256": "faf71de471caf20af575a61495f1e739fb175a5f3d87fee51d61829c6bb43203"
-    },
-    "belnian/sleeve_3": {
-      "path": "assets/soldiers/belnian/sleeve_3.png",
-      "width": 161,
-      "height": 119,
-      "crop": [
-        0,
-        0,
-        160,
-        118
-      ],
-      "sha256": "01a0c749430b82d4bf8c96e116b7880bd043c2829cde5d6594647793d01bb782"
-    },
-    "belnian/sleeve_4": {
-      "path": "assets/soldiers/belnian/sleeve_4.png",
-      "width": 150,
-      "height": 135,
-      "crop": [
-        0,
-        0,
-        150,
-        135
-      ],
-      "sha256": "2f7249cca198564bf6b23769d2afdd9a79b8b412ea376069db61e657a0913ac9"
-    },
-    "belnian/torso_enlisted": {
-      "path": "assets/soldiers/belnian/torso_enlisted.png",
-      "width": 304,
-      "height": 323,
-      "crop": [
-        0,
-        1,
-        304,
-        323
-      ],
-      "sha256": "b63621131f13c866e9547919f374d375a475a6eee9c4565451a6b49ff14c50b5"
-    },
-    "belnian/torso_officer": {
-      "path": "assets/soldiers/belnian/torso_officer.png",
-      "width": 311,
-      "height": 325,
-      "crop": [
-        0,
-        0,
-        311,
-        325
-      ],
-      "sha256": "6e06828ab8db1faf1e6c657da922c1a63d5c50ea4f975e78e8f591e8519974d9"
-    },
-    "shared/head": {
-      "path": "assets/soldiers/shared/head.png",
-      "width": 227,
+    "blue/arm_right": {
+      "path": "assets/soldiers/blue/arm_right.png",
+      "width": 188,
       "height": 224,
       "crop": [
         0,
         0,
-        227,
+        188,
         224
       ],
-      "sha256": "07506d3aa5b7744cf7be2c90a7a99800b720ca3a649083f572abd723b7cdcd90"
+      "visibleBounds": [
+        4,
+        4,
+        180,
+        216
+      ],
+      "sha256": "9c1bb8e135e83370cf41023a7a92afc7f48a76d7d006fd8c95ed34ebb6c90478"
+    },
+    "blue/rank_bars_left": {
+      "path": "assets/soldiers/blue/rank_bars_left.png",
+      "width": 116,
+      "height": 111,
+      "crop": [
+        0,
+        0,
+        116,
+        111
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        108,
+        103
+      ],
+      "sha256": "997e8712c22936ecc0556322cb02829443dd4e7b607b0ad3bb3db59ca1117b9d"
+    },
+    "blue/rank_bars_right": {
+      "path": "assets/soldiers/blue/rank_bars_right.png",
+      "width": 117,
+      "height": 108,
+      "crop": [
+        0,
+        0,
+        117,
+        108
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        109,
+        100
+      ],
+      "sha256": "a15573f15c8f776c3681aeb7811e4f4a249bd5434788e285ad365e1078d0644e"
+    },
+    "blue/rank_chevron_down_left": {
+      "path": "assets/soldiers/blue/rank_chevron_down_left.png",
+      "width": 118,
+      "height": 120,
+      "crop": [
+        0,
+        0,
+        118,
+        120
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        110,
+        112
+      ],
+      "sha256": "e2a8318fd6abce5e0528b3c0f4deeda0a6a95e7f396cf1ef52caa66ccbe8c6a6"
+    },
+    "blue/rank_chevron_down_right": {
+      "path": "assets/soldiers/blue/rank_chevron_down_right.png",
+      "width": 121,
+      "height": 120,
+      "crop": [
+        0,
+        0,
+        121,
+        120
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        113,
+        112
+      ],
+      "sha256": "f09881e160eb5ad6b14605690158ae7a8347a3f120308205310d2fc91371c7a1"
+    },
+    "blue/rank_chevron_up_left": {
+      "path": "assets/soldiers/blue/rank_chevron_up_left.png",
+      "width": 124,
+      "height": 128,
+      "crop": [
+        0,
+        0,
+        124,
+        128
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        116,
+        120
+      ],
+      "sha256": "79a467d79e4d96e540cfaac3db37f7a08164b065bfb68f039ceb32c4de1f679d"
+    },
+    "blue/rank_chevron_up_right": {
+      "path": "assets/soldiers/blue/rank_chevron_up_right.png",
+      "width": 123,
+      "height": 126,
+      "crop": [
+        0,
+        0,
+        123,
+        126
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        115,
+        118
+      ],
+      "sha256": "14c1fc05c4529779960aa3f5db0d18baf6e32b93f6323ac859d90dfadc5f9cd0"
+    },
+    "blue/epaulette_plain_left": {
+      "path": "assets/soldiers/blue/epaulette_plain_left.png",
+      "width": 114,
+      "height": 130,
+      "crop": [
+        0,
+        0,
+        114,
+        130
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        106,
+        122
+      ],
+      "sha256": "f3d56c5d61cdfae7a4b4f2854f35c0e3c098970b98cfb248fbc7cf9bb3737265"
+    },
+    "blue/epaulette_plain_right": {
+      "path": "assets/soldiers/blue/epaulette_plain_right.png",
+      "width": 116,
+      "height": 130,
+      "crop": [
+        0,
+        0,
+        116,
+        130
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        108,
+        122
+      ],
+      "sha256": "46fd62a3b1997e4513ee106ef0f178e0b55652b40d4541218115645460a36aa5"
+    },
+    "blue/epaulette_striped_left": {
+      "path": "assets/soldiers/blue/epaulette_striped_left.png",
+      "width": 114,
+      "height": 130,
+      "crop": [
+        0,
+        0,
+        114,
+        130
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        106,
+        122
+      ],
+      "sha256": "147c877fda6497887bf6959c8c5706f11d25bb282060810b582f147d8b694ab3"
+    },
+    "blue/epaulette_striped_right": {
+      "path": "assets/soldiers/blue/epaulette_striped_right.png",
+      "width": 116,
+      "height": 130,
+      "crop": [
+        0,
+        0,
+        116,
+        130
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        108,
+        122
+      ],
+      "sha256": "a5bbf17740454d774cc064e67e7608f832859cb3892e121c1b7278ce72857c76"
+    },
+    "black/helmet": {
+      "path": "assets/soldiers/black/helmet.png",
+      "width": 381,
+      "height": 268,
+      "crop": [
+        0,
+        0,
+        381,
+        268
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        373,
+        260
+      ],
+      "sha256": "348a33466128786c12dcab22ca606258a88000d4000ce94b2da0435e4b4606ad"
+    },
+    "shared/head": {
+      "path": "assets/soldiers/shared/head.png",
+      "width": 300,
+      "height": 278,
+      "crop": [
+        0,
+        0,
+        300,
+        278
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        292,
+        270
+      ],
+      "sha256": "ea283b7b39958eb584001e8d97b4d386efba3581cf6b47a15c893cd6d94ffe04"
+    },
+    "black/officer_cap": {
+      "path": "assets/soldiers/black/officer_cap.png",
+      "width": 399,
+      "height": 255,
+      "crop": [
+        0,
+        0,
+        399,
+        255
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        391,
+        247
+      ],
+      "sha256": "8c06c4d943c405b08a1ab175d355381230d6b482a37b2747ff7aaa6b25c7cfe3"
+    },
+    "black/torso_plain": {
+      "path": "assets/soldiers/black/torso_plain.png",
+      "width": 320,
+      "height": 299,
+      "crop": [
+        0,
+        0,
+        320,
+        299
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        312,
+        291
+      ],
+      "sha256": "555c8ae21f9ea5a954a80700ad2a36688c6627b864da77fbd1f88cb2865090e7"
+    },
+    "black/torso_collar": {
+      "path": "assets/soldiers/black/torso_collar.png",
+      "width": 323,
+      "height": 299,
+      "crop": [
+        0,
+        0,
+        323,
+        299
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        315,
+        291
+      ],
+      "sha256": "5eb05345e25aac627568e07a40d7d8911b22cfce74a485548e4e0cab85a581f3"
+    },
+    "black/torso_medal": {
+      "path": "assets/soldiers/black/torso_medal.png",
+      "width": 331,
+      "height": 298,
+      "crop": [
+        0,
+        0,
+        331,
+        298
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        323,
+        290
+      ],
+      "sha256": "e5422f8a0b5f504d92828f725c807773f613bc3eb7af2059bc2ee42f7f24c22d"
+    },
+    "black/arm_left": {
+      "path": "assets/soldiers/black/arm_left.png",
+      "width": 148,
+      "height": 204,
+      "crop": [
+        0,
+        0,
+        148,
+        204
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        140,
+        196
+      ],
+      "sha256": "e395263cabbc5a6647da59008d4d0df3bb6fabd594a79929409f4b3ad6b59e1f"
+    },
+    "black/arm_right": {
+      "path": "assets/soldiers/black/arm_right.png",
+      "width": 163,
+      "height": 207,
+      "crop": [
+        0,
+        0,
+        163,
+        207
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        155,
+        199
+      ],
+      "sha256": "87093a482c666719058a9beb8ad64cfc90656b275c1caabe2c3603bd0774c8de"
     },
     "shared/leg_left": {
       "path": "assets/soldiers/shared/leg_left.png",
-      "width": 144,
-      "height": 227,
+      "width": 200,
+      "height": 218,
       "crop": [
         0,
         0,
-        143,
-        227
+        200,
+        218
       ],
-      "sha256": "996dd54cdce3a875ea1d4277f6f51d1981f082d751e4197c4280e69afd52c2ab"
+      "visibleBounds": [
+        4,
+        4,
+        192,
+        210
+      ],
+      "sha256": "ef79cd83fd93a8b82220f7e15954b00fa310f1723f7ae4f0f2fa64bc50a0d674"
     },
     "shared/leg_right": {
       "path": "assets/soldiers/shared/leg_right.png",
-      "width": 156,
-      "height": 226,
+      "width": 207,
+      "height": 221,
       "crop": [
         0,
         0,
-        156,
-        226
+        207,
+        221
       ],
-      "sha256": "f0dbef0af33d4d37fcb3556cb965173e28e9e72505dc4a2407f12dcb29489b7e"
+      "visibleBounds": [
+        4,
+        4,
+        199,
+        213
+      ],
+      "sha256": "f153871f29ec2d5292d54b0dac97eb8f6658ca409e96c8959cb86d0e3811ef4b"
+    },
+    "black/rank_single_bar_left": {
+      "path": "assets/soldiers/black/rank_single_bar_left.png",
+      "width": 126,
+      "height": 97,
+      "crop": [
+        0,
+        0,
+        126,
+        97
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        118,
+        89
+      ],
+      "sha256": "e793b45f0fdbee3e6e421e09e032557a69d0efa3f4015dfc5acc69f1d352ca1f"
+    },
+    "black/rank_single_bar_right": {
+      "path": "assets/soldiers/black/rank_single_bar_right.png",
+      "width": 127,
+      "height": 97,
+      "crop": [
+        0,
+        0,
+        127,
+        97
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        119,
+        89
+      ],
+      "sha256": "430b1b2a34393b2daa7e7061015ad13c35ac33592c151002fe70f282f6e21aeb"
+    },
+    "black/rank_double_bar_left": {
+      "path": "assets/soldiers/black/rank_double_bar_left.png",
+      "width": 105,
+      "height": 103,
+      "crop": [
+        0,
+        0,
+        105,
+        103
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        97,
+        95
+      ],
+      "sha256": "c1191d2870beac81e78d23a2e49a36b4d799ad0ec1f8201bfbc44d987d432a89"
+    },
+    "black/rank_double_bar_right": {
+      "path": "assets/soldiers/black/rank_double_bar_right.png",
+      "width": 104,
+      "height": 103,
+      "crop": [
+        0,
+        0,
+        104,
+        103
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        96,
+        95
+      ],
+      "sha256": "9507dde6f9b626c7caf4f5a91a610c0767e8f92b6ff7c9460d870c35de78f965"
+    },
+    "black/rank_chevron_left": {
+      "path": "assets/soldiers/black/rank_chevron_left.png",
+      "width": 117,
+      "height": 138,
+      "crop": [
+        0,
+        0,
+        117,
+        138
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        109,
+        130
+      ],
+      "sha256": "4ccb48f1cba81111a128d1a77cabb4cca81fe1829130206b9a0316e638f83f91"
+    },
+    "black/rank_chevron_right": {
+      "path": "assets/soldiers/black/rank_chevron_right.png",
+      "width": 121,
+      "height": 137,
+      "crop": [
+        0,
+        0,
+        121,
+        137
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        113,
+        129
+      ],
+      "sha256": "111816b7b7b3ddece06c544ac4f40f710642804f6316157ed329c56005ff9a56"
+    },
+    "black/epaulette_plain_left": {
+      "path": "assets/soldiers/black/epaulette_plain_left.png",
+      "width": 108,
+      "height": 111,
+      "crop": [
+        0,
+        0,
+        108,
+        111
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        100,
+        103
+      ],
+      "sha256": "cf770892f9adec491d47c1df77d9838a5898b3b7698a3db1769c41537ffea60b"
+    },
+    "black/epaulette_plain_right": {
+      "path": "assets/soldiers/black/epaulette_plain_right.png",
+      "width": 104,
+      "height": 111,
+      "crop": [
+        0,
+        0,
+        104,
+        111
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        96,
+        103
+      ],
+      "sha256": "e9ed0fd09b86875a27252a90969646a3a3fb586ecdc7d9e38bc303506192d7b3"
+    },
+    "black/epaulette_striped_left": {
+      "path": "assets/soldiers/black/epaulette_striped_left.png",
+      "width": 114,
+      "height": 116,
+      "crop": [
+        0,
+        0,
+        114,
+        116
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        106,
+        108
+      ],
+      "sha256": "00ed5ec46fe02edb63fbad2dfde150a110f8fd365dd3bb5588a6af9eb08a6666"
+    },
+    "black/epaulette_striped_right": {
+      "path": "assets/soldiers/black/epaulette_striped_right.png",
+      "width": 109,
+      "height": 115,
+      "crop": [
+        0,
+        0,
+        109,
+        115
+      ],
+      "visibleBounds": [
+        4,
+        4,
+        101,
+        107
+      ],
+      "sha256": "52a238dc3fa0048eddb68a2e123680e3147cc938abc98e70dc3919aa250ed89a"
     }
   }
 }

@@ -1,0 +1,6602 @@
+{
+  "version": 2,
+  "coordinates": {
+    "origin": "top_left",
+    "x": "right",
+    "y": "down",
+    "units": "source fields: native crop pixels; assembly fields: common canvas pixels",
+    "bbox": "x,y,width,height; original region edges are right/bottom exclusive",
+    "side_names": "viewer_left_and_viewer_right",
+    "rotation_axis": [
+      0,
+      0,
+      1
+    ],
+    "positive_rotation": "clockwise_in_screen_coordinates",
+    "rest_rotation_deg": 0,
+    "rest_pose_note": "Source rest rotation is retained. assembly.rotation_deg is the additional clockwise rotation applied at assembly time.",
+    "pivot_note": "Anatomical rotation points are visually estimated rigging anchors, not original authoring metadata.",
+    "crop_note": "Native rectangular region crops, no resizing, recoloring, redrawing, background removal or alpha normalization. Only fragments of neighboring sprites inside overlapping crop rectangles are excluded."
+  },
+  "sources": {
+    "blue": {
+      "filename": "10145.png",
+      "size_px": [
+        1536,
+        1024
+      ],
+      "sha256": "c735e573f78535775aad943e323b1214347e87f0515b83914dd83e5b21635cb7",
+      "reference_torso": "blue/torso_enlisted"
+    },
+    "black": {
+      "filename": "10143.png",
+      "size_px": [
+        1536,
+        1024
+      ],
+      "sha256": "87aefab25f6a787c9b4ff01375ac5044efb75d0e545f986ed44a04eefb7014e9",
+      "reference_torso": "black/torso_plain"
+    }
+  },
+  "parts": {
+    "blue/helmet": {
+      "file": "blue/helmet.png",
+      "source": "blue",
+      "source_rect_px": [
+        320,
+        5,
+        361,
+        268
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        353,
+        260
+      ],
+      "size_px": [
+        361,
+        268
+      ],
+      "aspect_ratio": 1.34701493,
+      "size_relative_to_source": [
+        0.23502604,
+        0.26171875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.90979381,
+        0.70652174
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        184,
+        190
+      ],
+      "pivot_uv": [
+        0.50969529,
+        0.70895522
+      ],
+      "pivot_source_px": [
+        504,
+        195
+      ],
+      "pivot_kind": "head_fit",
+      "category": "hat",
+      "parent_slot": "head",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        1.1048158640226629,
+        1.1048158640226629
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          232
+        ],
+        "rotation_deg": 0,
+        "z_index": 50,
+        "matrix_2x3": [
+          [
+            1.104815864,
+            -0.0,
+            116.71388102
+          ],
+          [
+            0.0,
+            1.104815864,
+            22.084985836
+          ]
+        ],
+        "display_size_px": [
+          398.8385269121813,
+          296.09065155807366
+        ],
+        "visible_display_size_px": [
+          390.0,
+          287.25212464589237
+        ],
+        "pivot_px": [
+          184,
+          190
+        ]
+      },
+      "png_sha256": "4d0c48cd6b2e69fbcb7762ee3c596929f65df2925affa7d8b4486fbfae7d6531"
+    },
+    "blue/officer_cap": {
+      "file": "blue/officer_cap.png",
+      "source": "blue",
+      "source_rect_px": [
+        832,
+        24,
+        380,
+        225
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        372,
+        217
+      ],
+      "size_px": [
+        380,
+        225
+      ],
+      "aspect_ratio": 1.68888889,
+      "size_relative_to_source": [
+        0.24739583,
+        0.21972656
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.95876289,
+        0.58967391
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        192,
+        160
+      ],
+      "pivot_uv": [
+        0.50526316,
+        0.71111111
+      ],
+      "pivot_source_px": [
+        1024,
+        184
+      ],
+      "pivot_kind": "head_fit",
+      "category": "hat",
+      "parent_slot": "head",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        1.0483870967741935,
+        1.0483870967741935
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          232
+        ],
+        "rotation_deg": 0,
+        "z_index": 50,
+        "matrix_2x3": [
+          [
+            1.048387097,
+            -0.0,
+            118.709677419
+          ],
+          [
+            0.0,
+            1.048387097,
+            64.258064516
+          ]
+        ],
+        "display_size_px": [
+          398.38709677419354,
+          235.88709677419354
+        ],
+        "visible_display_size_px": [
+          390.0,
+          227.5
+        ],
+        "pivot_px": [
+          192,
+          160
+        ]
+      },
+      "png_sha256": "0d7b2719a0c5e0fca3e02d89bf918c7fd6414fdde59cf77167ecd65547853063"
+    },
+    "blue/torso_enlisted": {
+      "file": "blue/torso_enlisted.png",
+      "source": "blue",
+      "source_rect_px": [
+        330,
+        282,
+        396,
+        376
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        388,
+        368
+      ],
+      "size_px": [
+        396,
+        376
+      ],
+      "aspect_ratio": 1.05319149,
+      "size_relative_to_source": [
+        0.2578125,
+        0.3671875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        1.0,
+        1.0
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        193,
+        253
+      ],
+      "pivot_uv": [
+        0.48737374,
+        0.67287234
+      ],
+      "pivot_source_px": [
+        523,
+        535
+      ],
+      "pivot_kind": "waist",
+      "category": "torso",
+      "parent_slot": null,
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        0.8041237113402062,
+        0.8041237113402062
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          550
+        ],
+        "rotation_deg": 0,
+        "z_index": 30,
+        "matrix_2x3": [
+          [
+            0.804123711,
+            -0.0,
+            164.804123711
+          ],
+          [
+            0.0,
+            0.804123711,
+            346.556701031
+          ]
+        ],
+        "display_size_px": [
+          318.4329896907217,
+          302.35051546391753
+        ],
+        "visible_display_size_px": [
+          312.0,
+          295.9175257731959
+        ],
+        "pivot_px": [
+          193,
+          253
+        ]
+      },
+      "png_sha256": "a971465692623b6cdf4688c520ed5c91e24f23ec75716efb2e04afe120c4e769",
+      "attachment_sockets_px": {
+        "head": [
+          193.000000082,
+          27.910256422
+        ],
+        "arm_left": [
+          71.128205159,
+          108.74358979
+        ],
+        "arm_right": [
+          312.384615517,
+          102.525641069
+        ],
+        "leg_left": [
+          118.384615435,
+          345.025641172
+        ],
+        "leg_right": [
+          270.102564217,
+          345.025641172
+        ],
+        "epaulette_left": [
+          59.935897462,
+          70.192307722
+        ],
+        "epaulette_right": [
+          323.576923214,
+          63.974359001
+        ]
+      }
+    },
+    "blue/torso_officer": {
+      "file": "blue/torso_officer.png",
+      "source": "blue",
+      "source_rect_px": [
+        810,
+        285,
+        408,
+        373
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        400,
+        365
+      ],
+      "size_px": [
+        408,
+        373
+      ],
+      "aspect_ratio": 1.09383378,
+      "size_relative_to_source": [
+        0.265625,
+        0.36425781
+      ],
+      "visible_size_relative_to_reference_torso": [
+        1.03092784,
+        0.99184783
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        199,
+        250
+      ],
+      "pivot_uv": [
+        0.4877451,
+        0.67024129
+      ],
+      "pivot_source_px": [
+        1009,
+        535
+      ],
+      "pivot_kind": "waist",
+      "category": "torso",
+      "parent_slot": null,
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        0.78,
+        0.78
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          550
+        ],
+        "rotation_deg": 0,
+        "z_index": 30,
+        "matrix_2x3": [
+          [
+            0.78,
+            -0.0,
+            164.78
+          ],
+          [
+            0.0,
+            0.78,
+            355.0
+          ]
+        ],
+        "display_size_px": [
+          318.24,
+          290.94
+        ],
+        "visible_display_size_px": [
+          312.0,
+          284.7
+        ],
+        "pivot_px": [
+          199,
+          250
+        ]
+      },
+      "png_sha256": "fdc2af4cb14374ac2e9e029db23cc7e23b275e43c9e005f03ef4310b1d879fce",
+      "attachment_sockets_px": {
+        "head": [
+          199.0,
+          17.948717949
+        ],
+        "arm_left": [
+          73.358974359,
+          101.282051282
+        ],
+        "arm_right": [
+          322.076923077,
+          94.871794872
+        ],
+        "leg_left": [
+          122.076923077,
+          344.871794872
+        ],
+        "leg_right": [
+          278.487179487,
+          344.871794872
+        ],
+        "epaulette_left": [
+          61.820512821,
+          61.538461538
+        ],
+        "epaulette_right": [
+          333.615384615,
+          55.128205128
+        ]
+      }
+    },
+    "blue/arm_left": {
+      "file": "blue/arm_left.png",
+      "source": "blue",
+      "source_rect_px": [
+        499,
+        647,
+        191,
+        225
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        183,
+        217
+      ],
+      "size_px": [
+        191,
+        225
+      ],
+      "aspect_ratio": 0.84888889,
+      "size_relative_to_source": [
+        0.12434896,
+        0.21972656
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.47164948,
+        0.58967391
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        129,
+        38
+      ],
+      "pivot_uv": [
+        0.67539267,
+        0.16888889
+      ],
+      "pivot_source_px": [
+        628,
+        685
+      ],
+      "pivot_kind": "shoulder",
+      "category": "arm",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        1.0046082949308757,
+        1.0046082949308757
+      ],
+      "assembly": {
+        "position_px": [
+          222,
+          434
+        ],
+        "rotation_deg": -10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            0.989346038,
+            0.1744484,
+            87.745321963
+          ],
+          [
+            -0.1744484,
+            0.989346038,
+            418.908694131
+          ]
+        ],
+        "display_size_px": [
+          191.88018433179724,
+          226.03686635944703
+        ],
+        "visible_display_size_px": [
+          183.84331797235023,
+          218.00000000000003
+        ],
+        "pivot_px": [
+          129,
+          38
+        ]
+      },
+      "png_sha256": "f6ea8d3b69f94c3b72fedbb1422c00173092c4719fde1f05be01b20a1e464b2d",
+      "attachment_sockets_px": {
+        "sleeve_rank": [
+          87,
+          100
+        ]
+      }
+    },
+    "blue/arm_right": {
+      "file": "blue/arm_right.png",
+      "source": "blue",
+      "source_rect_px": [
+        838,
+        648,
+        188,
+        224
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        180,
+        216
+      ],
+      "size_px": [
+        188,
+        224
+      ],
+      "aspect_ratio": 0.83928571,
+      "size_relative_to_source": [
+        0.12239583,
+        0.21875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.46391753,
+        0.58695652
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        53,
+        37
+      ],
+      "pivot_uv": [
+        0.28191489,
+        0.16517857
+      ],
+      "pivot_source_px": [
+        891,
+        685
+      ],
+      "pivot_kind": "shoulder",
+      "category": "arm",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        1.0092592592592593,
+        1.0092592592592593
+      ],
+      "assembly": {
+        "position_px": [
+          416,
+          429
+        ],
+        "rotation_deg": 10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            0.993926343,
+            -0.175256031,
+            369.806376957
+          ],
+          [
+            0.175256031,
+            0.993926343,
+            382.936155646
+          ]
+        ],
+        "display_size_px": [
+          189.74074074074076,
+          226.07407407407408
+        ],
+        "visible_display_size_px": [
+          181.66666666666669,
+          218.0
+        ],
+        "pivot_px": [
+          53,
+          37
+        ]
+      },
+      "png_sha256": "9c1bb8e135e83370cf41023a7a92afc7f48a76d7d006fd8c95ed34ebb6c90478",
+      "attachment_sockets_px": {
+        "sleeve_rank": [
+          97,
+          100
+        ]
+      }
+    },
+    "blue/rank_bars_left": {
+      "file": "blue/rank_bars_left.png",
+      "source": "blue",
+      "source_rect_px": [
+        146,
+        865,
+        116,
+        111
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        108,
+        103
+      ],
+      "size_px": [
+        116,
+        111
+      ],
+      "aspect_ratio": 1.04504505,
+      "size_relative_to_source": [
+        0.07552083,
+        0.10839844
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.27835052,
+        0.2798913
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        58.0,
+        55.5
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        204.0,
+        920.5
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_left",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5555555555555556,
+        0.5555555555555556
+      ],
+      "assembly": {
+        "position_px": [
+          191.26326726899998,
+          502.666287131
+        ],
+        "rotation_deg": -10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.547115418,
+            0.09647121,
+            154.176420861
+          ],
+          [
+            -0.09647121,
+            0.547115418,
+            477.896711582
+          ]
+        ],
+        "display_size_px": [
+          64.44444444444444,
+          61.66666666666667
+        ],
+        "visible_display_size_px": [
+          60.0,
+          57.22222222222222
+        ],
+        "pivot_px": [
+          58.0,
+          55.5
+        ]
+      },
+      "png_sha256": "997e8712c22936ecc0556322cb02829443dd4e7b607b0ad3bb3db59ca1117b9d"
+    },
+    "blue/rank_bars_right": {
+      "file": "blue/rank_bars_right.png",
+      "source": "blue",
+      "source_rect_px": [
+        271,
+        868,
+        117,
+        108
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        109,
+        100
+      ],
+      "size_px": [
+        117,
+        108
+      ],
+      "aspect_ratio": 1.08333333,
+      "size_relative_to_source": [
+        0.07617188,
+        0.10546875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.28092784,
+        0.27173913
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        58.5,
+        54.0
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        329.5,
+        922.0
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_right",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5504587155963303,
+        0.5504587155963303
+      ],
+      "assembly": {
+        "position_px": [
+          448.691629128,
+          499.328624953
+        ],
+        "rotation_deg": 10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.542096011,
+            -0.095586153,
+            422.140664748
+          ],
+          [
+            0.095586153,
+            0.542096011,
+            464.463650427
+          ]
+        ],
+        "display_size_px": [
+          64.40366972477065,
+          59.44954128440367
+        ],
+        "visible_display_size_px": [
+          60.0,
+          55.04587155963303
+        ],
+        "pivot_px": [
+          58.5,
+          54.0
+        ]
+      },
+      "png_sha256": "a15573f15c8f776c3681aeb7811e4f4a249bd5434788e285ad365e1078d0644e"
+    },
+    "blue/rank_chevron_down_left": {
+      "file": "blue/rank_chevron_down_left.png",
+      "source": "blue",
+      "source_rect_px": [
+        390,
+        867,
+        118,
+        120
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        110,
+        112
+      ],
+      "size_px": [
+        118,
+        120
+      ],
+      "aspect_ratio": 0.98333333,
+      "size_relative_to_source": [
+        0.07682292,
+        0.1171875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.28350515,
+        0.30434783
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        59.0,
+        60.0
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        449.0,
+        927.0
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_left",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5454545454545454,
+        0.5454545454545454
+      ],
+      "assembly": {
+        "position_px": [
+          191.26326726899998,
+          502.666287131
+        ],
+        "rotation_deg": -10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.537167865,
+            0.094717188,
+            153.887331948
+          ],
+          [
+            -0.094717188,
+            0.537167865,
+            476.024529296
+          ]
+        ],
+        "display_size_px": [
+          64.36363636363636,
+          65.45454545454545
+        ],
+        "visible_display_size_px": [
+          59.99999999999999,
+          61.090909090909086
+        ],
+        "pivot_px": [
+          59.0,
+          60.0
+        ]
+      },
+      "png_sha256": "e2a8318fd6abce5e0528b3c0f4deeda0a6a95e7f396cf1ef52caa66ccbe8c6a6"
+    },
+    "blue/rank_chevron_down_right": {
+      "file": "blue/rank_chevron_down_right.png",
+      "source": "blue",
+      "source_rect_px": [
+        517,
+        867,
+        121,
+        120
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        113,
+        112
+      ],
+      "size_px": [
+        121,
+        120
+      ],
+      "aspect_ratio": 1.00833333,
+      "size_relative_to_source": [
+        0.07877604,
+        0.1171875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.29123711,
+        0.30434783
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        60.5,
+        60.0
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        577.5,
+        927.0
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_right",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        0.5309734513274337,
+        0.5309734513274337
+      ],
+      "assembly": {
+        "position_px": [
+          448.691629128,
+          499.328624953
+        ],
+        "rotation_deg": 10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.522906772,
+            -0.092202572,
+            422.587923784
+          ],
+          [
+            0.092202572,
+            0.522906772,
+            462.375963043
+          ]
+        ],
+        "display_size_px": [
+          64.24778761061947,
+          63.71681415929204
+        ],
+        "visible_display_size_px": [
+          60.00000000000001,
+          59.46902654867257
+        ],
+        "pivot_px": [
+          60.5,
+          60.0
+        ]
+      },
+      "png_sha256": "f09881e160eb5ad6b14605690158ae7a8347a3f120308205310d2fc91371c7a1"
+    },
+    "blue/rank_chevron_up_left": {
+      "file": "blue/rank_chevron_up_left.png",
+      "source": "blue",
+      "source_rect_px": [
+        681,
+        860,
+        124,
+        128
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        116,
+        120
+      ],
+      "size_px": [
+        124,
+        128
+      ],
+      "aspect_ratio": 0.96875,
+      "size_relative_to_source": [
+        0.08072917,
+        0.125
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.29896907,
+        0.32608696
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        62.0,
+        64.0
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        743.0,
+        924.0
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_left",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5172413793103449,
+        0.5172413793103449
+      ],
+      "assembly": {
+        "position_px": [
+          191.26326726899998,
+          502.666287131
+        ],
+        "rotation_deg": -10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.509383321,
+            0.089818023,
+            153.933147929
+          ],
+          [
+            -0.089818023,
+            0.509383321,
+            475.634472039
+          ]
+        ],
+        "display_size_px": [
+          64.13793103448276,
+          66.20689655172414
+        ],
+        "visible_display_size_px": [
+          60.00000000000001,
+          62.06896551724138
+        ],
+        "pivot_px": [
+          62.0,
+          64.0
+        ]
+      },
+      "png_sha256": "79a467d79e4d96e540cfaac3db37f7a08164b065bfb68f039ceb32c4de1f679d"
+    },
+    "blue/rank_chevron_up_right": {
+      "file": "blue/rank_chevron_up_right.png",
+      "source": "blue",
+      "source_rect_px": [
+        826,
+        861,
+        123,
+        126
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        115,
+        118
+      ],
+      "size_px": [
+        123,
+        126
+      ],
+      "aspect_ratio": 0.97619048,
+      "size_relative_to_source": [
+        0.08007812,
+        0.12304688
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.29639175,
+        0.32065217
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        61.5,
+        63.0
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        887.5,
+        924.0
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_right",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        0.5217391304347826,
+        0.5217391304347826
+      ],
+      "assembly": {
+        "position_px": [
+          448.691629128,
+          499.328624953
+        ],
+        "rotation_deg": 10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.513812741,
+            -0.090599049,
+            422.799885676
+          ],
+          [
+            0.090599049,
+            0.513812741,
+            461.386580762
+          ]
+        ],
+        "display_size_px": [
+          64.17391304347827,
+          65.73913043478261
+        ],
+        "visible_display_size_px": [
+          60.0,
+          61.565217391304344
+        ],
+        "pivot_px": [
+          61.5,
+          63.0
+        ]
+      },
+      "png_sha256": "14c1fc05c4529779960aa3f5db0d18baf6e32b93f6323ac859d90dfadc5f9cd0"
+    },
+    "blue/epaulette_plain_left": {
+      "file": "blue/epaulette_plain_left.png",
+      "source": "blue",
+      "source_rect_px": [
+        957,
+        858,
+        114,
+        130
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        106,
+        122
+      ],
+      "size_px": [
+        114,
+        130
+      ],
+      "aspect_ratio": 0.87692308,
+      "size_relative_to_source": [
+        0.07421875,
+        0.12695312
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.27319588,
+        0.33152174
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        83,
+        23
+      ],
+      "pivot_uv": [
+        0.72807018,
+        0.17692308
+      ],
+      "pivot_source_px": [
+        1040,
+        881
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        0.5471698113207547,
+        0.5471698113207547
+      ],
+      "assembly": {
+        "position_px": [
+          213,
+          403
+        ],
+        "rotation_deg": 27,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.487531872,
+            -0.248409896,
+            178.248282257
+          ],
+          [
+            0.248409896,
+            0.487531872,
+            371.168745575
+          ]
+        ],
+        "display_size_px": [
+          62.37735849056604,
+          71.13207547169812
+        ],
+        "visible_display_size_px": [
+          58.0,
+          66.75471698113208
+        ],
+        "pivot_px": [
+          83,
+          23
+        ]
+      },
+      "png_sha256": "f3d56c5d61cdfae7a4b4f2854f35c0e3c098970b98cfb248fbc7cf9bb3737265"
+    },
+    "blue/epaulette_plain_right": {
+      "file": "blue/epaulette_plain_right.png",
+      "source": "blue",
+      "source_rect_px": [
+        1092,
+        858,
+        116,
+        130
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        108,
+        122
+      ],
+      "size_px": [
+        116,
+        130
+      ],
+      "aspect_ratio": 0.89230769,
+      "size_relative_to_source": [
+        0.07552083,
+        0.12695312
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.27835052,
+        0.33152174
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        31,
+        22
+      ],
+      "pivot_uv": [
+        0.26724138,
+        0.16923077
+      ],
+      "pivot_source_px": [
+        1123,
+        880
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5370370370370371,
+        0.5370370370370371
+      ],
+      "assembly": {
+        "position_px": [
+          425,
+          398
+        ],
+        "rotation_deg": -26,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.482685692,
+            0.235421542,
+            404.857469643
+          ],
+          [
+            -0.235421542,
+            0.482685692,
+            394.678982582
+          ]
+        ],
+        "display_size_px": [
+          62.296296296296305,
+          69.81481481481482
+        ],
+        "visible_display_size_px": [
+          58.00000000000001,
+          65.51851851851852
+        ],
+        "pivot_px": [
+          31,
+          22
+        ]
+      },
+      "png_sha256": "46fd62a3b1997e4513ee106ef0f178e0b55652b40d4541218115645460a36aa5"
+    },
+    "blue/epaulette_striped_left": {
+      "file": "blue/epaulette_striped_left.png",
+      "source": "blue",
+      "source_rect_px": [
+        1206,
+        858,
+        114,
+        130
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        106,
+        122
+      ],
+      "size_px": [
+        114,
+        130
+      ],
+      "aspect_ratio": 0.87692308,
+      "size_relative_to_source": [
+        0.07421875,
+        0.12695312
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.27319588,
+        0.33152174
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        83,
+        22
+      ],
+      "pivot_uv": [
+        0.72807018,
+        0.16923077
+      ],
+      "pivot_source_px": [
+        1289,
+        880
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5471698113207547,
+        0.5471698113207547
+      ],
+      "assembly": {
+        "position_px": [
+          213,
+          403
+        ],
+        "rotation_deg": 27,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.487531872,
+            -0.248409896,
+            177.999872361
+          ],
+          [
+            0.248409896,
+            0.487531872,
+            371.656277447
+          ]
+        ],
+        "display_size_px": [
+          62.37735849056604,
+          71.13207547169812
+        ],
+        "visible_display_size_px": [
+          58.0,
+          66.75471698113208
+        ],
+        "pivot_px": [
+          83,
+          22
+        ]
+      },
+      "png_sha256": "147c877fda6497887bf6959c8c5706f11d25bb282060810b582f147d8b694ab3"
+    },
+    "blue/epaulette_striped_right": {
+      "file": "blue/epaulette_striped_right.png",
+      "source": "blue",
+      "source_rect_px": [
+        1343,
+        858,
+        116,
+        130
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        108,
+        122
+      ],
+      "size_px": [
+        116,
+        130
+      ],
+      "aspect_ratio": 0.89230769,
+      "size_relative_to_source": [
+        0.07552083,
+        0.12695312
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.27835052,
+        0.33152174
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        33,
+        23
+      ],
+      "pivot_uv": [
+        0.28448276,
+        0.17692308
+      ],
+      "pivot_source_px": [
+        1376,
+        881
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5370370370370371,
+        0.5370370370370371
+      ],
+      "assembly": {
+        "position_px": [
+          425,
+          398
+        ],
+        "rotation_deg": -26,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.482685692,
+            0.235421542,
+            403.656676718
+          ],
+          [
+            -0.235421542,
+            0.482685692,
+            394.667139974
+          ]
+        ],
+        "display_size_px": [
+          62.296296296296305,
+          69.81481481481482
+        ],
+        "visible_display_size_px": [
+          58.00000000000001,
+          65.51851851851852
+        ],
+        "pivot_px": [
+          33,
+          23
+        ]
+      },
+      "png_sha256": "a5bbf17740454d774cc064e67e7608f832859cb3892e121c1b7278ce72857c76"
+    },
+    "black/helmet": {
+      "file": "black/helmet.png",
+      "source": "black",
+      "source_rect_px": [
+        156,
+        2,
+        381,
+        268
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        373,
+        260
+      ],
+      "size_px": [
+        381,
+        268
+      ],
+      "aspect_ratio": 1.42164179,
+      "size_relative_to_source": [
+        0.24804688,
+        0.26171875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        1.19551282,
+        0.89347079
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        195,
+        193
+      ],
+      "pivot_uv": [
+        0.51181102,
+        0.72014925
+      ],
+      "pivot_source_px": [
+        351,
+        195
+      ],
+      "pivot_kind": "head_fit",
+      "category": "hat",
+      "parent_slot": "head",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        1.0455764075067024,
+        1.0455764075067024
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          232
+        ],
+        "rotation_deg": 0,
+        "z_index": 50,
+        "matrix_2x3": [
+          [
+            1.045576408,
+            -0.0,
+            116.112600536
+          ],
+          [
+            0.0,
+            1.045576408,
+            30.203753351
+          ]
+        ],
+        "display_size_px": [
+          398.3646112600536,
+          280.21447721179624
+        ],
+        "visible_display_size_px": [
+          390.0,
+          271.84986595174263
+        ],
+        "pivot_px": [
+          195,
+          193
+        ]
+      },
+      "png_sha256": "348a33466128786c12dcab22ca606258a88000d4000ce94b2da0435e4b4606ad"
+    },
+    "shared/head": {
+      "file": "shared/head.png",
+      "source": "black",
+      "source_rect_px": [
+        614,
+        4,
+        300,
+        278
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        292,
+        270
+      ],
+      "size_px": [
+        300,
+        278
+      ],
+      "aspect_ratio": 1.07913669,
+      "size_relative_to_source": [
+        0.1953125,
+        0.27148438
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.93589744,
+        0.92783505
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        150,
+        263
+      ],
+      "pivot_uv": [
+        0.5,
+        0.94604317
+      ],
+      "pivot_source_px": [
+        764,
+        267
+      ],
+      "pivot_kind": "neck",
+      "category": "head",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        0.958904109589041,
+        0.958904109589041
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          369
+        ],
+        "rotation_deg": 0,
+        "z_index": 25,
+        "matrix_2x3": [
+          [
+            0.95890411,
+            -0.0,
+            176.164383562
+          ],
+          [
+            0.0,
+            0.95890411,
+            116.808219178
+          ]
+        ],
+        "display_size_px": [
+          287.67123287671234,
+          266.5753424657534
+        ],
+        "visible_display_size_px": [
+          280.0,
+          258.90410958904107
+        ],
+        "pivot_px": [
+          150,
+          263
+        ]
+      },
+      "png_sha256": "ea283b7b39958eb584001e8d97b4d386efba3581cf6b47a15c893cd6d94ffe04",
+      "attachment_sockets_px": {
+        "hat": [
+          149.999999935,
+          120.128571377
+        ]
+      }
+    },
+    "black/officer_cap": {
+      "file": "black/officer_cap.png",
+      "source": "black",
+      "source_rect_px": [
+        986,
+        9,
+        399,
+        255
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        391,
+        247
+      ],
+      "size_px": [
+        399,
+        255
+      ],
+      "aspect_ratio": 1.56470588,
+      "size_relative_to_source": [
+        0.25976562,
+        0.24902344
+      ],
+      "visible_size_relative_to_reference_torso": [
+        1.25320513,
+        0.84879725
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        188,
+        178
+      ],
+      "pivot_uv": [
+        0.47117794,
+        0.69803922
+      ],
+      "pivot_source_px": [
+        1174,
+        187
+      ],
+      "pivot_kind": "head_fit",
+      "category": "hat",
+      "parent_slot": "head",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.9974424552429667,
+        0.9974424552429667
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          232
+        ],
+        "rotation_deg": 0,
+        "z_index": 50,
+        "matrix_2x3": [
+          [
+            0.997442455,
+            -0.0,
+            132.480818414
+          ],
+          [
+            0.0,
+            0.997442455,
+            54.455242967
+          ]
+        ],
+        "display_size_px": [
+          397.9795396419437,
+          254.3478260869565
+        ],
+        "visible_display_size_px": [
+          390.0,
+          246.36828644501279
+        ],
+        "pivot_px": [
+          188,
+          178
+        ]
+      },
+      "png_sha256": "8c06c4d943c405b08a1ab175d355381230d6b482a37b2747ff7aaa6b25c7cfe3"
+    },
+    "black/torso_plain": {
+      "file": "black/torso_plain.png",
+      "source": "black",
+      "source_rect_px": [
+        194,
+        274,
+        320,
+        299
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        312,
+        291
+      ],
+      "size_px": [
+        320,
+        299
+      ],
+      "aspect_ratio": 1.07023411,
+      "size_relative_to_source": [
+        0.20833333,
+        0.29199219
+      ],
+      "visible_size_relative_to_reference_torso": [
+        1.0,
+        1.0
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        156,
+        195
+      ],
+      "pivot_uv": [
+        0.4875,
+        0.65217391
+      ],
+      "pivot_source_px": [
+        350,
+        469
+      ],
+      "pivot_kind": "waist",
+      "category": "torso",
+      "parent_slot": null,
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        1.0,
+        1.0
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          550
+        ],
+        "rotation_deg": 0,
+        "z_index": 30,
+        "matrix_2x3": [
+          [
+            1.0,
+            -0.0,
+            164.0
+          ],
+          [
+            0.0,
+            1.0,
+            355.0
+          ]
+        ],
+        "display_size_px": [
+          320.0,
+          299.0
+        ],
+        "visible_display_size_px": [
+          312.0,
+          291.0
+        ],
+        "pivot_px": [
+          156,
+          195
+        ]
+      },
+      "png_sha256": "555c8ae21f9ea5a954a80700ad2a36688c6627b864da77fbd1f88cb2865090e7",
+      "attachment_sockets_px": {
+        "head": [
+          156.0,
+          14.0
+        ],
+        "arm_left": [
+          58.0,
+          79.0
+        ],
+        "arm_right": [
+          252.0,
+          74.0
+        ],
+        "leg_left": [
+          96.0,
+          269.0
+        ],
+        "leg_right": [
+          218.0,
+          269.0
+        ],
+        "epaulette_left": [
+          49.0,
+          48.0
+        ],
+        "epaulette_right": [
+          261.0,
+          43.0
+        ]
+      }
+    },
+    "black/torso_collar": {
+      "file": "black/torso_collar.png",
+      "source": "black",
+      "source_rect_px": [
+        601,
+        274,
+        323,
+        299
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        315,
+        291
+      ],
+      "size_px": [
+        323,
+        299
+      ],
+      "aspect_ratio": 1.08026756,
+      "size_relative_to_source": [
+        0.21028646,
+        0.29199219
+      ],
+      "visible_size_relative_to_reference_torso": [
+        1.00961538,
+        1.0
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        158,
+        195
+      ],
+      "pivot_uv": [
+        0.48916409,
+        0.65217391
+      ],
+      "pivot_source_px": [
+        759,
+        469
+      ],
+      "pivot_kind": "waist",
+      "category": "torso",
+      "parent_slot": null,
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": true,
+      "scale_correction": [
+        0.9904761904761905,
+        0.9904761904761905
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          550
+        ],
+        "rotation_deg": 0,
+        "z_index": 30,
+        "matrix_2x3": [
+          [
+            0.99047619,
+            -0.0,
+            163.504761905
+          ],
+          [
+            0.0,
+            0.99047619,
+            356.857142857
+          ]
+        ],
+        "display_size_px": [
+          319.92380952380955,
+          296.15238095238095
+        ],
+        "visible_display_size_px": [
+          312.0,
+          288.22857142857146
+        ],
+        "pivot_px": [
+          158,
+          195
+        ]
+      },
+      "png_sha256": "5eb05345e25aac627568e07a40d7d8911b22cfce74a485548e4e0cab85a581f3",
+      "attachment_sockets_px": {
+        "head": [
+          158.000000076,
+          12.259615391
+        ],
+        "arm_left": [
+          59.057692336,
+          77.884615422
+        ],
+        "arm_right": [
+          254.923077045,
+          72.836538497
+        ],
+        "leg_left": [
+          97.42307697,
+          269.711538591
+        ],
+        "leg_right": [
+          220.596153952,
+          269.711538591
+        ],
+        "epaulette_left": [
+          49.97115387,
+          46.586538484
+        ],
+        "epaulette_right": [
+          264.009615511,
+          41.538461559
+        ]
+      }
+    },
+    "black/torso_medal": {
+      "file": "black/torso_medal.png",
+      "source": "black",
+      "source_rect_px": [
+        999,
+        274,
+        331,
+        298
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        323,
+        290
+      ],
+      "size_px": [
+        331,
+        298
+      ],
+      "aspect_ratio": 1.11073826,
+      "size_relative_to_source": [
+        0.21549479,
+        0.29101562
+      ],
+      "visible_size_relative_to_reference_torso": [
+        1.03525641,
+        0.99656357
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        166,
+        195
+      ],
+      "pivot_uv": [
+        0.50151057,
+        0.65436242
+      ],
+      "pivot_source_px": [
+        1165,
+        469
+      ],
+      "pivot_kind": "waist",
+      "category": "torso",
+      "parent_slot": null,
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.9659442724458205,
+        0.9659442724458205
+      ],
+      "assembly": {
+        "position_px": [
+          320,
+          550
+        ],
+        "rotation_deg": 0,
+        "z_index": 30,
+        "matrix_2x3": [
+          [
+            0.965944272,
+            -0.0,
+            159.653250774
+          ],
+          [
+            0.0,
+            0.965944272,
+            361.640866873
+          ]
+        ],
+        "display_size_px": [
+          319.7275541795666,
+          287.8513931888545
+        ],
+        "visible_display_size_px": [
+          312.0,
+          280.12383900928796
+        ],
+        "pivot_px": [
+          166,
+          195
+        ]
+      },
+      "png_sha256": "e5422f8a0b5f504d92828f725c807773f613bc3eb7af2059bc2ee42f7f24c22d",
+      "attachment_sockets_px": {
+        "head": [
+          166.000000077,
+          7.618589747
+        ],
+        "arm_left": [
+          64.544871825,
+          74.910256445
+        ],
+        "arm_right": [
+          265.384615507,
+          69.733974391
+        ],
+        "leg_left": [
+          103.884615433,
+          271.608974484
+        ],
+        "leg_right": [
+          230.185897542,
+          271.608974484
+        ],
+        "epaulette_left": [
+          55.227564128,
+          42.817307712
+        ],
+        "epaulette_right": [
+          274.701923204,
+          37.641025658
+        ]
+      }
+    },
+    "black/arm_left": {
+      "file": "black/arm_left.png",
+      "source": "black",
+      "source_rect_px": [
+        220,
+        588,
+        148,
+        204
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        140,
+        196
+      ],
+      "size_px": [
+        148,
+        204
+      ],
+      "aspect_ratio": 0.7254902,
+      "size_relative_to_source": [
+        0.09635417,
+        0.19921875
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.44871795,
+        0.67353952
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        106,
+        38
+      ],
+      "pivot_uv": [
+        0.71621622,
+        0.18627451
+      ],
+      "pivot_source_px": [
+        326,
+        626
+      ],
+      "pivot_kind": "shoulder",
+      "category": "arm",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        1.1122448979591837,
+        1.1122448979591837
+      ],
+      "assembly": {
+        "position_px": [
+          222,
+          434
+        ],
+        "rotation_deg": -10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            1.095347399,
+            0.1931393,
+            98.553882345
+          ],
+          [
+            -0.1931393,
+            1.095347399,
+            412.84956461
+          ]
+        ],
+        "display_size_px": [
+          164.6122448979592,
+          226.89795918367346
+        ],
+        "visible_display_size_px": [
+          155.71428571428572,
+          218.0
+        ],
+        "pivot_px": [
+          106,
+          38
+        ]
+      },
+      "png_sha256": "e395263cabbc5a6647da59008d4d0df3bb6fabd594a79929409f4b3ad6b59e1f",
+      "attachment_sockets_px": {
+        "sleeve_rank": [
+          72,
+          90
+        ]
+      }
+    },
+    "black/arm_right": {
+      "file": "black/arm_right.png",
+      "source": "black",
+      "source_rect_px": [
+        506,
+        582,
+        163,
+        207
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        155,
+        199
+      ],
+      "size_px": [
+        163,
+        207
+      ],
+      "aspect_ratio": 0.78743961,
+      "size_relative_to_source": [
+        0.10611979,
+        0.20214844
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.49679487,
+        0.6838488
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        44,
+        38
+      ],
+      "pivot_uv": [
+        0.26993865,
+        0.18357488
+      ],
+      "pivot_source_px": [
+        550,
+        620
+      ],
+      "pivot_kind": "shoulder",
+      "category": "arm",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        1.0954773869346734,
+        1.0954773869346734
+      ],
+      "assembly": {
+        "position_px": [
+          416,
+          429
+        ],
+        "rotation_deg": 10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            1.078834624,
+            -0.190227652,
+            375.759927321
+          ],
+          [
+            0.190227652,
+            1.078834624,
+            379.634267607
+          ]
+        ],
+        "display_size_px": [
+          178.56281407035178,
+          226.7638190954774
+        ],
+        "visible_display_size_px": [
+          169.79899497487438,
+          218.00000000000003
+        ],
+        "pivot_px": [
+          44,
+          38
+        ]
+      },
+      "png_sha256": "87093a482c666719058a9beb8ad64cfc90656b275c1caabe2c3603bd0774c8de",
+      "attachment_sockets_px": {
+        "sleeve_rank": [
+          83,
+          90
+        ]
+      }
+    },
+    "shared/leg_left": {
+      "file": "shared/leg_left.png",
+      "source": "black",
+      "source_rect_px": [
+        762,
+        576,
+        200,
+        218
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        192,
+        210
+      ],
+      "size_px": [
+        200,
+        218
+      ],
+      "aspect_ratio": 0.91743119,
+      "size_relative_to_source": [
+        0.13020833,
+        0.21289062
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.61538462,
+        0.72164948
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        125,
+        37
+      ],
+      "pivot_uv": [
+        0.625,
+        0.16972477
+      ],
+      "pivot_source_px": [
+        887,
+        613
+      ],
+      "pivot_kind": "hip",
+      "category": "leg",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.6,
+        0.6
+      ],
+      "assembly": {
+        "position_px": [
+          260,
+          624
+        ],
+        "rotation_deg": 0,
+        "z_index": 10,
+        "matrix_2x3": [
+          [
+            0.6,
+            -0.0,
+            185.0
+          ],
+          [
+            0.0,
+            0.6,
+            601.8
+          ]
+        ],
+        "display_size_px": [
+          120.0,
+          130.79999999999998
+        ],
+        "visible_display_size_px": [
+          115.19999999999999,
+          126.0
+        ],
+        "pivot_px": [
+          125,
+          37
+        ]
+      },
+      "png_sha256": "ef79cd83fd93a8b82220f7e15954b00fa310f1723f7ae4f0f2fa64bc50a0d674"
+    },
+    "shared/leg_right": {
+      "file": "shared/leg_right.png",
+      "source": "black",
+      "source_rect_px": [
+        1077,
+        574,
+        207,
+        221
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        199,
+        213
+      ],
+      "size_px": [
+        207,
+        221
+      ],
+      "aspect_ratio": 0.93665158,
+      "size_relative_to_source": [
+        0.13476562,
+        0.21582031
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.63782051,
+        0.73195876
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        66,
+        36
+      ],
+      "pivot_uv": [
+        0.31884058,
+        0.16289593
+      ],
+      "pivot_source_px": [
+        1143,
+        610
+      ],
+      "pivot_kind": "hip",
+      "category": "leg",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5915492957746479,
+        0.5915492957746479
+      ],
+      "assembly": {
+        "position_px": [
+          382,
+          624
+        ],
+        "rotation_deg": 0,
+        "z_index": 10,
+        "matrix_2x3": [
+          [
+            0.591549296,
+            -0.0,
+            342.957746479
+          ],
+          [
+            0.0,
+            0.591549296,
+            602.704225352
+          ]
+        ],
+        "display_size_px": [
+          122.45070422535211,
+          130.73239436619718
+        ],
+        "visible_display_size_px": [
+          117.71830985915493,
+          126.0
+        ],
+        "pivot_px": [
+          66,
+          36
+        ]
+      },
+      "png_sha256": "f153871f29ec2d5292d54b0dac97eb8f6658ca409e96c8959cb86d0e3811ef4b"
+    },
+    "black/rank_single_bar_left": {
+      "file": "black/rank_single_bar_left.png",
+      "source": "black",
+      "source_rect_px": [
+        67,
+        842,
+        126,
+        97
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        118,
+        89
+      ],
+      "size_px": [
+        126,
+        97
+      ],
+      "aspect_ratio": 1.29896907,
+      "size_relative_to_source": [
+        0.08203125,
+        0.09472656
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.37820513,
+        0.30584192
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        63.0,
+        48.5
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        130.0,
+        890.5
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_left",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5084745762711864,
+        0.5084745762711864
+      ],
+      "assembly": {
+        "position_px": [
+          194.801432073,
+          497.52480092
+        ],
+        "rotation_deg": -10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.500749705,
+            0.088295684,
+            158.97186001
+          ],
+          [
+            -0.088295684,
+            0.500749705,
+            478.801068296
+          ]
+        ],
+        "display_size_px": [
+          64.0677966101695,
+          49.32203389830508
+        ],
+        "visible_display_size_px": [
+          60.0,
+          45.25423728813559
+        ],
+        "pivot_px": [
+          63.0,
+          48.5
+        ]
+      },
+      "png_sha256": "e793b45f0fdbee3e6e421e09e032557a69d0efa3f4015dfc5acc69f1d352ca1f"
+    },
+    "black/rank_single_bar_right": {
+      "file": "black/rank_single_bar_right.png",
+      "source": "black",
+      "source_rect_px": [
+        218,
+        842,
+        127,
+        97
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        119,
+        89
+      ],
+      "size_px": [
+        127,
+        97
+      ],
+      "aspect_ratio": 1.30927835,
+      "size_relative_to_source": [
+        0.08268229,
+        0.09472656
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.38141026,
+        0.30584192
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        63.5,
+        48.5
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        281.5,
+        890.5
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_right",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5042016806722689,
+        0.5042016806722689
+      ],
+      "assembly": {
+        "position_px": [
+          448.182712433,
+          492.51827888300005
+        ],
+        "rotation_deg": 10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.496541724,
+            -0.087553703,
+            420.898667543
+          ],
+          [
+            0.087553703,
+            0.496541724,
+            462.876345117
+          ]
+        ],
+        "display_size_px": [
+          64.03361344537815,
+          48.90756302521008
+        ],
+        "visible_display_size_px": [
+          60.0,
+          44.87394957983193
+        ],
+        "pivot_px": [
+          63.5,
+          48.5
+        ]
+      },
+      "png_sha256": "430b1b2a34393b2daa7e7061015ad13c35ac33592c151002fe70f282f6e21aeb"
+    },
+    "black/rank_double_bar_left": {
+      "file": "black/rank_double_bar_left.png",
+      "source": "black",
+      "source_rect_px": [
+        367,
+        838,
+        105,
+        103
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        97,
+        95
+      ],
+      "size_px": [
+        105,
+        103
+      ],
+      "aspect_ratio": 1.01941748,
+      "size_relative_to_source": [
+        0.06835938,
+        0.10058594
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.31089744,
+        0.32646048
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        52.5,
+        51.5
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        419.5,
+        889.5
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_left",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.6185567010309279,
+        0.6185567010309279
+      ],
+      "assembly": {
+        "position_px": [
+          194.801432073,
+          497.52480092
+        ],
+        "rotation_deg": -10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.609159435,
+            0.107411244,
+            157.288882681
+          ],
+          [
+            -0.107411244,
+            0.609159435,
+            471.792180331
+          ]
+        ],
+        "display_size_px": [
+          64.94845360824742,
+          63.71134020618557
+        ],
+        "visible_display_size_px": [
+          60.0,
+          58.76288659793815
+        ],
+        "pivot_px": [
+          52.5,
+          51.5
+        ]
+      },
+      "png_sha256": "c1191d2870beac81e78d23a2e49a36b4d799ad0ec1f8201bfbc44d987d432a89"
+    },
+    "black/rank_double_bar_right": {
+      "file": "black/rank_double_bar_right.png",
+      "source": "black",
+      "source_rect_px": [
+        493,
+        838,
+        104,
+        103
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        96,
+        95
+      ],
+      "size_px": [
+        104,
+        103
+      ],
+      "aspect_ratio": 1.00970874,
+      "size_relative_to_source": [
+        0.06770833,
+        0.10058594
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.30769231,
+        0.32646048
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        52.0,
+        51.5
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        545.0,
+        889.5
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_right",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.625,
+        0.625
+      ],
+      "assembly": {
+        "position_px": [
+          448.182712433,
+          492.51827888300005
+        ],
+        "rotation_deg": 10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.615504846,
+            -0.108530111,
+            421.765761179
+          ],
+          [
+            0.108530111,
+            0.615504846,
+            455.176213559
+          ]
+        ],
+        "display_size_px": [
+          65.0,
+          64.375
+        ],
+        "visible_display_size_px": [
+          60.0,
+          59.375
+        ],
+        "pivot_px": [
+          52.0,
+          51.5
+        ]
+      },
+      "png_sha256": "9507dde6f9b626c7caf4f5a91a610c0767e8f92b6ff7c9460d870c35de78f965"
+    },
+    "black/rank_chevron_left": {
+      "file": "black/rank_chevron_left.png",
+      "source": "black",
+      "source_rect_px": [
+        633,
+        832,
+        117,
+        138
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        109,
+        130
+      ],
+      "size_px": [
+        117,
+        138
+      ],
+      "aspect_ratio": 0.84782609,
+      "size_relative_to_source": [
+        0.07617188,
+        0.13476562
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.34935897,
+        0.4467354
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        58.5,
+        69.0
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        691.5,
+        901.0
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_left",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5504587155963303,
+        0.5504587155963303
+      ],
+      "assembly": {
+        "position_px": [
+          194.801432073,
+          497.52480092
+        ],
+        "rotation_deg": -10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.542096011,
+            0.095586153,
+            156.493370893
+          ],
+          [
+            -0.095586153,
+            0.542096011,
+            465.711966114
+          ]
+        ],
+        "display_size_px": [
+          64.40366972477065,
+          75.96330275229359
+        ],
+        "visible_display_size_px": [
+          60.0,
+          71.55963302752293
+        ],
+        "pivot_px": [
+          58.5,
+          69.0
+        ]
+      },
+      "png_sha256": "4ccb48f1cba81111a128d1a77cabb4cca81fe1829130206b9a0316e638f83f91"
+    },
+    "black/rank_chevron_right": {
+      "file": "black/rank_chevron_right.png",
+      "source": "black",
+      "source_rect_px": [
+        786,
+        832,
+        121,
+        137
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        113,
+        129
+      ],
+      "size_px": [
+        121,
+        137
+      ],
+      "aspect_ratio": 0.88321168,
+      "size_relative_to_source": [
+        0.07877604,
+        0.13378906
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.36217949,
+        0.44329897
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        60.5,
+        68.5
+      ],
+      "pivot_uv": [
+        0.5,
+        0.5
+      ],
+      "pivot_source_px": [
+        846.5,
+        900.5
+      ],
+      "pivot_kind": "center",
+      "category": "sleeve_rank",
+      "parent_slot": "arm_right",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5309734513274337,
+        0.5309734513274337
+      ],
+      "assembly": {
+        "position_px": [
+          448.182712433,
+          492.51827888300005
+        ],
+        "rotation_deg": 10,
+        "z_index": 60,
+        "matrix_2x3": [
+          [
+            0.522906772,
+            -0.092202572,
+            422.862728953
+          ],
+          [
+            0.092202572,
+            0.522906772,
+            451.120909416
+          ]
+        ],
+        "display_size_px": [
+          64.24778761061947,
+          72.74336283185842
+        ],
+        "visible_display_size_px": [
+          60.00000000000001,
+          68.49557522123895
+        ],
+        "pivot_px": [
+          60.5,
+          68.5
+        ]
+      },
+      "png_sha256": "111816b7b7b3ddece06c544ac4f40f710642804f6316157ed329c56005ff9a56"
+    },
+    "black/epaulette_plain_left": {
+      "file": "black/epaulette_plain_left.png",
+      "source": "black",
+      "source_rect_px": [
+        969,
+        835,
+        108,
+        111
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        100,
+        103
+      ],
+      "size_px": [
+        108,
+        111
+      ],
+      "aspect_ratio": 0.97297297,
+      "size_relative_to_source": [
+        0.0703125,
+        0.10839844
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.32051282,
+        0.35395189
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        78,
+        20
+      ],
+      "pivot_uv": [
+        0.72222222,
+        0.18018018
+      ],
+      "pivot_source_px": [
+        1047,
+        855
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.58,
+        0.58
+      ],
+      "assembly": {
+        "position_px": [
+          213,
+          403
+        ],
+        "rotation_deg": 27,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.516783784,
+            -0.26331449,
+            177.957154643
+          ],
+          [
+            0.26331449,
+            0.516783784,
+            372.125794111
+          ]
+        ],
+        "display_size_px": [
+          62.63999999999999,
+          64.38
+        ],
+        "visible_display_size_px": [
+          57.99999999999999,
+          59.739999999999995
+        ],
+        "pivot_px": [
+          78,
+          20
+        ]
+      },
+      "png_sha256": "cf770892f9adec491d47c1df77d9838a5898b3b7698a3db1769c41537ffea60b"
+    },
+    "black/epaulette_plain_right": {
+      "file": "black/epaulette_plain_right.png",
+      "source": "black",
+      "source_rect_px": [
+        1098,
+        835,
+        104,
+        111
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        96,
+        103
+      ],
+      "size_px": [
+        104,
+        111
+      ],
+      "aspect_ratio": 0.93693694,
+      "size_relative_to_source": [
+        0.06770833,
+        0.10839844
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.30769231,
+        0.35395189
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        28,
+        21
+      ],
+      "pivot_uv": [
+        0.26923077,
+        0.18918919
+      ],
+      "pivot_source_px": [
+        1126,
+        856
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.6041666666666666,
+        0.6041666666666666
+      ],
+      "assembly": {
+        "position_px": [
+          425,
+          398
+        ],
+        "rotation_deg": -26,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.543021403,
+            0.264849235,
+            404.233566792
+          ],
+          [
+            -0.264849235,
+            0.543021403,
+            394.012329104
+          ]
+        ],
+        "display_size_px": [
+          62.83333333333333,
+          67.0625
+        ],
+        "visible_display_size_px": [
+          58.0,
+          62.229166666666664
+        ],
+        "pivot_px": [
+          28,
+          21
+        ]
+      },
+      "png_sha256": "e9ed0fd09b86875a27252a90969646a3a3fb586ecdc7d9e38bc303506192d7b3"
+    },
+    "black/epaulette_striped_left": {
+      "file": "black/epaulette_striped_left.png",
+      "source": "black",
+      "source_rect_px": [
+        1238,
+        829,
+        114,
+        116
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        106,
+        108
+      ],
+      "size_px": [
+        114,
+        116
+      ],
+      "aspect_ratio": 0.98275862,
+      "size_relative_to_source": [
+        0.07421875,
+        0.11328125
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.33974359,
+        0.37113402
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        84,
+        21
+      ],
+      "pivot_uv": [
+        0.73684211,
+        0.18103448
+      ],
+      "pivot_source_px": [
+        1322,
+        850
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5471698113207547,
+        0.5471698113207547
+      ],
+      "assembly": {
+        "position_px": [
+          213,
+          403
+        ],
+        "rotation_deg": 27,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.487531872,
+            -0.248409896,
+            177.263930593
+          ],
+          [
+            0.248409896,
+            0.487531872,
+            371.895399423
+          ]
+        ],
+        "display_size_px": [
+          62.37735849056604,
+          63.471698113207545
+        ],
+        "visible_display_size_px": [
+          58.0,
+          59.094339622641506
+        ],
+        "pivot_px": [
+          84,
+          21
+        ]
+      },
+      "png_sha256": "00ed5ec46fe02edb63fbad2dfde150a110f8fd365dd3bb5588a6af9eb08a6666"
+    },
+    "black/epaulette_striped_right": {
+      "file": "black/epaulette_striped_right.png",
+      "source": "black",
+      "source_rect_px": [
+        1375,
+        829,
+        109,
+        115
+      ],
+      "visible_bounds_px": [
+        4,
+        4,
+        101,
+        107
+      ],
+      "size_px": [
+        109,
+        115
+      ],
+      "aspect_ratio": 0.94782609,
+      "size_relative_to_source": [
+        0.07096354,
+        0.11230469
+      ],
+      "visible_size_relative_to_reference_torso": [
+        0.32371795,
+        0.36769759
+      ],
+      "native_scale": [
+        1,
+        1
+      ],
+      "pivot_px": [
+        28,
+        20
+      ],
+      "pivot_uv": [
+        0.25688073,
+        0.17391304
+      ],
+      "pivot_source_px": [
+        1403,
+        849
+      ],
+      "pivot_kind": "shoulder_button",
+      "category": "epaulette",
+      "parent_slot": "torso",
+      "rest_rotation_deg": 0,
+      "foreign_fragment_excluded": false,
+      "scale_correction": [
+        0.5742574257425742,
+        0.5742574257425742
+      ],
+      "assembly": {
+        "position_px": [
+          425,
+          398
+        ],
+        "rotation_deg": -26,
+        "z_index": 70,
+        "matrix_2x3": [
+          [
+            0.516139155,
+            0.251737886,
+            405.513345926
+          ],
+          [
+            -0.251737886,
+            0.516139155,
+            394.72587771
+          ]
+        ],
+        "display_size_px": [
+          62.59405940594059,
+          66.03960396039604
+        ],
+        "visible_display_size_px": [
+          57.99999999999999,
+          61.44554455445544
+        ],
+        "pivot_px": [
+          28,
+          20
+        ]
+      },
+      "png_sha256": "52a238dc3fa0048eddb68a2e123680e3147cc938abc98e70dc3919aa250ed89a"
+    }
+  },
+  "shared_parts": [
+    "shared/head",
+    "shared/leg_left",
+    "shared/leg_right"
+  ],
+  "assembly_spec": {
+    "canvas_size_px": [
+      640,
+      800
+    ],
+    "root_position_px": [
+      320,
+      550
+    ],
+    "reference_visible_torso_width_px": 312,
+    "scale_policy": "Uniform XY scaling only. Normalize each torso visible foreground width to 312; preserve every raster aspect ratio. Transparent crop padding does not determine scale.",
+    "transform_formula": "canvas_point = position_px + R_clockwise(rotation_deg) * diag(scale_correction) * (crop_point - pivot_px)",
+    "matrix_convention": "matrix_2x3 maps native crop pixel coordinates directly to canvas pixels; column-vector convention",
+    "hierarchy_formula": "child_local_matrix = inverse(parent_canvas_matrix) * child_canvas_matrix; recompute child_canvas_matrix = parent_canvas_matrix * child_local_matrix when animating",
+    "inheritance": "Use either canvas matrix directly OR the parent-local matrix hierarchy, never both. Do not multiply scale_correction again after applying matrix_2x3.",
+    "side_names": "viewer_left_and_viewer_right",
+    "layer_order": "ascending z_index, draw lower first",
+    "calibration": "Manually calibrated against the original assembled chibi reference; pivots and sockets are reconstruction estimates, not recovered authoring data.",
+    "targets": {
+      "head_visible_width_px": 280,
+      "helmet_visible_width_px": 390,
+      "officer_cap_visible_width_px": 390,
+      "arm_visible_height_px": 218,
+      "leg_visible_height_px": 126,
+      "sleeve_rank_visible_width_px": 60,
+      "epaulette_visible_width_px": 58
+    },
+    "shared_parts_policy": "Reuse the same head and leg transforms for both nations; no raster duplication.",
+    "usage_ko": [
+      "PNG를 리사이즈하여 저장하지 마세요. 원본 픽셀은 그대로 두고 렌더링 때만 배율을 적용합니다.",
+      "간단한 조립은 assemblies의 canvas_matrix_2x3와 z_index를 사용합니다.",
+      "관절 애니메이션은 parent와 local_matrix_2x3를 사용합니다. 행렬에 배율이 포함되어 있으므로 scale_correction을 다시 곱하지 마세요.",
+      "크롭 좌표와 pivot_px는 원본 픽셀 단위이며, position_px는 640×800 공통 캔버스 단위입니다.",
+      "조립 좌표와 관절축은 원본 캐릭터를 참고해 보정한 추정값입니다."
+    ]
+  },
+  "assemblies": {
+    "black_private": {
+      "nation": "black",
+      "root": "black/torso_plain",
+      "nodes": {
+        "black/torso_plain": {
+          "part": "black/torso_plain",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              1.0,
+              -0.0,
+              164.0
+            ],
+            [
+              0.0,
+              1.0,
+              355.0
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.0,
+              -0.0,
+              164.0
+            ],
+            [
+              0.0,
+              1.0,
+              355.0
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "black/torso_plain",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              0.95890411,
+              0.0,
+              12.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              -238.191780822
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "black/torso_plain",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.6,
+              0.0,
+              21.0
+            ],
+            [
+              0.0,
+              0.6,
+              246.8
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "black/torso_plain",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.591549296,
+              0.0,
+              178.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              247.704225352
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "black/arm_left": {
+          "part": "black/arm_left",
+          "parent": "black/torso_plain",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              -65.446117655
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              57.84956461
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              98.553882345
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              412.84956461
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/arm_right": {
+          "part": "black/arm_right",
+          "parent": "black/torso_plain",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              211.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              24.634267607
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              375.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              379.634267607
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/helmet": {
+          "part": "black/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.090386825,
+              0.0,
+              -62.625430843
+            ],
+            [
+              0.0,
+              1.090386825,
+              -90.316085752
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.045576408,
+              -0.0,
+              116.112600536
+            ],
+            [
+              0.0,
+              1.045576408,
+              30.203753351
+            ]
+          ],
+          "z_index": 50
+        }
+      }
+    },
+    "black_single_bar": {
+      "nation": "black",
+      "root": "black/torso_plain",
+      "nodes": {
+        "black/torso_plain": {
+          "part": "black/torso_plain",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              1.0,
+              -0.0,
+              164.0
+            ],
+            [
+              0.0,
+              1.0,
+              355.0
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.0,
+              -0.0,
+              164.0
+            ],
+            [
+              0.0,
+              1.0,
+              355.0
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "black/torso_plain",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              0.95890411,
+              0.0,
+              12.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              -238.191780822
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "black/torso_plain",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.6,
+              0.0,
+              21.0
+            ],
+            [
+              0.0,
+              0.6,
+              246.8
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "black/torso_plain",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.591549296,
+              0.0,
+              178.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              247.704225352
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "black/arm_left": {
+          "part": "black/arm_left",
+          "parent": "black/torso_plain",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              -65.446117655
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              57.84956461
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              98.553882345
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              412.84956461
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/arm_right": {
+          "part": "black/arm_right",
+          "parent": "black/torso_plain",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              211.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              24.634267607
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              375.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              379.634267607
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/helmet": {
+          "part": "black/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.090386825,
+              0.0,
+              -62.625430843
+            ],
+            [
+              0.0,
+              1.090386825,
+              -90.316085752
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.045576408,
+              -0.0,
+              116.112600536
+            ],
+            [
+              0.0,
+              1.045576408,
+              30.203753351
+            ]
+          ],
+          "z_index": 50
+        },
+        "black/rank_single_bar_left": {
+          "part": "black/rank_single_bar_left",
+          "parent": "black/arm_left",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.457160628,
+              0.0,
+              43.198880436
+            ],
+            [
+              -0.0,
+              0.457160628,
+              67.82770953
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.500749705,
+              0.088295684,
+              158.97186001
+            ],
+            [
+              -0.088295684,
+              0.500749705,
+              478.801068296
+            ]
+          ],
+          "z_index": 60
+        },
+        "black/rank_single_bar_right": {
+          "part": "black/rank_single_bar_right",
+          "parent": "black/arm_right",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.460257497,
+              0.0,
+              53.773648911
+            ],
+            [
+              -0.0,
+              0.460257497,
+              67.677511376
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.496541724,
+              -0.087553703,
+              420.898667543
+            ],
+            [
+              0.087553703,
+              0.496541724,
+              462.876345117
+            ]
+          ],
+          "z_index": 60
+        }
+      }
+    },
+    "black_double_bar": {
+      "nation": "black",
+      "root": "black/torso_collar",
+      "nodes": {
+        "black/torso_collar": {
+          "part": "black/torso_collar",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.99047619,
+              -0.0,
+              163.504761905
+            ],
+            [
+              0.0,
+              0.99047619,
+              356.857142857
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.99047619,
+              -0.0,
+              163.504761905
+            ],
+            [
+              0.0,
+              0.99047619,
+              356.857142857
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "black/torso_collar",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              0.968124342,
+              0.0,
+              12.781348794
+            ],
+            [
+              0.0,
+              0.968124342,
+              -242.357086523
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "black/torso_collar",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.605769231,
+              0.0,
+              21.701923087
+            ],
+            [
+              0.0,
+              0.605769231,
+              247.298077042
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "black/torso_collar",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.59723727,
+              0.0,
+              181.178494128
+            ],
+            [
+              0.0,
+              0.59723727,
+              248.210996869
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "black/arm_left": {
+          "part": "black/arm_left",
+          "parent": "black/torso_collar",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.105879586,
+              0.194996409,
+              -65.57540728
+            ],
+            [
+              -0.194996409,
+              1.105879586,
+              56.530810451
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              98.553882345
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              412.84956461
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/arm_right": {
+          "part": "black/arm_right",
+          "parent": "black/torso_collar",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.089208034,
+              -0.192056764,
+              214.296080571
+            ],
+            [
+              0.192056764,
+              1.089208034,
+              22.996135576
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              375.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              379.634267607
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/helmet": {
+          "part": "black/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.090386825,
+              0.0,
+              -62.625430843
+            ],
+            [
+              0.0,
+              1.090386825,
+              -90.316085752
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.045576408,
+              -0.0,
+              116.112600536
+            ],
+            [
+              0.0,
+              1.045576408,
+              30.203753351
+            ]
+          ],
+          "z_index": 50
+        },
+        "black/rank_double_bar_left": {
+          "part": "black/rank_double_bar_left",
+          "parent": "black/arm_left",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.556133548,
+              -0.0,
+              42.80298876
+            ],
+            [
+              0.0,
+              0.556133548,
+              61.359122293
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.609159435,
+              0.107411244,
+              157.288882681
+            ],
+            [
+              -0.107411244,
+              0.609159435,
+              471.792180331
+            ]
+          ],
+          "z_index": 60
+        },
+        "black/rank_double_bar_right": {
+          "part": "black/rank_double_bar_right",
+          "parent": "black/arm_right",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.570527523,
+              0.0,
+              53.332568809
+            ],
+            [
+              -0.0,
+              0.570527523,
+              60.617832574
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.615504846,
+              -0.108530111,
+              421.765761179
+            ],
+            [
+              0.108530111,
+              0.615504846,
+              455.176213559
+            ]
+          ],
+          "z_index": 60
+        }
+      }
+    },
+    "black_chevron": {
+      "nation": "black",
+      "root": "black/torso_medal",
+      "nodes": {
+        "black/torso_medal": {
+          "part": "black/torso_medal",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.965944272,
+              -0.0,
+              159.653250774
+            ],
+            [
+              0.0,
+              0.965944272,
+              361.640866873
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.965944272,
+              -0.0,
+              159.653250774
+            ],
+            [
+              0.0,
+              0.965944272,
+              361.640866873
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "black/torso_medal",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              0.992711627,
+              0.0,
+              17.093256067
+            ],
+            [
+              0.0,
+              0.992711627,
+              -253.464568083
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.621153846,
+              0.0,
+              26.240384627
+            ],
+            [
+              0.0,
+              0.621153846,
+              248.626282166
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.612405201,
+              0.0,
+              189.767154295
+            ],
+            [
+              0.0,
+              0.612405201,
+              249.562387259
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "black/arm_left": {
+          "part": "black/arm_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.133965417,
+              0.199948698,
+              -63.253512858
+            ],
+            [
+              -0.199948698,
+              1.133965417,
+              53.014132618
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              98.553882345
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              412.84956461
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/arm_right": {
+          "part": "black/arm_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.116870461,
+              -0.196934396,
+              223.725822298
+            ],
+            [
+              0.196934396,
+              1.116870461,
+              18.627783461
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              375.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              379.634267607
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/helmet": {
+          "part": "black/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.090386825,
+              0.0,
+              -62.625430843
+            ],
+            [
+              0.0,
+              1.090386825,
+              -90.316085752
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.045576408,
+              -0.0,
+              116.112600536
+            ],
+            [
+              0.0,
+              1.045576408,
+              30.203753351
+            ]
+          ],
+          "z_index": 50
+        },
+        "black/rank_chevron_left": {
+          "part": "black/rank_chevron_left",
+          "parent": "black/arm_left",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.494907836,
+              -0.0,
+              43.047891609
+            ],
+            [
+              0.0,
+              0.494907836,
+              55.851359315
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.542096011,
+              0.095586153,
+              156.493370893
+            ],
+            [
+              -0.095586153,
+              0.542096011,
+              465.711966114
+            ]
+          ],
+          "z_index": 60
+        },
+        "black/rank_chevron_right": {
+          "part": "black/rank_chevron_right",
+          "parent": "black/arm_right",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.484695949,
+              0.0,
+              53.675895105
+            ],
+            [
+              -0.0,
+              0.484695949,
+              56.79832752
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.522906772,
+              -0.092202572,
+              422.862728953
+            ],
+            [
+              0.092202572,
+              0.522906772,
+              451.120909416
+            ]
+          ],
+          "z_index": 60
+        }
+      }
+    },
+    "black_officer": {
+      "nation": "black",
+      "root": "black/torso_medal",
+      "nodes": {
+        "black/torso_medal": {
+          "part": "black/torso_medal",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.965944272,
+              -0.0,
+              159.653250774
+            ],
+            [
+              0.0,
+              0.965944272,
+              361.640866873
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.965944272,
+              -0.0,
+              159.653250774
+            ],
+            [
+              0.0,
+              0.965944272,
+              361.640866873
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "black/torso_medal",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              0.992711627,
+              0.0,
+              17.093256067
+            ],
+            [
+              0.0,
+              0.992711627,
+              -253.464568083
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.621153846,
+              0.0,
+              26.240384627
+            ],
+            [
+              0.0,
+              0.621153846,
+              248.626282166
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.612405201,
+              0.0,
+              189.767154295
+            ],
+            [
+              0.0,
+              0.612405201,
+              249.562387259
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "black/arm_left": {
+          "part": "black/arm_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.133965417,
+              0.199948698,
+              -63.253512858
+            ],
+            [
+              -0.199948698,
+              1.133965417,
+              53.014132618
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              98.553882345
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              412.84956461
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/arm_right": {
+          "part": "black/arm_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.116870461,
+              -0.196934396,
+              223.725822298
+            ],
+            [
+              0.196934396,
+              1.116870461,
+              18.627783461
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              375.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              379.634267607
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/officer_cap": {
+          "part": "black/officer_cap",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.040189988,
+              0.0,
+              -45.555717921
+            ],
+            [
+              0.0,
+              1.040189988,
+              -65.025246592
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.997442455,
+              -0.0,
+              132.480818414
+            ],
+            [
+              0.0,
+              0.997442455,
+              54.455242967
+            ]
+          ],
+          "z_index": 50
+        },
+        "black/epaulette_plain_left": {
+          "part": "black/epaulette_plain_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "epaulette_left",
+          "local_matrix_2x3": [
+            [
+              0.535003725,
+              -0.272598014,
+              18.949233822
+            ],
+            [
+              0.272598014,
+              0.535003725,
+              10.854588139
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.516783784,
+              -0.26331449,
+              177.957154643
+            ],
+            [
+              0.26331449,
+              0.516783784,
+              372.125794111
+            ]
+          ],
+          "z_index": 70
+        },
+        "black/epaulette_plain_right": {
+          "part": "black/epaulette_plain_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "epaulette_right",
+          "local_matrix_2x3": [
+            [
+              0.562166389,
+              0.274186868,
+              253.203340097
+            ],
+            [
+              -0.274186868,
+              0.562166389,
+              33.512763799
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.543021403,
+              0.264849235,
+              404.233566792
+            ],
+            [
+              -0.264849235,
+              0.543021403,
+              394.012329104
+            ]
+          ],
+          "z_index": 70
+        }
+      }
+    },
+    "black_senior_officer": {
+      "nation": "black",
+      "root": "black/torso_medal",
+      "nodes": {
+        "black/torso_medal": {
+          "part": "black/torso_medal",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.965944272,
+              -0.0,
+              159.653250774
+            ],
+            [
+              0.0,
+              0.965944272,
+              361.640866873
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.965944272,
+              -0.0,
+              159.653250774
+            ],
+            [
+              0.0,
+              0.965944272,
+              361.640866873
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "black/torso_medal",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              0.992711627,
+              0.0,
+              17.093256067
+            ],
+            [
+              0.0,
+              0.992711627,
+              -253.464568083
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.621153846,
+              0.0,
+              26.240384627
+            ],
+            [
+              0.0,
+              0.621153846,
+              248.626282166
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.612405201,
+              0.0,
+              189.767154295
+            ],
+            [
+              0.0,
+              0.612405201,
+              249.562387259
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "black/arm_left": {
+          "part": "black/arm_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.133965417,
+              0.199948698,
+              -63.253512858
+            ],
+            [
+              -0.199948698,
+              1.133965417,
+              53.014132618
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.095347399,
+              0.1931393,
+              98.553882345
+            ],
+            [
+              -0.1931393,
+              1.095347399,
+              412.84956461
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/arm_right": {
+          "part": "black/arm_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.116870461,
+              -0.196934396,
+              223.725822298
+            ],
+            [
+              0.196934396,
+              1.116870461,
+              18.627783461
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.078834624,
+              -0.190227652,
+              375.759927321
+            ],
+            [
+              0.190227652,
+              1.078834624,
+              379.634267607
+            ]
+          ],
+          "z_index": 20
+        },
+        "black/officer_cap": {
+          "part": "black/officer_cap",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.040189988,
+              0.0,
+              -45.555717921
+            ],
+            [
+              0.0,
+              1.040189988,
+              -65.025246592
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.997442455,
+              -0.0,
+              132.480818414
+            ],
+            [
+              0.0,
+              0.997442455,
+              54.455242967
+            ]
+          ],
+          "z_index": 50
+        },
+        "black/epaulette_striped_left": {
+          "part": "black/epaulette_striped_left",
+          "parent": "black/torso_medal",
+          "parent_socket": "epaulette_left",
+          "local_matrix_2x3": [
+            [
+              0.504720496,
+              -0.257167937,
+              18.23156918
+            ],
+            [
+              0.257167937,
+              0.504720496,
+              10.616070561
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.487531872,
+              -0.248409896,
+              177.263930593
+            ],
+            [
+              0.248409896,
+              0.487531872,
+              371.895399423
+            ]
+          ],
+          "z_index": 70
+        },
+        "black/epaulette_striped_right": {
+          "part": "black/epaulette_striped_right",
+          "parent": "black/torso_medal",
+          "parent_socket": "epaulette_right",
+          "local_matrix_2x3": [
+            [
+              0.534336369,
+              0.26061326,
+              254.52823965
+            ],
+            [
+              -0.26061326,
+              0.534336369,
+              34.251469568
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.516139155,
+              0.251737886,
+              405.513345926
+            ],
+            [
+              -0.251737886,
+              0.516139155,
+              394.72587771
+            ]
+          ],
+          "z_index": 70
+        }
+      }
+    },
+    "blue_private": {
+      "nation": "blue",
+      "root": "blue/torso_enlisted",
+      "nodes": {
+        "blue/torso_enlisted": {
+          "part": "blue/torso_enlisted",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              1.192483317,
+              0.0,
+              14.127502641
+            ],
+            [
+              0.0,
+              1.192483317,
+              -285.712855759
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.746153846,
+              0.0,
+              25.115384626
+            ],
+            [
+              0.0,
+              0.746153846,
+              317.417948852
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.735644638,
+              0.0,
+              221.550018151
+            ],
+            [
+              0.0,
+              0.735644638,
+              318.542434226
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "blue/arm_left": {
+          "part": "blue/arm_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.230340586,
+              0.216942241,
+              -95.829535548
+            ],
+            [
+              -0.216942241,
+              1.230340586,
+              89.976196586
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.989346038,
+              0.1744484,
+              87.745321963
+            ],
+            [
+              -0.1744484,
+              0.989346038,
+              418.908694131
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/arm_right": {
+          "part": "blue/arm_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.236036607,
+              -0.217946603,
+              254.938699657
+            ],
+            [
+              0.217946603,
+              1.236036607,
+              45.241116656
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.993926343,
+              -0.175256031,
+              369.806376957
+            ],
+            [
+              0.175256031,
+              0.993926343,
+              382.936155646
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/helmet": {
+          "part": "blue/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.152165115,
+              0.0,
+              -61.998381196
+            ],
+            [
+              0.0,
+              1.152165115,
+              -98.782800443
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.104815864,
+              -0.0,
+              116.71388102
+            ],
+            [
+              0.0,
+              1.104815864,
+              22.084985836
+            ]
+          ],
+          "z_index": 50
+        }
+      }
+    },
+    "blue_bars": {
+      "nation": "blue",
+      "root": "blue/torso_enlisted",
+      "nodes": {
+        "blue/torso_enlisted": {
+          "part": "blue/torso_enlisted",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              1.192483317,
+              0.0,
+              14.127502641
+            ],
+            [
+              0.0,
+              1.192483317,
+              -285.712855759
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.746153846,
+              0.0,
+              25.115384626
+            ],
+            [
+              0.0,
+              0.746153846,
+              317.417948852
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.735644638,
+              0.0,
+              221.550018151
+            ],
+            [
+              0.0,
+              0.735644638,
+              318.542434226
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "blue/arm_left": {
+          "part": "blue/arm_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.230340586,
+              0.216942241,
+              -95.829535548
+            ],
+            [
+              -0.216942241,
+              1.230340586,
+              89.976196586
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.989346038,
+              0.1744484,
+              87.745321963
+            ],
+            [
+              -0.1744484,
+              0.989346038,
+              418.908694131
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/arm_right": {
+          "part": "blue/arm_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.236036607,
+              -0.217946603,
+              254.938699657
+            ],
+            [
+              0.217946603,
+              1.236036607,
+              45.241116656
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.993926343,
+              -0.175256031,
+              369.806376957
+            ],
+            [
+              0.175256031,
+              0.993926343,
+              382.936155646
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/helmet": {
+          "part": "blue/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.152165115,
+              0.0,
+              -61.998381196
+            ],
+            [
+              0.0,
+              1.152165115,
+              -98.782800443
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.104815864,
+              -0.0,
+              116.71388102
+            ],
+            [
+              0.0,
+              1.104815864,
+              22.084985836
+            ]
+          ],
+          "z_index": 50
+        },
+        "blue/rank_bars_left": {
+          "part": "blue/rank_bars_left",
+          "parent": "blue/arm_left",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.553007135,
+              0.0,
+              54.925586159
+            ],
+            [
+              -0.0,
+              0.553007135,
+              69.308103982
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.547115418,
+              0.09647121,
+              154.176420861
+            ],
+            [
+              -0.09647121,
+              0.547115418,
+              477.896711582
+            ]
+          ],
+          "z_index": 60
+        },
+        "blue/rank_bars_right": {
+          "part": "blue/rank_bars_right",
+          "parent": "blue/arm_right",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.545408636,
+              -0.0,
+              65.093594808
+            ],
+            [
+              0.0,
+              0.545408636,
+              70.547933663
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.542096011,
+              -0.095586153,
+              422.140664748
+            ],
+            [
+              0.095586153,
+              0.542096011,
+              464.463650427
+            ]
+          ],
+          "z_index": 60
+        }
+      }
+    },
+    "blue_chevron_down": {
+      "nation": "blue",
+      "root": "blue/torso_enlisted",
+      "nodes": {
+        "blue/torso_enlisted": {
+          "part": "blue/torso_enlisted",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              1.192483317,
+              0.0,
+              14.127502641
+            ],
+            [
+              0.0,
+              1.192483317,
+              -285.712855759
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.746153846,
+              0.0,
+              25.115384626
+            ],
+            [
+              0.0,
+              0.746153846,
+              317.417948852
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.735644638,
+              0.0,
+              221.550018151
+            ],
+            [
+              0.0,
+              0.735644638,
+              318.542434226
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "blue/arm_left": {
+          "part": "blue/arm_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.230340586,
+              0.216942241,
+              -95.829535548
+            ],
+            [
+              -0.216942241,
+              1.230340586,
+              89.976196586
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.989346038,
+              0.1744484,
+              87.745321963
+            ],
+            [
+              -0.1744484,
+              0.989346038,
+              418.908694131
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/arm_right": {
+          "part": "blue/arm_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.236036607,
+              -0.217946603,
+              254.938699657
+            ],
+            [
+              0.217946603,
+              1.236036607,
+              45.241116656
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.993926343,
+              -0.175256031,
+              369.806376957
+            ],
+            [
+              0.175256031,
+              0.993926343,
+              382.936155646
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/helmet": {
+          "part": "blue/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.152165115,
+              0.0,
+              -61.998381196
+            ],
+            [
+              0.0,
+              1.152165115,
+              -98.782800443
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.104815864,
+              -0.0,
+              116.71388102
+            ],
+            [
+              0.0,
+              1.104815864,
+              22.084985836
+            ]
+          ],
+          "z_index": 50
+        },
+        "blue/rank_chevron_down_left": {
+          "part": "blue/rank_chevron_down_left",
+          "parent": "blue/arm_left",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.54295246,
+              0.0,
+              54.965804859
+            ],
+            [
+              -0.0,
+              0.54295246,
+              67.422852385
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.537167865,
+              0.094717188,
+              153.887331948
+            ],
+            [
+              -0.094717188,
+              0.537167865,
+              476.024529296
+            ]
+          ],
+          "z_index": 60
+        },
+        "blue/rank_chevron_down_right": {
+          "part": "blue/rank_chevron_down_right",
+          "parent": "blue/arm_right",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.526102136,
+              0.0,
+              65.170820809
+            ],
+            [
+              -0.0,
+              0.526102136,
+              68.43387187
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.522906772,
+              -0.092202572,
+              422.587923784
+            ],
+            [
+              0.092202572,
+              0.522906772,
+              462.375963043
+            ]
+          ],
+          "z_index": 60
+        }
+      }
+    },
+    "blue_chevron_up": {
+      "nation": "blue",
+      "root": "blue/torso_enlisted",
+      "nodes": {
+        "blue/torso_enlisted": {
+          "part": "blue/torso_enlisted",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.804123711,
+              -0.0,
+              164.804123711
+            ],
+            [
+              0.0,
+              0.804123711,
+              346.556701031
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              1.192483317,
+              0.0,
+              14.127502641
+            ],
+            [
+              0.0,
+              1.192483317,
+              -285.712855759
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.746153846,
+              0.0,
+              25.115384626
+            ],
+            [
+              0.0,
+              0.746153846,
+              317.417948852
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.735644638,
+              0.0,
+              221.550018151
+            ],
+            [
+              0.0,
+              0.735644638,
+              318.542434226
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "blue/arm_left": {
+          "part": "blue/arm_left",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.230340586,
+              0.216942241,
+              -95.829535548
+            ],
+            [
+              -0.216942241,
+              1.230340586,
+              89.976196586
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.989346038,
+              0.1744484,
+              87.745321963
+            ],
+            [
+              -0.1744484,
+              0.989346038,
+              418.908694131
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/arm_right": {
+          "part": "blue/arm_right",
+          "parent": "blue/torso_enlisted",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.236036607,
+              -0.217946603,
+              254.938699657
+            ],
+            [
+              0.217946603,
+              1.236036607,
+              45.241116656
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.993926343,
+              -0.175256031,
+              369.806376957
+            ],
+            [
+              0.175256031,
+              0.993926343,
+              382.936155646
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/helmet": {
+          "part": "blue/helmet",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.152165115,
+              0.0,
+              -61.998381196
+            ],
+            [
+              0.0,
+              1.152165115,
+              -98.782800443
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.104815864,
+              -0.0,
+              116.71388102
+            ],
+            [
+              0.0,
+              1.104815864,
+              22.084985836
+            ]
+          ],
+          "z_index": 50
+        },
+        "blue/rank_chevron_up_left": {
+          "part": "blue/rank_chevron_up_left",
+          "parent": "blue/arm_left",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.514868713,
+              -0.0,
+              55.078139852
+            ],
+            [
+              0.0,
+              0.514868713,
+              67.048402412
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.509383321,
+              0.089818023,
+              153.933147929
+            ],
+            [
+              -0.089818023,
+              0.509383321,
+              475.634472039
+            ]
+          ],
+          "z_index": 60
+        },
+        "blue/rank_chevron_up_right": {
+          "part": "blue/rank_chevron_up_right",
+          "parent": "blue/arm_right",
+          "parent_socket": "sleeve_rank",
+          "local_matrix_2x3": [
+            [
+              0.516952533,
+              0.0,
+              65.207419219
+            ],
+            [
+              -0.0,
+              0.516952533,
+              67.431990412
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.513812741,
+              -0.090599049,
+              422.799885676
+            ],
+            [
+              0.090599049,
+              0.513812741,
+              461.386580762
+            ]
+          ],
+          "z_index": 60
+        }
+      }
+    },
+    "blue_officer": {
+      "nation": "blue",
+      "root": "blue/torso_officer",
+      "nodes": {
+        "blue/torso_officer": {
+          "part": "blue/torso_officer",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.78,
+              -0.0,
+              164.78
+            ],
+            [
+              0.0,
+              0.78,
+              355.0
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.78,
+              -0.0,
+              164.78
+            ],
+            [
+              0.0,
+              0.78,
+              355.0
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "blue/torso_officer",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              1.229364244,
+              0.0,
+              14.595363541
+            ],
+            [
+              0.0,
+              1.229364244,
+              -305.374077977
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "blue/torso_officer",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.769230769,
+              0.0,
+              25.923076923
+            ],
+            [
+              0.0,
+              0.769230769,
+              316.41025641
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "blue/torso_officer",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.758396533,
+              0.0,
+              228.433008306
+            ],
+            [
+              0.0,
+              0.758396533,
+              317.569519682
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "blue/arm_left": {
+          "part": "blue/arm_left",
+          "parent": "blue/torso_officer",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.268392356,
+              0.223651795,
+              -98.76240774
+            ],
+            [
+              -0.223651795,
+              1.268392356,
+              81.934223245
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.989346038,
+              0.1744484,
+              87.745321963
+            ],
+            [
+              -0.1744484,
+              0.989346038,
+              418.908694131
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/arm_right": {
+          "part": "blue/arm_right",
+          "parent": "blue/torso_officer",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.274264542,
+              -0.224687219,
+              262.854329432
+            ],
+            [
+              0.224687219,
+              1.274264542,
+              35.815584162
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.993926343,
+              -0.175256031,
+              369.806376957
+            ],
+            [
+              0.175256031,
+              0.993926343,
+              382.936155646
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/officer_cap": {
+          "part": "blue/officer_cap",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.093317972,
+              0.0,
+              -59.917050666
+            ],
+            [
+              0.0,
+              1.093317972,
+              -54.802304124
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.048387097,
+              -0.0,
+              118.709677419
+            ],
+            [
+              0.0,
+              1.048387097,
+              64.258064516
+            ]
+          ],
+          "z_index": 50
+        },
+        "blue/epaulette_plain_left": {
+          "part": "blue/epaulette_plain_left",
+          "parent": "blue/torso_officer",
+          "parent_socket": "epaulette_left",
+          "local_matrix_2x3": [
+            [
+              0.625040862,
+              -0.318474226,
+              17.267028535
+            ],
+            [
+              0.318474226,
+              0.625040862,
+              20.729160994
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.487531872,
+              -0.248409896,
+              178.248282257
+            ],
+            [
+              0.248409896,
+              0.487531872,
+              371.168745575
+            ]
+          ],
+          "z_index": 70
+        },
+        "blue/epaulette_plain_right": {
+          "part": "blue/epaulette_plain_right",
+          "parent": "blue/torso_officer",
+          "parent_socket": "epaulette_right",
+          "local_matrix_2x3": [
+            [
+              0.61882781,
+              0.30182249,
+              307.791627747
+            ],
+            [
+              -0.30182249,
+              0.61882781,
+              50.87049049
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.482685692,
+              0.235421542,
+              404.857469643
+            ],
+            [
+              -0.235421542,
+              0.482685692,
+              394.678982582
+            ]
+          ],
+          "z_index": 70
+        }
+      }
+    },
+    "blue_senior_officer": {
+      "nation": "blue",
+      "root": "blue/torso_officer",
+      "nodes": {
+        "blue/torso_officer": {
+          "part": "blue/torso_officer",
+          "parent": null,
+          "parent_socket": null,
+          "local_matrix_2x3": [
+            [
+              0.78,
+              -0.0,
+              164.78
+            ],
+            [
+              0.0,
+              0.78,
+              355.0
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.78,
+              -0.0,
+              164.78
+            ],
+            [
+              0.0,
+              0.78,
+              355.0
+            ]
+          ],
+          "z_index": 30
+        },
+        "shared/head": {
+          "part": "shared/head",
+          "parent": "blue/torso_officer",
+          "parent_socket": "head",
+          "local_matrix_2x3": [
+            [
+              1.229364244,
+              0.0,
+              14.595363541
+            ],
+            [
+              0.0,
+              1.229364244,
+              -305.374077977
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.95890411,
+              -0.0,
+              176.164383562
+            ],
+            [
+              0.0,
+              0.95890411,
+              116.808219178
+            ]
+          ],
+          "z_index": 25
+        },
+        "shared/leg_left": {
+          "part": "shared/leg_left",
+          "parent": "blue/torso_officer",
+          "parent_socket": "leg_left",
+          "local_matrix_2x3": [
+            [
+              0.769230769,
+              0.0,
+              25.923076923
+            ],
+            [
+              0.0,
+              0.769230769,
+              316.41025641
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.6,
+              -0.0,
+              185.0
+            ],
+            [
+              0.0,
+              0.6,
+              601.8
+            ]
+          ],
+          "z_index": 10
+        },
+        "shared/leg_right": {
+          "part": "shared/leg_right",
+          "parent": "blue/torso_officer",
+          "parent_socket": "leg_right",
+          "local_matrix_2x3": [
+            [
+              0.758396533,
+              0.0,
+              228.433008306
+            ],
+            [
+              0.0,
+              0.758396533,
+              317.569519682
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.591549296,
+              -0.0,
+              342.957746479
+            ],
+            [
+              0.0,
+              0.591549296,
+              602.704225352
+            ]
+          ],
+          "z_index": 10
+        },
+        "blue/arm_left": {
+          "part": "blue/arm_left",
+          "parent": "blue/torso_officer",
+          "parent_socket": "arm_left",
+          "local_matrix_2x3": [
+            [
+              1.268392356,
+              0.223651795,
+              -98.76240774
+            ],
+            [
+              -0.223651795,
+              1.268392356,
+              81.934223245
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.989346038,
+              0.1744484,
+              87.745321963
+            ],
+            [
+              -0.1744484,
+              0.989346038,
+              418.908694131
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/arm_right": {
+          "part": "blue/arm_right",
+          "parent": "blue/torso_officer",
+          "parent_socket": "arm_right",
+          "local_matrix_2x3": [
+            [
+              1.274264542,
+              -0.224687219,
+              262.854329432
+            ],
+            [
+              0.224687219,
+              1.274264542,
+              35.815584162
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.993926343,
+              -0.175256031,
+              369.806376957
+            ],
+            [
+              0.175256031,
+              0.993926343,
+              382.936155646
+            ]
+          ],
+          "z_index": 20
+        },
+        "blue/officer_cap": {
+          "part": "blue/officer_cap",
+          "parent": "shared/head",
+          "parent_socket": "hat",
+          "local_matrix_2x3": [
+            [
+              1.093317972,
+              0.0,
+              -59.917050666
+            ],
+            [
+              0.0,
+              1.093317972,
+              -54.802304124
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              1.048387097,
+              -0.0,
+              118.709677419
+            ],
+            [
+              0.0,
+              1.048387097,
+              64.258064516
+            ]
+          ],
+          "z_index": 50
+        },
+        "blue/epaulette_striped_left": {
+          "part": "blue/epaulette_striped_left",
+          "parent": "blue/torso_officer",
+          "parent_socket": "epaulette_left",
+          "local_matrix_2x3": [
+            [
+              0.625040862,
+              -0.318474226,
+              16.948554309
+            ],
+            [
+              0.318474226,
+              0.625040862,
+              21.354201855
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.487531872,
+              -0.248409896,
+              177.999872361
+            ],
+            [
+              0.248409896,
+              0.487531872,
+              371.656277447
+            ]
+          ],
+          "z_index": 70
+        },
+        "blue/epaulette_striped_right": {
+          "part": "blue/epaulette_striped_right",
+          "parent": "blue/torso_officer",
+          "parent_socket": "epaulette_right",
+          "local_matrix_2x3": [
+            [
+              0.61882781,
+              0.30182249,
+              306.252149638
+            ],
+            [
+              -0.30182249,
+              0.61882781,
+              50.855307659
+            ]
+          ],
+          "canvas_matrix_2x3": [
+            [
+              0.482685692,
+              0.235421542,
+              403.656676718
+            ],
+            [
+              -0.235421542,
+              0.482685692,
+              394.667139974
+            ]
+          ],
+          "z_index": 70
+        }
+      }
+    }
+  },
+  "validation": {
+    "pngs_unchanged": 36,
+    "assembly_presets_checked": 12,
+    "parts_covered": 36,
+    "uniform_scaling_only": true,
+    "torso_visible_width_px": 312,
+    "torso_visible_width_max_difference_px": 0,
+    "shared_head_and_legs_identical_transforms": true,
+    "max_hierarchy_recomposition_error_px": 3.8824850889795925e-08,
+    "minimum_rank_foreground_inside_arm_ratio": 1.0,
+    "all_crop_corners_inside_canvas": true
+  }
+}

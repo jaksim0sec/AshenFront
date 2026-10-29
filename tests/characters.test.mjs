@@ -1,7 +1,24 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createCatalog,validateCatalog,editPart,exportCatalog,importCatalog,NATIONS,RANKS} from '../src/characters/model.mjs';
 import {poseCharacter,transformPoint} from '../src/characters/animation.mjs';
-test('all nation/rank profiles assemble known supplied parts without source rig data',()=>{const c=createCatalog();assert.equal(Object.keys(c.profiles).length,NATIONS.length*RANKS.length);assert(validateCatalog(c));for(const p of Object.values(c.profiles)){assert(p.parts.head.asset==='shared/head');assert(p.parts.hat.asset.startsWith(p.nation==='arken'?'arken/':'belnian/'));}});
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {RANK_ASSEMBLIES,unifyPhysique} from '../src/characters/model.mjs';
+import {ASPECTS} from '../src/characters/aspects.mjs';
+test('replacement PNG bytes, all preset transforms, layer order and aspect ratios match the supplied archive',()=>{
+ const rig=JSON.parse(readFileSync(new URL('../assets/soldiers/rig.json',import.meta.url))),manifest=JSON.parse(readFileSync(new URL('../assets/soldiers/manifest.json',import.meta.url))),catalog=createCatalog(),{scale:unit,originPx:[ox,oy]}=manifest.assemblyToGame;
+ assert.equal(Object.keys(manifest.assets).length,36);
+ for(const [id,meta] of Object.entries(manifest.assets))assert.equal(createHash('sha256').update(readFileSync(new URL('../'+meta.path,import.meta.url))).digest('hex'),rig.parts[id].png_sha256);
+ for(const profile of Object.values(catalog.profiles)){
+  const preset=rig.assemblies[RANK_ASSEMBLIES[profile.nation][RANKS.indexOf(profile.rank)]],draws=poseCharacter(profile,{state:'idle',time:0}).draws.filter(d=>d.part!=='rifle');
+  assert.deepEqual(draws.map(d=>d.asset),Object.keys(preset.nodes).sort((a,b)=>preset.nodes[a].z_index-preset.nodes[b].z_index));
+  for(const d of draws){const source=rig.parts[d.asset],[w,h]=source.size_px,m=preset.nodes[d.asset].canvas_matrix_2x3,p=profile.parts[d.part];assert(Math.abs(p.w/p.h-ASPECTS[d.asset])<1e-10);assert.equal(p.scaleX,p.scaleY);
+   for(const [u,v] of [[0,0],[1,0],[0,1],[1,1]]){const actual=transformPoint(d.matrix,u*d.w,v*d.h),expected={x:(m[0][0]*u*w+m[0][1]*v*h+m[0][2]-ox)*unit,y:(m[1][0]*u*w+m[1][1]*v*h+m[1][2]-oy)*unit};assert(Math.hypot(actual.x-expected.x,actual.y-expected.y)<1e-6,d.asset);}
+  }
+ }
+ const unified=unifyPhysique(catalog,'arken:private');assert(validateCatalog(unified));for(const p of Object.values(unified.profiles))for(const part of Object.values(p.parts))assert(Math.abs(part.w/part.h-ASPECTS[part.asset])<1e-10);
+});
+test('all nation/rank profiles assemble the calibrated replacement archive',()=>{const c=createCatalog();assert.equal(Object.keys(c.profiles).length,NATIONS.length*RANKS.length);assert(validateCatalog(c));for(const p of Object.values(c.profiles)){assert(p.parts.head.asset==='shared/head');assert(p.parts.hat.asset.startsWith(p.nation==='arken'?'black/':'blue/'));}});
 test('whole original arms remain intact; firing palms meet the rifle grips',()=>{const p=createCatalog().profiles['arken:private'];for(const state of ['idle','walk','shoot'])for(const time of [0,.04,.18,.4,.8,1.3])for(const aim of [-.6,0,.6]){const pose=poseCharacter(p,{state,time,aim,facing:1});if(state==='shoot')for(const side of ['left','right']){const a=pose.hands[side],b=transformPoint(pose.rifle.matrix,...pose.rifle.grips[side]);assert(Math.hypot(a.x-b.x,a.y-b.y)<1e-6);}assert(pose.draws.every(d=>d.matrix.every(Number.isFinite)));}});
 test('nation/rank adjustments export and reload atomically, invalid or external assets are rejected',()=>{const c=createCatalog(),original=structuredClone(c);editPart(c,'velian:captain','hat',{x:4,rotation:.2,pivotX:.4});const json=exportCatalog(c);assert.deepEqual(importCatalog(JSON.parse(json)),c);assert.deepEqual(original.profiles['arken:captain'],c.profiles['arken:captain']);const bad=JSON.parse(json);bad.profiles['arken:private'].parts.hat.asset='https://evil.test/image.png';assert.throws(()=>importCatalog(bad));assert.throws(()=>editPart(c,'velian:captain','head',{w:-1}));assert.equal(c.profiles['velian:captain'].parts.head.w,original.profiles['velian:captain'].parts.head.w);});
 test('firing has recoil, bolt/reload hand motion and muzzle timing; paused sampling is deterministic',()=>{const p=createCatalog().profiles['arken:private'];const a=poseCharacter(p,{state:'shoot',time:.025}),b=poseCharacter(p,{state:'shoot',time:.4});assert(a.flash>0);assert.equal(b.flash,0);assert.notDeepEqual(a.hands.right,b.hands.right);assert.deepEqual(a,poseCharacter(p,{state:'shoot',time:.025}));});

@@ -9,7 +9,7 @@ const id=()=>nation+':'+rank,profile=()=>catalog.profiles[id()];
 function error(e){$('error').textContent=e?.message??String(e??'');}
 function option(select,value,label){const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o);}
 for(const n of NATIONS)option($('nation'),n,LABELS[n]);for(const r of RANKS)option($('rank'),r,LABELS[r]);for(const p of PARTS)option($('part'),p,names[p]);
-for(const a of ASSETS)option($('asset'),a,a==='rifle-placeholder'?'임시 소총 SVG':a.replace('arken/','아르켄 / ').replace('belnian/','벨리안 / ').replace('shared/','공통 / '));
+for(const a of ASSETS)option($('asset'),a,a==='rifle-placeholder'?'임시 소총 SVG':a.replace('black/','아르켄 / ').replace('blue/','벨리안 / ').replace('shared/','공통 / '));
 for(const [key,[label,step]] of Object.entries(fields)){const l=document.createElement('label');l.textContent=label;const input=document.createElement('input');input.type='number';input.step=step;input.id='field-'+key;input.dataset.field=key;input.setAttribute('aria-label',label);l.append(input);$('fields').append(l);input.addEventListener('change',()=>changeNumber(key,input.value));}
 function snapshot(){history.push(structuredClone(catalog));if(history.length>64)history.shift();future=[];}
 function changed(){renderer.setCatalog(catalog);lastThumb=-1;error('');clearTimeout(saveTimer);$('save-state').textContent='저장 중…';saveTimer=setTimeout(save,120);syncFields();}

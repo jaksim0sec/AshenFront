@@ -1,26 +1,30 @@
 import {ASPECTS} from './aspects.mjs';
-/** Independently measured visual assembly; the supplied rig.json is intentionally unused. */
+import {UNIFORM_PARTS,ASSEMBLIES,BODY_STYLE} from './uniforms.mjs';
+/** Assembly proportions come from the current archive, with one global scale/translation. */
 export const NATIONS=['arken','velian'];
 export const RANKS=['private','corporal','sergeant','warrant','lieutenant','captain','major','colonel'];
 export const LABELS={arken:'아르켄 제국',velian:'벨리안 연방',private:'병사',corporal:'상병',sergeant:'하사',warrant:'상사',lieutenant:'소위',captain:'대위',major:'소령',colonel:'대령'};
 export const PARTS=['legLeft','legRight','armLeft','body','armRight','shoulderLeft','shoulderRight','sleeveLeft','sleeveRight','head','hat','rifle'];
-export const STORAGE_KEY='ashenfront.soldier-workshop.v1';
-export const ASSETS=['shared/head','shared/leg_left','shared/leg_right','rifle-placeholder',...['arken','belnian'].flatMap(n=>['arm_left','arm_right','torso_enlisted','torso_officer','helmet','cap_plain','cap_cord',...[1,2,3,4].flatMap(i=>[`board_${i}_left`,`board_${i}_right`,`sleeve_${i}`])].map(k=>n+'/'+k))];
-function keepAspect(p){const ratio=ASPECTS[p.asset],height=Math.min(p.h,p.w/ratio);p.h=height;p.w=height*ratio;const uniform=Math.sqrt(p.scaleX*p.scaleY);p.scaleX=uniform;p.scaleY=uniform;return p;}
-function part(asset,x,y,w,h,extra={}){return keepAspect({asset,x,y,w,h,pivotX:.5,pivotY:.5,rotation:0,scaleX:1,scaleY:1,visible:true,...extra});}
+// A new artwork generation must not silently restore incompatible old browser geometry.
+export const STORAGE_KEY='ashenfront.soldier-workshop.v2';
+export const ASSETS=Object.keys(ASPECTS);
+export const RANK_ASSEMBLIES={
+ arken:['black_private','black_single_bar','black_double_bar','black_chevron','black_officer','black_officer','black_senior_officer','black_senior_officer'],
+ velian:['blue_private','blue_bars','blue_chevron_down','blue_chevron_up','blue_officer','blue_officer','blue_senior_officer','blue_senior_officer']
+};
+function keepAspect(p){const ratio=ASPECTS[p.asset];if(Math.abs(p.w/p.h-ratio)>1e-10){const height=Math.min(p.h,p.w/ratio);p.h=height;p.w=height*ratio;}if(p.scaleX!==p.scaleY){const uniform=Math.sqrt(p.scaleX*p.scaleY);p.scaleX=uniform;p.scaleY=uniform;}return p;}
+function slot(asset){const name=asset.split('/')[1];if(name.startsWith('torso'))return 'body';if(name.startsWith('epaulette'))return name.endsWith('left')?'shoulderLeft':'shoulderRight';if(name.startsWith('rank'))return name.endsWith('left')?'sleeveLeft':'sleeveRight';return {leg_left:'legLeft',leg_right:'legRight',arm_left:'armLeft',arm_right:'armRight',head:'head',helmet:'hat',officer_cap:'hat'}[name];}
 export function createCatalog(){
  const profiles={};for(const nation of NATIONS)for(let i=0;i<RANKS.length;i++){
-  const rank=RANKS[i],family=nation==='arken'?'arken':'belnian',officer=i>=4,board=Math.max(1,i-3),sleeve=Math.min(4,i===2?3:i),hat=officer?(i>=5?'cap_cord':'cap_plain'):i===3?'cap_plain':'helmet';
-  profiles[nation+':'+rank]={nation,rank,parts:{
-   legLeft:part('shared/leg_left',-17,-37.4,35,44,{pivotY:.15}),legRight:part('shared/leg_right',17,-37.4,35,44,{pivotY:.15}),
-   armLeft:part(family+'/arm_left',-31,-94,58,64,{pivotX:.74,pivotY:.15,gripX:nation==='arken'?.2479:.2256,gripY:nation==='arken'?.8341:.8154}),body:part(family+(officer?'/torso_officer':'/torso_enlisted'),0,-72,100,100),armRight:part(family+'/arm_right',31,-94,58,64,{pivotX:.26,pivotY:.15,gripX:nation==='arken'?.746:.7664,gripY:nation==='arken'?.8285:.8155}),
-   shoulderLeft:part(family+`/board_${board}_left`,-32,-109,12,19,{rotation:-1.0,visible:officer}),shoulderRight:part(family+`/board_${board}_right`,32,-109,12,19,{rotation:1.0,visible:officer}),
-   sleeveLeft:part(family+`/sleeve_${Math.max(1,sleeve)}`,-51,-65,15,6+sleeve*1.5,{visible:!officer&&i>0}),sleeveRight:part(family+`/sleeve_${Math.max(1,sleeve)}`,51,-65,15,6+sleeve*1.5,{visible:!officer&&i>0}),
-   head:part('shared/head',0,-153,90,90),hat:part(family+'/'+hat,-2,-185,hat==='helmet'?115:120,80),
-   rifle:part('rifle-placeholder',0,-69,118,29.5,{pivotX:.34,pivotY:.5,gripX:55/160,gripY:23/40,supportX:105/160,supportY:19/40})
-  },layers:[...PARTS]};
+  const rank=RANKS[i],family=nation==='arken'?'black':'blue',nodes=ASSEMBLIES[RANK_ASSEMBLIES[nation][i]],parts={};
+  // Inactive insignia remain editable without adding invented artwork or ranks.
+  for(const asset of [family+'/epaulette_plain_left',family+'/epaulette_plain_right',family+(nation==='arken'?'/rank_single_bar_left':'/rank_bars_left'),family+(nation==='arken'?'/rank_single_bar_right':'/rank_bars_right')])parts[slot(asset)]={...UNIFORM_PARTS[asset],visible:false};
+  for(const asset of nodes)parts[slot(asset)]={...UNIFORM_PARTS[asset]};
+  parts.rifle={asset:'rifle-placeholder',x:0,y:-73,w:118,h:29.5,pivotX:.34,pivotY:.5,rotation:0,scaleX:1,scaleY:1,visible:true,gripX:55/160,gripY:23/40,supportX:105/160,supportY:19/40};
+  const layers=nodes.map(slot);for(const key of PARTS)if(!layers.includes(key))layers.push(key);
+  profiles[nation+':'+rank]={nation,rank,parts,layers};
  }
- return {format:'ashenfront-soldier-catalog',version:1,bodyStyle:'reference-sheet-v3-aspect',profiles};
+ return {format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,profiles};
 }
 function validPart(p){
  if(!p||!ASSETS.includes(p.asset)||typeof p.visible!=='boolean')throw Error('등록되지 않은 파츠입니다.');
@@ -59,15 +63,9 @@ export function unifyPhysique(c,sourceId){
    part.x=b.x+(old[key].x-a.x)*sx;part.y=b.y+(old[key].y-a.y)*sy;part.w=old[key].w*Math.min(sx,sy);part.h=old[key].h*Math.min(sx,sy);keepAspect(part);
   }
  }
- next.bodyStyle='reference-sheet-v3-aspect';validateCatalog(next);return next;
+ next.bodyStyle=BODY_STYLE;validateCatalog(next);return next;
 }
-/** Preserve relative user adjustments when upgrading the earlier tall automatic draft. */
+/** Old raster generations cannot reuse their coordinates with these native crops. */
 export function migratePhysique(c){
- validateCatalog(c);if(c.bodyStyle==='reference-sheet-v3-aspect')return c;
- const next=structuredClone(c),defaults=createCatalog();
- for(const [id,p] of Object.entries(next.profiles))for(const [key,part] of Object.entries(p.parts)){
-  const helmet=part.asset.endsWith('/helmet'),old={legLeft:[-22,-59,43,69],legRight:[22,-59,45,69],armLeft:[-45,-145,58,77],armRight:[45,-145,58,77],body:[0,-111,114,114],head:[0,-193,87,86],hat:[-3,-224,helmet?117:121,helmet?77:80],shoulderLeft:[-37,-151,11,24],shoulderRight:[37,-151,11,24],sleeveLeft:[-62,-123,19,part.h],sleeveRight:[62,-123,19,part.h],rifle:[-8,-124,140,35]}[key],d=defaults.profiles[id].parts[key],sx=d.w/old[2],sy=d.h/old[3];
-  const recent=c.bodyStyle==='reference-sheet-v2',v2={legLeft:[-19,-36.5,35,43],legRight:[19,-36.5,35,43],armLeft:[-32,-94,44,69],armRight:[32,-94,44,69],body:[0,-69,108,84],head:[0,-144,90,74],hat:[-2,-178,helmet?115:120,helmet?76:78],shoulderLeft:[-34,-103,10,19],shoulderRight:[34,-103,10,19],sleeveLeft:[-49,-65,15,part.h],sleeveRight:[49,-65,15,part.h],rifle:[0,-69,118,29.5]}[key],baseline=recent?v2:old;part.x=d.x+(part.x-baseline[0])*d.w/baseline[2];part.y=d.y+(part.y-baseline[1])*d.h/baseline[3];part.w*=d.w/baseline[2];part.h*=d.h/baseline[3];keepAspect(part);
- }
- next.bodyStyle='reference-sheet-v3-aspect';validateCatalog(next);return next;
+ validateCatalog(c);if(c.bodyStyle!==BODY_STYLE)throw Error('이전 파츠용 JSON입니다. 새 파츠 기준으로 다시 조정하세요.');return c;
 }

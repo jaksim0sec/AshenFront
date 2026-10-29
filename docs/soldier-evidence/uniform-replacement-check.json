@@ -1,0 +1,12 @@
+{
+  "images": 37,
+  "profiles": 16,
+  "nationsPreviewed": [
+    "arken",
+    "velian"
+  ],
+  "wholeArmFiring": true,
+  "physiqueButton": true,
+  "gameLoaded": true,
+  "pageErrors": []
+}
