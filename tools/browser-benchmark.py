@@ -3,6 +3,7 @@ import json, os, platform
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 Path('artifacts').mkdir(exist_ok=True)
+BASE=os.environ.get('BASE_URL','http://127.0.0.1:8000')
 results=[]
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH','/usr/bin/chromium'),args=['--no-sandbox'])
@@ -11,7 +12,7 @@ with sync_playwright() as p:
   for low,zoom in [(False,.3),(False,1.0),(True,.3)]:
    ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,has_touch=True)
    page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-   page.goto('http://127.0.0.1:8000/?debug=1');page.wait_for_function('window.__ashen')
+   page.goto(BASE+'/?debug=1');page.wait_for_function('window.__ashen')
    page.evaluate('(s)=>__ashen.loadFixture(s)',size)
    # Advance the real simulation to the approach/fighting phase before profiling.
    page.evaluate('''()=>{let guard=0;while(__ashen.state.metrics.shots<30 && !__ashen.state.winner && guard++<40)__ashen.step(100);}''')

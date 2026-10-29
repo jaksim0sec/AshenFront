@@ -26,7 +26,7 @@ export function damage(w,u,amount) {
  if(u.hp<=0)return;u.hp=Math.max(0,u.hp-amount);if(u.hp>0)return;
  const i=cell(w.map,u.x,u.y);if(w.map.occupancy[i]===u.id)w.map.occupancy[i]=0;
  if(u.moveTo>=0&&w.map.reservation[u.moveTo]===u.id)w.map.reservation[u.moveTo]=0;
- w.spatialRevision=(w.spatialRevision??0)+1;u.moveTo=-1;u.moveProgress=0;u.detour=null;emit(w,{kind:'elimination',x:u.x,y:u.y,team:u.team});
+ w.spatialRevision=(w.spatialRevision??0)+1;u.moveTo=-1;u.moveProgress=0;u.detour=null;emit(w,{kind:'elimination',unitId:u.id,x:u.x,y:u.y,team:u.team});
 }
 export function resolveFire(w) {
  if(!w.combat)return;const index=spatialIndex(w),shots=[];
@@ -40,7 +40,7 @@ export function resolveFire(w) {
   const target=choice.v,s=w.squads[target.squadId-1];s.suppression=Math.min(100,s.suppression+2);s.lastThreatTick=w.tick;
   const chance=Math.max(.22,Math.min(.55,.55-.035*Math.max(0,Math.sqrt(choice.d)-3))),hit=random(w)<chance;
   shots.push({target,amount:hit?20*coverMultiplier(w.map,u,target):0});w.metrics.shots++;
-  emit(w,{kind:'shot',x:u.x,y:u.y,tx:target.x,ty:target.y,team:u.team,hit});
+  emit(w,{kind:'shot',unitId:u.id,x:u.x,y:u.y,tx:target.x,ty:target.y,team:u.team,hit});
  }
  // All eligible shooters evaluate from the same pre-damage state.
  for(const shot of shots)if(shot.amount)damage(w,shot.target,shot.amount);

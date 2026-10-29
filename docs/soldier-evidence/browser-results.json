@@ -1,0 +1,30 @@
+[
+  {
+    "viewport": [
+      1400,
+      1000
+    ],
+    "dpr": 1,
+    "images": 42,
+    "profiles": 16,
+    "animationStates": 6,
+    "roundTrip": "passed",
+    "touchDrag": "passed",
+    "liveGameUpdates": "passed",
+    "pageErrors": []
+  },
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "dpr": 2,
+    "images": 42,
+    "profiles": 16,
+    "animationStates": 6,
+    "roundTrip": "passed",
+    "touchDrag": "passed",
+    "liveGameUpdates": "passed",
+    "pageErrors": []
+  }
+]

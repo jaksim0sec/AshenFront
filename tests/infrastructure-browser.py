@@ -1,12 +1,13 @@
 import json,os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+BASE=os.environ.get('BASE_URL','http://127.0.0.1:8000')
 Path('artifacts/infra').mkdir(exist_ok=True,parents=True)
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH','/usr/bin/chromium'),args=['--no-sandbox'])
  for width,height,dpr in [(390,844,1),(390,844,2),(1280,800,1),(1280,800,2)]:
   c=b.new_context(viewport={'width':width,'height':height},device_scale_factor=dpr,has_touch=True);page=c.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-  page.goto('http://127.0.0.1:8000/?debug=1');page.wait_for_function('window.__ashen && __ashen.state.tick>2');page.locator('#pause').click()
+  page.goto(BASE+'/?debug=1');page.wait_for_function('window.__ashen && __ashen.state.tick>2');page.locator('#pause').click()
   unobstructed=page.evaluate('''()=>{let area=0;for(const selector of ['header','#objective','#view-controls','#select-squad','#toggle-map']){const r=document.querySelector(selector).getBoundingClientRect();area+=r.width*r.height;}return 1-area/(innerWidth*innerHeight);}''')
   assert unobstructed>=.85,unobstructed
   assert not page.locator('#overview').is_visible()

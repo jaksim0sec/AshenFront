@@ -1,0 +1,55 @@
+import {createCatalog,importCatalog,STORAGE_KEY,profileId} from './model.mjs';
+import {poseBounds,poseCharacter,transformPoint} from './animation.mjs';
+const ROOT=new URL('../../',import.meta.url);
+export function sampleAnimation(options={},low=false){
+ const fps=low?6:18,state=options.state??'idle',time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:state==='idle'?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
+ const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,1.4):index/count*duration;
+ return {...options,state,time:sample,aim:Math.round((options.aim??0)*8)/8,phase:0};
+}
+export class SoldierRenderer {
+ constructor(){this.catalog=createCatalog();this.images=new Map();this.metadata={};this.cache=new Map();this.cacheBytes=0;this.hits=0;this.misses=0;this.loaded=false;this.error=null;this.revision=0;this.margin=140;
+  this.ready=this.load();this.onStorage=e=>{if(e.key===STORAGE_KEY){try{this.setCatalog(e.newValue?importCatalog(e.newValue):structuredClone(this.defaultCatalog??createCatalog()));}catch{}}};addEventListener('storage',this.onStorage);
+ }
+ async load(){try{
+  const response=await fetch(new URL('assets/soldiers/manifest.json',ROOT));if(!response.ok)throw Error('Soldier manifest: '+response.status);const manifest=await response.json();this.metadata=manifest.assets;
+  this.metadata['rifle-placeholder']={path:'assets/soldiers/rifle-placeholder.svg',crop:[0,0,160,40]};
+  await Promise.all(Object.entries(this.metadata).map(async([id,meta])=>{const im=new Image();im.src=new URL(meta.path,ROOT).href;await im.decode();this.images.set(id,im);}));
+  const defaults=await fetch(new URL('assets/soldiers/catalog.json',ROOT));if(defaults.ok)this.setCatalog(importCatalog(await defaults.json()));
+  try{this.defaultCatalog=structuredClone(this.catalog);const saved=localStorage.getItem(STORAGE_KEY);if(saved)this.setCatalog(importCatalog(saved));}catch{}
+  this.loaded=true;return this;
+ }catch(e){this.error=e.message;throw e;}}
+ setCatalog(c){this.catalog=importCatalog(c);this.revision++;this.cache.clear();this.cacheBytes=0;this.margin=Math.max(100,...Object.values(this.catalog.profiles).flatMap(p=>Object.values(p.parts).filter(p=>p.visible).map(p=>Math.hypot(Math.abs(p.x)+2*p.w*p.scaleX,Math.abs(p.y)+2*p.h*p.scaleY)*.285)));}
+ drawPose(ctx,profile,options={}, {selectedPart=null,guides=false}={}){
+  const pose=poseCharacter(profile,options);ctx.save();ctx.globalAlpha*=pose.alpha;
+  for(const d of pose.draws){const im=this.images.get(d.asset),meta=this.metadata[d.asset];if(!im||!meta)continue;
+   const [sx,sy,ex,ey]=meta.crop,m=d.matrix;ctx.save();ctx.transform(...m);
+   if(d.clip?.capsule){const [ax,ay,bx,by,r]=d.clip.capsule;ctx.save();ctx.translate(ax,ay);ctx.rotate(Math.atan2(by-ay,bx-ax));ctx.beginPath();ctx.roundRect(-r,-r,Math.hypot(bx-ax,by-ay)+r*2,r*2,r);ctx.restore();ctx.clip();}
+   else if(d.clip){const[x,y,w,h]=d.clip;ctx.beginPath();ctx.rect(x*d.w,y*d.h,w*d.w,h*d.h);ctx.clip();}
+   ctx.drawImage(im,sx,sy,ex-sx,ey-sy,0,0,d.w,d.h);
+   if(selectedPart===d.part){ctx.strokeStyle='#75d2e8';ctx.lineWidth=1.5;ctx.strokeRect(0,0,d.w,d.h);}ctx.restore();
+  }
+  if(pose.flash>0){const m=pose.rifle.matrix;ctx.save();ctx.transform(...m);ctx.scale(profile.parts.rifle.w/160,profile.parts.rifle.h/40);ctx.globalAlpha*=pose.flash;ctx.fillStyle='#f8e7ad';ctx.beginPath();ctx.moveTo(154,13);ctx.lineTo(169,7);ctx.lineTo(164,12);ctx.lineTo(177,14);ctx.lineTo(165,17);ctx.lineTo(169,22);ctx.lineTo(154,15);ctx.fill();ctx.restore();}
+  if(pose.casing!==null){const p=pose.casing,anchor=transformPoint(pose.rifle.matrix,profile.parts.rifle.w*65/160,profile.parts.rifle.h*10/40);ctx.save();ctx.translate(anchor.x-p*30,anchor.y-Math.sin(p*Math.PI)*30+p*p*12);ctx.rotate(p*14);ctx.fillStyle='#b7a677';ctx.fillRect(-3,-1,6,2);ctx.restore();}
+  if(guides){ctx.lineWidth=1;ctx.strokeStyle='#f7c36e';for(const j of Object.values(pose.joints)){ctx.beginPath();const a=transformPoint(pose.root,j.shoulder.x,j.shoulder.y),b=transformPoint(pose.root,j.elbow.x,j.elbow.y),c=transformPoint(pose.root,j.hand.x,j.hand.y);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(c.x,c.y);ctx.stroke();for(const p of [a,b,c]){ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.stroke();}}
+   ctx.fillStyle='#e8a56f';for(const hand of Object.values(pose.hands)){ctx.beginPath();ctx.arc(hand.x,hand.y,3,0,Math.PI*2);ctx.fill();}
+  }
+  ctx.restore();return pose;
+ }
+ draw(ctx,team,rank,options={},low=false){
+  if(!this.loaded)return false;const id=profileId(team,rank),profile=this.catalog.profiles[id],sampled=sampleAnimation(options,low),{state,time:sample,aim,phase}=sampled;
+  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low].join(':');let canvas=this.cache.get(key);
+  if(canvas){this.hits++;this.cache.delete(key);this.cache.set(key,canvas);}
+  if(!canvas){this.misses++;
+   const options={...sampled,facing:1},bounds=poseBounds(poseCharacter(profile,options)),resolution=Math.min(.57,384/Math.max(bounds.width,bounds.height));
+   const bitmap=document.createElement('canvas');bitmap.width=Math.min(384,Math.max(1,Math.ceil(bounds.width*resolution)));bitmap.height=Math.min(384,Math.max(1,Math.ceil(bounds.height*resolution)));const c=bitmap.getContext('2d');c.scale(resolution,resolution);c.translate(-bounds.left,-bounds.top);this.drawPose(c,profile,options);
+   const bytes=bitmap.width*bitmap.height*4;canvas={bitmap,bounds,bytes};
+   while(this.cache.size&&(this.cache.size>=256||this.cacheBytes+bytes>16*1024*1024)){const oldest=this.cache.keys().next().value;this.cacheBytes-=this.cache.get(oldest).bytes;this.cache.delete(oldest);}
+   this.cache.set(key,canvas);this.cacheBytes+=bytes;
+  }
+  const {bounds}=canvas;ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*.285,bounds.top*.285,bounds.width*.285,bounds.height*.285);ctx.restore();return true;
+
+ }
+ muzzle(team,rank,options,low=false){const p=poseCharacter(this.catalog.profiles[profileId(team,rank)],sampleAnimation(options,low)).rifle.muzzle;return {x:p.x*.285,y:p.y*.285};}
+ get stats(){return {loaded:this.loaded,images:this.images.size,cachedFrames:this.cache.size,hits:this.hits,misses:this.misses,cacheBytes:this.cacheBytes,error:this.error};}
+ dispose(){removeEventListener('storage',this.onStorage);this.cache.clear();this.cacheBytes=0;}
+}

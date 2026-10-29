@@ -1,0 +1,78 @@
+
+> ashenfront@0.1.0 test
+> node --test --test-isolation=none tests/*.test.mjs
+
+BOT_TRIALS [{"seed":1,"winner":"A","ticks":1585,"moving":{"A":2590,"B":1674},"blocked":{"congestion":4299,"suppressed":3341},"score":{"A":900,"B":0},"checksum":"9468c09a"},{"seed":2,"winner":"A","ticks":1590,"moving":{"A":2484,"B":1676},"blocked":{"congestion":4394,"suppressed":3534},"score":{"A":900,"B":0},"checksum":"1cdebc2f"},{"seed":3,"winner":"A","ticks":1560,"moving":{"A":2620,"B":1691},"blocked":{"congestion":4574,"suppressed":4109},"score":{"A":900,"B":0},"checksum":"f8a981fb"},{"seed":4,"winner":"A","ticks":1540,"moving":{"A":2557,"B":1697},"blocked":{"congestion":4374,"suppressed":3675},"score":{"A":900,"B":0},"checksum":"0562a34e"},{"seed":5,"winner":"A","ticks":1560,"moving":{"A":2577,"B":1665},"blocked":{"congestion":4602,"suppressed":3445},"score":{"A":900,"B":0},"checksum":"a6bad257"},{"seed":6,"winner":"A","ticks":1935,"moving":{"A":2503,"B":1773},"blocked":{"congestion":4642,"suppressed":3861},"score":{"A":900,"B":0},"checksum":"890e047e"},{"seed":7,"winner":"A","ticks":1945,"moving":{"A":2502,"B":1750},"blocked":{"congestion":5599,"suppressed":4870},"score":{"A":900,"B":0},"checksum":"ff211878"},{"seed":8,"winner":"A","ticks":1580,"moving":{"A":2482,"B":1697},"blocked":{"congestion":5141,"suppressed":3728},"score":{"A":900,"B":0},"checksum":"01a8506f"},{"seed":9,"winner":"A","ticks":1600,"moving":{"A":2532,"B":1669},"blocked":{"congestion":4254,"suppressed":3530},"score":{"A":900,"B":0},"checksum":"d30685b4"},{"seed":10,"winner":"A","ticks":1570,"moving":{"A":2655,"B":1748},"blocked":{"congestion":4496,"suppressed":4093},"score":{"A":900,"B":0},"checksum":"66c93832"},{"seed":11,"winner":"A","ticks":1540,"moving":{"A":2438,"B":1685},"blocked":{"congestion":4006,"suppressed":3491},"score":{"A":900,"B":0},"checksum":"77180ceb"},{"seed":12,"winner":"A","ticks":1530,"moving":{"A":2471,"B":1727},"blocked":{"congestion":4479,"suppressed":3518},"score":{"A":900,"B":0},"checksum":"0b2086ff"},{"seed":13,"winner":"A","ticks":1795,"moving":{"A":2446,"B":1819},"blocked":{"congestion":5839,"suppressed":5007},"score":{"A":900,"B":0},"checksum":"a64cfe7a"},{"seed":14,"winner":"A","ticks":1550,"moving":{"A":2565,"B":1700},"blocked":{"congestion":4706,"suppressed":3647},"score":{"A":900,"B":0},"checksum":"61151c26"},{"seed":15,"winner":"A","ticks":1625,"moving":{"A":2482,"B":1690},"blocked":{"congestion":4823,"suppressed":4054},"score":{"A":900,"B":0},"checksum":"d06512cb"},{"seed":16,"winner":"A","ticks":1565,"moving":{"A":2487,"B":1657},"blocked":{"congestion":4010,"suppressed":3670},"score":{"A":900,"B":0},"checksum":"5d955ff3"},{"seed":17,"winner":"A","ticks":1595,"moving":{"A":2390,"B":1686},"blocked":{"congestion":3920,"suppressed":3855},"score":{"A":900,"B":0},"checksum":"50963cab"},{"seed":18,"winner":"A","ticks":1590,"moving":{"A":2632,"B":1705},"blocked":{"congestion":4565,"suppressed":3364},"score":{"A":900,"B":0},"checksum":"6f31b679"},{"seed":19,"winner":"A","ticks":1565,"moving":{"A":2603,"B":1694},"blocked":{"congestion":4914,"suppressed":3768},"score":{"A":900,"B":0},"checksum":"06acfe25"},{"seed":20,"winner":"A","ticks":1610,"moving":{"A":2358,"B":1758},"blocked":{"congestion":3988,"suppressed":4099},"score":{"A":900,"B":0},"checksum":"debea1fd"}]
+WAR_MATCH {"seed":1,"winner":"A","ticks":1608,"checksum":"7b84616e"}
+WAR_MATCH {"seed":7,"winner":"A","ticks":2035,"checksum":"51d9b8d8"}
+WAR_MATCH {"seed":42,"winner":"A","ticks":3035,"checksum":"4d228f98"}
+✔ 20 seeded bot matches move, compete, finish, and preserve invariants (2153.271358ms)
+✔ swapping team labels swaps the seeded outcome without changing side behavior (3280.224503ms)
+✔ bots fill the objective with 2 or 4 allied squads when opponents are gone (160.404032ms)
+✔ all nation/rank profiles assemble known supplied parts without source rig data (1.901333ms)
+✔ rifle firing, walking and aiming keep both hands at the authored SVG grips (4.312212ms)
+✔ nation/rank adjustments export and reload atomically, invalid or external assets are rejected (5.385585ms)
+✔ firing has recoil, bolt/reload hand motion and muzzle timing; paused sampling is deterministic (0.883023ms)
+✔ single-profile exports merge without replacing other nation adjustments (2.010194ms)
+✔ edited arm thickness and elbow calibration retain exact rifle grip attachment (0.624351ms)
+✔ actual arm image palm anchors coincide with rifle grips in every facing and firing phase (1.682974ms)
+✔ editable rifle dimensions preserve actual SVG grip and muzzle positions (1.150748ms)
+✔ falling and large edited poses have complete cache bounds instead of a fixed avatar crop (1.496578ms)
+✔ part dragging in a rotated death pose uses the animated parent basis (1.022948ms)
+✔ cached walking samples repeat at the actual gait duration (1.323266ms)
+✔ LOS is symmetric, ridges and diagonal opaque corners block, H0 can fire over H1 (1.061537ms)
+✔ directional cover and worn cover use target-to-attacker direction, X ties (0.182972ms)
+✔ seeded shots, cooldown, HP and final outcome are reproducible (8.64438ms)
+✔ death during a reserved step releases both cells exactly once (1.0184ms)
+✔ suppression pauses retained intent, recovers hysteretically and permits HOLD (1.67961ms)
+✔ mirrored armies use matching staggered initial cooldowns rather than a team-wide offset (0.341323ms)
+✔ exactly three floor levels, one floor per cell, multiple reciprocal trench exits (0.678384ms)
+✔ only explicit reciprocal ramps allow one-level changes, no diagonal or two-level jump (0.125816ms)
+✔ height-aware visible tile picking roundtrips at zoom and pan values (0.991728ms)
+✔ each deployment has two separate routes around central ruins (5.005643ms)
+✔ moving unit hit position follows the same interpolated foot and height as rendering (0.281107ms)
+✔ a visible raised earth face picks its own tile rather than the hidden floor behind it (0.412957ms)
+✔ authored terrain is exactly mirrored across the battlefield centerline (1.157889ms)
+✔ consecutive small seeds do not give the first firing actor an almost guaranteed hit (0.312307ms)
+✔ INF-01 precise slots, all-member completion and stable repeated order (42.388606ms)
+✔ INF-01 retarget keeps step but invalidates old slots; HOLD and suppression do not displace (19.078485ms)
+✔ INF-01 edge formations have bounded slots and truthful insufficient room (1.793737ms)
+✔ INF-01 twenty seeds: latest command arrives with all ten distinct slots (352.240027ms)
+✔ INF-01 four distinct anchors, no false 80-percent success (66.093555ms)
+✔ INF-01 holders and suppressed allies never yield; traffic routes around them (49.021873ms)
+✔ INF-02 visual revision does not flush navigation; topology revision does (0.41015ms)
+✔ INF-01 exact squads traverse H1-H0-H1 and H1-H2-H1 at authored exits (194.467469ms)
+✔ INF-01 four allied squads cross a shared four-wide choke with distinct anchors (137.013864ms)
+✔ INF-01 retarget during real fire retains latest generation and collision invariants (1218.900561ms)
+✔ INF-01 destination region cannot seed across a separating wall and report idle partial forever (29.447416ms)
+✔ INF-01 later rally never displaces a settled precise formation (46.555282ms)
+✔ INF-01 changing area radius creates a new order generation (0.488296ms)
+✔ ten soldiers cross authored ramps and reach the retained region (10.106878ms)
+✔ atomic override and HOLD finish already reserved steps (0.415533ms)
+✔ friendly squads pass opposite directions through two-wide passage without starvation (28.075518ms)
+✔ opponents never double reserve and static no-route is finite (10.749652ms)
+✔ all four allied squads can fill the 41-cell central rally without sealing out later arrivals (157.732059ms)
+✔ invalid region sizes cannot corrupt a retained order or create unbounded search (0.548395ms)
+✔ 45 seconds of objective presence wins, not a touch (0.440685ms)
+✔ contested and empty freeze, changing contender resets; radius is Manhattan (0.15149ms)
+✔ eight-minute fallback permits draw and compares control score (0.215222ms)
+✔ engine reproducibility includes ordered commands and complete match (144.721451ms)
+✔ three-sector timeout uses accumulated score instead of current ownership (0.297796ms)
+✔ support validates visibility, use count, cooldown and processes a radius event once (0.811313ms)
+✔ one parameterized objective engine handles three-sector victory and 20-minute cap (7.879449ms)
+✔ render rates 15/30/60 FPS produce identical ordered-command replay and no skipped ticks (259.054036ms)
+✔ replay checksum covers mutable cover, pending commands and multi-sector hold state (16.112617ms)
+✔ INF-03 undefended enemy HQ is seized from authoritative occupancy (1.004382ms)
+✔ INF-03 defenders contest HQ, neutral sectors and elapsed time cannot win (0.331986ms)
+✔ INF-03 elimination and simultaneous HQ captures resolve deterministically (0.27727ms)
+✔ INF-03 bot keeps a home guard while others advance, legal complete seeded matches (370.452558ms)
+✔ INF-03 visible HQ threat actually redirects an available squad on its staggered decision tick (0.937684ms)
+✔ INF-02 strategic centers occupy real trench and high ground, HQ spawns stay clear (0.330952ms)
+ℹ tests 62
+ℹ suites 0
+ℹ pass 62
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8859.935675

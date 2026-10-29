@@ -2,6 +2,10 @@
 
 Offline, mobile-first Canvas 2D squad RTS. Command 40 infantry against a bot across real trench floors, ground and ridges. Seize the enemy command post or eliminate its army; the elapsed clock never ends a battle.
 
+## Soldier workshop
+
+Open **병사** in the header or `/soldier-workshop.html` to adjust the supplied character parts by country/rank, preview animations, and download final JSON. The same catalog and animations render in battle. See [the workshop guide](docs/SOLDIER_WORKSHOP.md) for import/export and applying published defaults.
+
 ## Run
 
 Node22.8+; validated on Node24.19.0. No installation or build step.
