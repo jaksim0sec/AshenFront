@@ -11,3 +11,6 @@ test('INF-03 bot keeps a home guard while others advance, legal complete seeded 
 test('INF-03 visible HQ threat actually redirects an available squad on its staggered decision tick',async()=>{
  const {runBots}=await import('../src/sim/bot.mjs');const w=createMatch({scenario:'war',botTeams:['A']});const enemy=w.units.find(u=>u.team==='B');w.map.occupancy[cell(w.map,enemy.x,enemy.y)]=0;enemy.x=10;enemy.y=25;w.map.occupancy[cell(w.map,10,25)]=enemy.id;w.spatialRevision++;w.tick=102;runBots(w);assert(w.queue.some(c=>c.squadId===2&&c.target===w.commandPosts[0].center));
 });
+test('INF-02 strategic centers occupy real trench and high ground, HQ spawns stay clear',()=>{
+ const w=createMatch({scenario:'war'});assert.equal(w.map.floorLevel[w.objectives[0].center],2);assert.equal(w.map.floorLevel[w.objectives[1].center],0);assert.equal(w.map.floorLevel[w.objectives[2].center],2);for(const p of w.commandPosts){assert(!w.map.blocked[p.center]);assert.equal(w.map.occupancy[p.center],0);}
+});
