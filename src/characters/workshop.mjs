@@ -6,7 +6,7 @@ const $=id=>document.getElementById(id),renderer=new SoldierRenderer(),canvas=$(
 $('link-head').checked=false;
 const names={legLeft:'왼 다리',legRight:'오른 다리',armLeft:'왼팔 · 원본 파츠',armRight:'오른팔 · 원본 파츠',body:'몸통',head:'머리',hat:'모자 · 헬멧',shoulderLeft:'왼 어깨 계급장',shoulderRight:'오른 어깨 계급장',sleeveLeft:'왼 소매 계급장',sleeveRight:'오른 소매 계급장',rifle:'임시 소총 · 두 손잡이'};
 const fields={x:['위치 X',1],y:['위치 Y',1],w:['너비',1],h:['높이',1],rotation:['회전 °',1],pivotX:['축 X (비율)',.01],pivotY:['축 Y (비율)',.01],scaleX:['균일 배율',.01],gripX:['손잡이 X (비율)',.01],gripY:['손잡이 Y (비율)',.01],supportX:['받침 손 X (비율)',.01],supportY:['받침 손 Y (비율)',.01]};
-let catalog=createCatalog(),defaults=createCatalog(),nation='arken',rank='private',part='hat',state='idle',facing=1,time=0,playing=true,zoom=1,aim=0,guides=false,loaded=false,done=new Set(),history=[],future=[],last=performance.now(),lastThumb=-1,pose=null,view={x:0,y:0,scale:1},drag=null,saveTimer=null;
+let catalog=createCatalog(),defaults=createCatalog(),nation='arken',rank='private',part='hat',state='idle',facing=-1,time=0,playing=true,zoom=1,aim=0,guides=false,loaded=false,done=new Set(),history=[],future=[],last=performance.now(),lastThumb=-1,pose=null,view={x:0,y:0,scale:1},drag=null,saveTimer=null;
 const id=()=>nation+':'+rank,profile=()=>catalog.profiles[id()];
 function error(e){$('error').textContent=e?.message??String(e??'');}
 function option(select,value,label){const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o);}

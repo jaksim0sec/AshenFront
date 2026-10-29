@@ -173,12 +173,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -357,17 +357,17 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
-        "sleeveLeft",
-        "sleeveRight",
         "shoulderLeft",
         "shoulderRight",
+        "sleeveLeft",
+        "sleeveRight",
         "rifle"
       ]
     },
@@ -541,17 +541,17 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
-        "sleeveLeft",
-        "sleeveRight",
         "shoulderLeft",
         "shoulderRight",
+        "sleeveLeft",
+        "sleeveRight",
         "rifle"
       ]
     },
@@ -725,17 +725,17 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
-        "sleeveLeft",
-        "sleeveRight",
         "shoulderLeft",
         "shoulderRight",
+        "sleeveLeft",
+        "sleeveRight",
         "rifle"
       ]
     },
@@ -909,12 +909,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -1093,12 +1093,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -1277,12 +1277,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -1461,12 +1461,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -1645,12 +1645,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -1829,17 +1829,17 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
-        "sleeveLeft",
-        "sleeveRight",
         "shoulderLeft",
         "shoulderRight",
+        "sleeveLeft",
+        "sleeveRight",
         "rifle"
       ]
     },
@@ -2013,17 +2013,17 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
-        "sleeveLeft",
-        "sleeveRight",
         "shoulderLeft",
         "shoulderRight",
+        "sleeveLeft",
+        "sleeveRight",
         "rifle"
       ]
     },
@@ -2197,17 +2197,17 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
-        "sleeveLeft",
-        "sleeveRight",
         "shoulderLeft",
         "shoulderRight",
+        "sleeveLeft",
+        "sleeveRight",
         "rifle"
       ]
     },
@@ -2381,12 +2381,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -2565,12 +2565,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -2749,12 +2749,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -2933,12 +2933,12 @@
         }
       },
       "layers": [
-        "legLeft",
         "legRight",
         "armLeft",
+        "legLeft",
+        "body",
         "armRight",
         "head",
-        "body",
         "hat",
         "shoulderLeft",
         "shoulderRight",
@@ -2947,5 +2947,6 @@
         "rifle"
       ]
     }
-  }
+  },
+  "layerRevision": "arken-private-order-1"
 }

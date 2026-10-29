@@ -5,6 +5,9 @@ export const NATIONS=['arken','velian'];
 export const RANKS=['private','corporal','sergeant','warrant','lieutenant','captain','major','colonel'];
 export const LABELS={arken:'아르켄 제국',velian:'벨리안 연방',private:'병사',corporal:'상병',sergeant:'하사',warrant:'상사',lieutenant:'소위',captain:'대위',major:'소령',colonel:'대령'};
 export const PARTS=['legLeft','legRight','armLeft','body','armRight','shoulderLeft','shoulderRight','sleeveLeft','sleeveRight','head','hat','rifle'];
+// User-exported Arken private order, shared by every nation and rank.
+export const DEFAULT_LAYERS=Object.freeze(["legRight","armLeft","legLeft","body","armRight","head","hat","shoulderLeft","shoulderRight","sleeveLeft","sleeveRight","rifle"]);
+const LAYER_REVISION='arken-private-order-1';
 // A new artwork generation must not silently restore incompatible old browser geometry.
 export const STORAGE_KEY='ashenfront.soldier-workshop.v3';
 export const ASSETS=Object.keys(ASPECTS);
@@ -21,10 +24,10 @@ export function createCatalog(){
   for(const asset of [family+'/epaulette_plain_left',family+'/epaulette_plain_right',family+(nation==='arken'?'/rank_single_bar_left':'/rank_bars_left'),family+(nation==='arken'?'/rank_single_bar_right':'/rank_bars_right')])parts[slot(asset)]={...UNIFORM_PARTS[asset],visible:false};
   for(const asset of nodes)parts[slot(asset)]={...UNIFORM_PARTS[asset]};
   parts.rifle={asset:'rifle-placeholder',x:0,y:-73,w:118,h:29.5,pivotX:.34,pivotY:.5,rotation:0,scaleX:1,scaleY:1,visible:true,gripX:55/160,gripY:23/40,supportX:105/160,supportY:19/40};
-  const layers=nodes.map(slot);for(const key of PARTS)if(!layers.includes(key))layers.push(key);
+  const layers=[...DEFAULT_LAYERS];
   profiles[nation+':'+rank]={nation,rank,parts,layers};
  }
- return {format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,profiles};
+ return {format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,layerRevision:LAYER_REVISION,profiles};
 }
 function validPart(p){
  if(!p||!ASSETS.includes(p.asset)||typeof p.visible!=='boolean')throw Error('등록되지 않은 파츠입니다.');
@@ -67,5 +70,7 @@ export function unifyPhysique(c,sourceId){
 }
 /** Old raster generations cannot reuse their coordinates with these native crops. */
 export function migratePhysique(c){
- validateCatalog(c);if(c.bodyStyle!==BODY_STYLE)throw Error('이전 파츠용 JSON입니다. 새 파츠 기준으로 다시 조정하세요.');return c;
+ validateCatalog(c);if(c.bodyStyle!==BODY_STYLE)throw Error('이전 파츠용 JSON입니다. 새 파츠 기준으로 다시 조정하세요.');
+ // Upgrade the layer order once without discarding saved part positions or later edits.
+ if(c.layerRevision!==LAYER_REVISION){for(const p of Object.values(c.profiles))p.layers=[...DEFAULT_LAYERS];c.layerRevision=LAYER_REVISION;}return c;
 }

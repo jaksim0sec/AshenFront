@@ -30,7 +30,7 @@ export class Scene {
   for(const {u,p,h,deathAge} of sprites){const s=w.squads[u.squadId-1],chosen=u.squadId===selected;ctx.save();ctx.translate(p.x,p.y);
    ctx.fillStyle='#1D202266';ctx.beginPath();ctx.ellipse(0,1,14,7,0,0,Math.PI*2);ctx.fill();
    if(chosen){ctx.strokeStyle=P.selection;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,19,10,0,0,Math.PI*2);ctx.stroke();}
-   const shot=this.shots.get(u.id),age=shot?(w.tick-shot.tick+alpha)/20:Infinity,aimVector=shot?{x:(shot.tx-shot.x)-(shot.ty-shot.y),y:((shot.tx-shot.x)+(shot.ty-shot.y))*.58}:null;
+   const shot=this.shots.get(u.id),age=shot?(w.tick-shot.tick+alpha)/20:Infinity,target=shot?project(shot.tx,shot.ty,m.floorLevel[shot.ty*m.width+shot.tx]):null,aimVector=target?{x:target.x-p.x,y:target.y-36-(p.y-16)}:null;
    const movement=u.moveTo>=0?{x:(u.moveTo%m.width-u.x)-(Math.floor(u.moveTo/m.width)-u.y),y:0}:null;
    const facing=aimVector&&age<1.5?(aimVector.x<0?-1:1):movement?(movement.x<0?-1:1):u.team==='A'?1:-1;
    const rank=u.rank??(u.id===s.unitIds[0]?(w.squads.find(v=>v.team===u.team)?.id===s.id?'captain':'sergeant'):'private');
@@ -54,7 +54,7 @@ export class Scene {
    if(e.kind==='shot'){
     const origin=project(e.x,e.y,m.floorLevel[e.y*m.width+e.x]),target=project(e.tx,e.ty,m.floorLevel[e.ty*m.width+e.tx]);target.y-=36;
     let start=this.muzzles.get(e.eventId);
-    if(!start){const u=w.units[e.unitId-1],s=u&&w.squads[u.squadId-1],frame=this.actorFrames.get(u?.id),rank=frame?.rank??u?.rank??(u?.id===s?.unitIds[0]?(w.squads.find(v=>v.team===u.team)?.id===s.id?'captain':'sergeant'):'private'),foot=frame?.foot??(u&&u.hp>0?unitFoot(m,u,alpha):origin),dx=target.x-foot.x,dy=target.y-(foot.y-36);
+    if(!start){const u=w.units[e.unitId-1],s=u&&w.squads[u.squadId-1],frame=this.actorFrames.get(u?.id),rank=frame?.rank??u?.rank??(u?.id===s?.unitIds[0]?(w.squads.find(v=>v.team===u.team)?.id===s.id?'captain':'sergeant'):'private'),foot=frame?.foot??(u&&u.hp>0?unitFoot(m,u,alpha):origin),dx=target.x-foot.x,dy=target.y-(foot.y-16);
      const options=frame?.animation??{state:'shoot',time:age,facing:dx<0?-1:1,aim:Math.atan2(dy,Math.max(.01,Math.abs(dx)))};
      const offset=this.soldiers.loaded?this.soldiers.muzzle(e.team,rank,options,c.zoom<.5):{x:0,y:-35};start={x:foot.x+offset.x,y:foot.y+offset.y};this.muzzles.set(e.eventId,start);if(this.muzzles.size>160)this.muzzles.delete(this.muzzles.keys().next().value);
     }
