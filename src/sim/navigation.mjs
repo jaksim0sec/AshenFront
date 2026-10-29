@@ -144,7 +144,7 @@ export function stepMovement(w) {
  for(const [id,dest] of proposals)if(accepts(id)){const u=w.units[id-1];u.moveTo=dest;u.moveProgress=0;u.wait=0;if(u.detour?.[0]===dest)u.detour.shift();m.reservation[dest]=id;}
  for(const s of w.squads) {
   const living=s.unitIds.map(id=>w.units[id-1]).filter(u=>u.hp>0);
-  if(!living.length||s.goal===null)continue;
+  if(!living.length){s.status='cancelled';s.livingCount=0;s.arrivedCount=0;s.reached=false;continue;}if(s.goal===null)continue;
   const f=w.navigation.field(s.goal,s.radius),arrived=living.filter(u=>f.distance[cell(m,u.x,u.y)]===0).length;
   updateOrderStatus(w,s);
   s.movementBlockedReason=s.suppressed?'suppressed':living.every(u=>f.distance[cell(m,u.x,u.y)]<0)&&f.done?'no_route':living.some(u=>u.wait>=8)?'congestion':null;

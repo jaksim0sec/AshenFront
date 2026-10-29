@@ -7,6 +7,7 @@ export class Scene {
   this.resize();const ctx=this.canvas.getContext('2d'),m=w.map;ctx.setTransform(this.dpr,0,0,this.dpr,0,0);ctx.fillStyle='#252e25';ctx.fillRect(0,0,this.width,this.height);
   this.terrain.draw(ctx,m,c,this.width,this.height);ctx.save();ctx.translate(c.x,c.y);ctx.scale(c.zoom,c.zoom);
   for(const o of w.objectives){const x=o.center%m.width,y=Math.floor(o.center/m.width),r=o.radius+.5,points=[[x-r,y],[x,y-r],[x+r,y],[x,y+r]].map(([x,y])=>{const p=project(x,y,1);return[p.x,p.y];});polygon(ctx,points,o.contested?'#d3aa422a':o.owner==='A'?'#88c5df24':o.owner==='B'?'#d0aa7724':'#f2e7a216');ctx.strokeStyle=o.owner?colors[o.owner]:'#e0d294';ctx.lineWidth=3;ctx.stroke();}
+  for(const post of w.commandPosts??[]){const p=project(post.center%m.width,Math.floor(post.center/m.width),m.floorLevel[post.center]);ctx.strokeStyle=colors[post.team];ctx.lineWidth=4/c.zoom;ctx.strokeRect(p.x-26,p.y-35,52,35);ctx.fillStyle=colors[post.team];ctx.font='bold 22px system-ui';ctx.fillText(post.team+' HQ',p.x-30,p.y-45);}
   const selection=w.squads[selected-1];
   if(selection?.goal!==null&&selection?.goal!==undefined){
    const g=selection.goal,p=project(g%m.width,Math.floor(g/m.width),m.floorLevel[g]);
