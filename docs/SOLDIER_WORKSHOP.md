@@ -1,3 +1,15 @@
+# Current correction: original parts and reference proportions
+
+The earlier arm subdivision and artificial elbows have been removed. Each arm is now one complete original PNG, moved as a whole. Idle soldiers keep their arms down; firing moves those original parts to the rifle grips. No elbow pieces or joint lines are added.
+
+Default proportions now follow the supplied assembled reference: a larger combined head/hat silhouette, a compact coat and short visible legs. Every PNG keeps its measured original visible-image aspect ratio; fitting, animation and editing use uniform scaling. Placement and overlap create the silhouette, rather than horizontal/vertical stretching.
+
+**체면동화** applies the current soldier's head/body/arm/leg proportions to all16 country/rank profiles in one undoable change. National artwork, rank insignia and per-asset hand/pivot calibration are preserved. Hats and insignia follow the resized parent with uniform scaling. The result is saved to the browser, exported in the final JSON and used by the actual game. Earlier automatic drafts migrate proportionally so relative edits are retained.
+
+Only a targeted aspect/whole-image consistency check and a real editor/button visual check were performed for this correction; broad suites and profiling were not repeated, as requested. The previous verification record below belongs to the earlier implementation.
+
+---
+
 # Soldier parts and animation workshop
 
 Run `npm start`, then open **병사** in the game header or `/soldier-workshop.html`.
@@ -6,7 +18,7 @@ The workshop provides two countries × eight ranks, independently editable and e
 
 ## Edit and export
 
-1. Select country, rank and part. Drag the part or enter position, size, angle, scale and pivot values. Arm and rifle hand anchors are editable. The head/hat movement link can be turned off. Shoulder and sleeve patches follow their attachment points.
+1. Select country, rank and part. Drag the part or enter position, size, angle, scale and pivot values. Arm and rifle hand anchors are editable. The head/hat movement link can be turned off. Source aspect ratios stay locked; scale is uniform. Shoulder and sleeve patches follow their attachment points.
 2. Preview breathing, walking, firing/bolt cycling, hit response and falling. Flip direction, aim vertically, pause, scrub the timeline and show/hide joint/grip guides. The eight-rank comparison strip uses the same renderer.
 3. Change layer order, visibility or the supplied image. Undo/redo, current-profile reset and completion/next controls are available. Repeated DOM change events do not duplicate undo entries. Dragging through rotated animation parents uses the inverse parent transform.
 4. Export the full final JSON or a single-rank JSON. Both can be imported again. Unknown image paths, external URLs, invalid numbers and incompatible schemas are rejected before existing edits change.
@@ -25,7 +37,7 @@ The helper validates all input before atomically replacing `assets/soldiers/cata
 
 All41 source PNGs retain their original ZIP bytes. `assets/soldiers/manifest.json` records archive/PNG SHA-256 values and alpha bounds. The ZIP's `rig.json` was intentionally not read, copied or loaded. Placement, image pivots and skin-palm anchors were calibrated from the actual supplied artwork and inspected in real Chromium captures. Large transparent padding around the Arken helmet is handled by measured alpha bounds, rather than trusting the source canvas size.
 
-The temporary rifle is an original local SVG silhouette. Both hands are attached to the actual SVG's normalized grip positions at editable dimensions, with shoulder/elbow/forearm assembly. Firing includes aim, recoil, a timed muzzle flash, bolt-hand movement, case ejection, return to aim, a short traveling tracer and impact accents. Walking can blend with firing. Death/hit/breathing animation is view-only. Shot/elimination events add actor IDs so visuals follow the correct soldier; they do not schedule extra damage or consume simulation randomness.
+The temporary rifle is an original local SVG silhouette. While firing, both hands are attached to the actual SVG's normalized grip positions at editable dimensions, with one complete, uniformly transformed original PNG per arm. Firing includes aim, recoil, a timed muzzle flash, bolt-hand movement, case ejection, return to aim, a short traveling tracer and impact accents. Walking can blend with firing. Death/hit/breathing animation is view-only. Shot/elimination events add actor IDs so visuals follow the correct soldier; they do not schedule extra damage or consume simulation randomness.
 
 Sprites remain anchored to the real H0/H1/H2 feet and the existing trench foreground mask. Moving-shot origins use the rendered interpolated muzzle and retain that cosmetic origin thereafter. Death frames and larger edits use transformed pose bounds, rather than a fixed crop. The sampled frame cache uses LRU eviction, at most256 frames /16MiB and384px maximum bitmap side. Distant/low-power poses use fewer samples. Idle/walking phase shifts share cycle frames instead of multiplying the cache by actor phase. Live editor rendering uses full-resolution parts and is not subject to the gameplay frame cache.
 

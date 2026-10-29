@@ -1,4 +1,4 @@
-import {createCatalog,importCatalog,STORAGE_KEY,profileId} from './model.mjs';
+import {createCatalog,importCatalog,STORAGE_KEY,profileId,migratePhysique} from './model.mjs';
 import {poseBounds,poseCharacter,transformPoint} from './animation.mjs';
 const ROOT=new URL('../../',import.meta.url);
 export function sampleAnimation(options={},low=false){
@@ -8,14 +8,14 @@ export function sampleAnimation(options={},low=false){
 }
 export class SoldierRenderer {
  constructor(){this.catalog=createCatalog();this.images=new Map();this.metadata={};this.cache=new Map();this.cacheBytes=0;this.hits=0;this.misses=0;this.loaded=false;this.error=null;this.revision=0;this.margin=140;
-  this.ready=this.load();this.onStorage=e=>{if(e.key===STORAGE_KEY){try{this.setCatalog(e.newValue?importCatalog(e.newValue):structuredClone(this.defaultCatalog??createCatalog()));}catch{}}};addEventListener('storage',this.onStorage);
+  this.ready=this.load();this.onStorage=e=>{if(e.key===STORAGE_KEY){try{this.setCatalog(e.newValue?migratePhysique(importCatalog(e.newValue)):structuredClone(this.defaultCatalog??createCatalog()));}catch{}}};addEventListener('storage',this.onStorage);
  }
  async load(){try{
   const response=await fetch(new URL('assets/soldiers/manifest.json',ROOT));if(!response.ok)throw Error('Soldier manifest: '+response.status);const manifest=await response.json();this.metadata=manifest.assets;
   this.metadata['rifle-placeholder']={path:'assets/soldiers/rifle-placeholder.svg',crop:[0,0,160,40]};
   await Promise.all(Object.entries(this.metadata).map(async([id,meta])=>{const im=new Image();im.src=new URL(meta.path,ROOT).href;await im.decode();this.images.set(id,im);}));
   const defaults=await fetch(new URL('assets/soldiers/catalog.json',ROOT));if(defaults.ok)this.setCatalog(importCatalog(await defaults.json()));
-  try{this.defaultCatalog=structuredClone(this.catalog);const saved=localStorage.getItem(STORAGE_KEY);if(saved)this.setCatalog(importCatalog(saved));}catch{}
+  try{this.defaultCatalog=structuredClone(this.catalog);const saved=localStorage.getItem(STORAGE_KEY);if(saved)this.setCatalog(migratePhysique(importCatalog(saved)));}catch{}
   this.loaded=true;return this;
  }catch(e){this.error=e.message;throw e;}}
  setCatalog(c){this.catalog=importCatalog(c);this.revision++;this.cache.clear();this.cacheBytes=0;this.margin=Math.max(100,...Object.values(this.catalog.profiles).flatMap(p=>Object.values(p.parts).filter(p=>p.visible).map(p=>Math.hypot(Math.abs(p.x)+2*p.w*p.scaleX,Math.abs(p.y)+2*p.h*p.scaleY)*.285)));}
@@ -30,9 +30,7 @@ export class SoldierRenderer {
   }
   if(pose.flash>0){const m=pose.rifle.matrix;ctx.save();ctx.transform(...m);ctx.scale(profile.parts.rifle.w/160,profile.parts.rifle.h/40);ctx.globalAlpha*=pose.flash;ctx.fillStyle='#f8e7ad';ctx.beginPath();ctx.moveTo(154,13);ctx.lineTo(169,7);ctx.lineTo(164,12);ctx.lineTo(177,14);ctx.lineTo(165,17);ctx.lineTo(169,22);ctx.lineTo(154,15);ctx.fill();ctx.restore();}
   if(pose.casing!==null){const p=pose.casing,anchor=transformPoint(pose.rifle.matrix,profile.parts.rifle.w*65/160,profile.parts.rifle.h*10/40);ctx.save();ctx.translate(anchor.x-p*30,anchor.y-Math.sin(p*Math.PI)*30+p*p*12);ctx.rotate(p*14);ctx.fillStyle='#b7a677';ctx.fillRect(-3,-1,6,2);ctx.restore();}
-  if(guides){ctx.lineWidth=1;ctx.strokeStyle='#f7c36e';for(const j of Object.values(pose.joints)){ctx.beginPath();const a=transformPoint(pose.root,j.shoulder.x,j.shoulder.y),b=transformPoint(pose.root,j.elbow.x,j.elbow.y),c=transformPoint(pose.root,j.hand.x,j.hand.y);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(c.x,c.y);ctx.stroke();for(const p of [a,b,c]){ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.stroke();}}
-   ctx.fillStyle='#e8a56f';for(const hand of Object.values(pose.hands)){ctx.beginPath();ctx.arc(hand.x,hand.y,3,0,Math.PI*2);ctx.fill();}
-  }
+  if(guides){ctx.strokeStyle='#e8a56f';ctx.lineWidth=1;for(const hand of Object.values(pose.hands)){ctx.beginPath();ctx.moveTo(hand.x-3,hand.y);ctx.lineTo(hand.x+3,hand.y);ctx.moveTo(hand.x,hand.y-3);ctx.lineTo(hand.x,hand.y+3);ctx.stroke();}}
   ctx.restore();return pose;
  }
  draw(ctx,team,rank,options={},low=false){
