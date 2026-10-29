@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "factions": {
+    "velian": {
+      "name_ko": "벨리안 연방",
+      "name_en": "Velian Federation",
+      "flag": "assets/factions/velian/flag.webp"
+    },
+    "arken": {
+      "name_ko": "아르켄 제국",
+      "name_en": "Arken Empire",
+      "flag": "assets/factions/arken/flag.webp"
+    }
+  },
+  "notes": "User-approved flag designs. Optimized 512x341 WebP copies; not yet wired into gameplay."
+}
