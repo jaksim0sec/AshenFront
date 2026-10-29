@@ -1,0 +1,232 @@
+{
+  "browser": "154.0.8037.57",
+  "host": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "note": "Headless Chromium mobile viewport on cloud CPU. No CPU throttling; not physical Android. Each sample 4 wall seconds after warmup; debug fixture load/fast-forward excluded from long-task window.",
+  "results": [
+    {
+      "map": 64,
+      "initialActors": 80,
+      "liveActors": 57,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": false,
+      "sampleMs": 4010.399999999907,
+      "simTicksDuringSample": 81,
+      "stats": {
+        "renderP95": 0.900000000372529,
+        "renderP99": 1.2000000001862645,
+        "longTasks": [],
+        "simP95": 0.2999999998137355,
+        "simP99": 0.39999999990686774,
+        "frameP95": 16.700000000000728,
+        "rendered": 30,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 64,
+      "initialActors": 80,
+      "liveActors": 57,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 1.0,
+      "low": false,
+      "sampleMs": 4005.5,
+      "simTicksDuringSample": 79,
+      "stats": {
+        "renderP95": 0.6000000000931323,
+        "renderP99": 0.7000000001862645,
+        "longTasks": [],
+        "simP95": 0.3000000002793968,
+        "simP99": 0.39999999990686774,
+        "frameP95": 16.700000000000728,
+        "rendered": 8,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 64,
+      "initialActors": 80,
+      "liveActors": 57,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": true,
+      "sampleMs": 4006.0999999996275,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "renderP95": 1.1000000000931323,
+        "renderP99": 1.3999999999068677,
+        "longTasks": [],
+        "simP95": 0.2999999998137355,
+        "simP99": 0.3000000002793968,
+        "frameP95": 16.799999999999272,
+        "rendered": 30,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 128,
+      "initialActors": 180,
+      "liveActors": 162,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": false,
+      "sampleMs": 4006,
+      "simTicksDuringSample": 81,
+      "stats": {
+        "renderP95": 1,
+        "renderP99": 1.6999999997206032,
+        "longTasks": [],
+        "simP95": 0.5,
+        "simP99": 0.6000000000931323,
+        "frameP95": 16.700000000000728,
+        "rendered": 30,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 128,
+      "initialActors": 180,
+      "liveActors": 162,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 1.0,
+      "low": false,
+      "sampleMs": 4007.7000000001863,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "renderP95": 0.6000000000931323,
+        "renderP99": 0.7999999998137355,
+        "longTasks": [],
+        "simP95": 0.5,
+        "simP99": 0.5,
+        "frameP95": 16.700000000000728,
+        "rendered": 12,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 128,
+      "initialActors": 180,
+      "liveActors": 161,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": true,
+      "sampleMs": 4005.5999999996275,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "renderP95": 1,
+        "renderP99": 1.3999999999068677,
+        "longTasks": [],
+        "simP95": 0.6000000000931323,
+        "simP99": 0.8000000002793968,
+        "frameP95": 16.700000000000273,
+        "rendered": 30,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 256,
+      "initialActors": 360,
+      "liveActors": 326,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": false,
+      "sampleMs": 4010.5,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "renderP95": 1.2000000001862645,
+        "renderP99": 1.6000000000931323,
+        "longTasks": [],
+        "simP95": 0.6999999997206032,
+        "simP99": 0.7000000001862645,
+        "frameP95": 16.700000000000728,
+        "rendered": 49,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 256,
+      "initialActors": 360,
+      "liveActors": 326,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 1.0,
+      "low": false,
+      "sampleMs": 4009.5999999996275,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "renderP95": 0.8999999999068677,
+        "renderP99": 1.2000000001862645,
+        "longTasks": [],
+        "simP95": 0.6999999997206032,
+        "simP99": 0.7999999998137355,
+        "frameP95": 16.700000000000728,
+        "rendered": 20,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    },
+    {
+      "map": 256,
+      "initialActors": 360,
+      "liveActors": 325,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "zoom": 0.3,
+      "low": true,
+      "sampleMs": 4008.8000000002794,
+      "simTicksDuringSample": 80,
+      "stats": {
+        "renderP95": 1.1000000000931323,
+        "renderP99": 2,
+        "longTasks": [],
+        "simP95": 0.7000000001862645,
+        "simP99": 1.1000000000931323,
+        "frameP95": 16.799999999999272,
+        "rendered": 49,
+        "cacheBuilds": 4
+      },
+      "pageErrors": []
+    }
+  ]
+}

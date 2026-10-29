@@ -1,0 +1,36 @@
+{
+  "recordedAt": "2026-10-29T05:45:54.094356+00:00",
+  "command": "python3 tests/browser.py",
+  "exitCode": 0,
+  "scenarios": [
+    {
+      "width": 390,
+      "height": 844,
+      "dpr": 1,
+      "pageErrors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "dpr": 2,
+      "pageErrors": []
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "dpr": 1,
+      "pageErrors": []
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "dpr": 2,
+      "pageErrors": []
+    }
+  ],
+  "focusedRegressions": {
+    "movingUnitSelection": "passed",
+    "h0ForegroundOcclusionPixel": "passed"
+  },
+  "physicalAndroid": "not tested"
+}
