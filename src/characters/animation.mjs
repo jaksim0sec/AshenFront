@@ -11,26 +11,17 @@ function smooth(x){x=clamp(x);return x*x*(3-2*x);}
 function triangle(t,a,b,c){return t<a||t>c?0:t<b?smooth((t-a)/(b-a)):1-smooth((t-b)/(c-b));}
 function matrix(p,x=p.x,y=p.y,angle=p.rotation){return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));}
 function palm(p){return[(p.gripX??.5)*p.w,(p.gripY??.83)*p.h];}
-function armReach(p){const[x,y]=palm(p);return Math.hypot((x-p.pivotX*p.w)*p.scaleX,(y-p.pivotY*p.h)*p.scaleY);}
 function rigidArm(p,target){
  const[x,y]=palm(p),dx=(x-p.pivotX*p.w)*p.scaleX,dy=(y-p.pivotY*p.h)*p.scaleY,angle=Math.atan2(target.y-p.y,target.x-p.x)-Math.atan2(dy,dx);
  // Anchor the palm, rotate the complete PNG and retain its authored scale exactly.
- // Unreachable custom proportions move the shoulder instead of resizing the arm.
+ // Shoulder placement accommodates the reach; raster dimensions never change.
  return multiply(translate(target.x,target.y),multiply(rotate(angle),multiply(scale(p.scaleX,p.scaleY),translate(-x,-y))));
 }
 function weaponMatrix(p,x,y,angle){
  // The supplied character art faces left; the SVG rifle points right.
  return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(-p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));
 }
-function supportedGun(parts,grips,angle,preferred){
- const gun=parts.rifle,base=weaponMatrix(gun,0,0,angle),left=transformPoint(base,...grips.left),right=transformPoint(base,...grips.right),a={x:parts.armLeft.x-left.x,y:parts.armLeft.y-left.y},b={x:parts.armRight.x-right.x,y:parts.armRight.y-right.y},r0=armReach(parts.armLeft),r1=armReach(parts.armRight),dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
- if(d<1e-8||d>r0+r1||d<Math.abs(r0-r1))return preferred;
- // Intersect the two fixed-reach circles to position the rifle, never scale a limb.
- const along=(r0*r0-r1*r1+d*d)/(2*d),height=Math.sqrt(Math.max(0,r0*r0-along*along)),ux=dx/d,uy=dy/d,cx=a.x+ux*along,cy=a.y+uy*along;
- const one={x:cx-uy*height,y:cy+ux*height},two={x:cx+uy*height,y:cy-ux*height};
- return Math.hypot(one.x-preferred.x,one.y-preferred.y)<=Math.hypot(two.x-preferred.x,two.y-preferred.y)?one:two;
-}
-export function poseCharacter(profile,{state='idle',time=0,aim=0,facing=1,phase=0,moving=false}={}){
+export function poseCharacter(profile,{state='idle',time=0,aim=0,target=null,facing=1,phase=0,moving=false}={}){
  const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||moving,wave=walk?Math.sin(time*10+phase):0,breath=Math.sin(time*2.6+phase),bob=walk?-Math.abs(wave)*3:breath*1.1;
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
  const hit=state==='hit'?(1-smooth(time/.4))*Math.sin(time*30)*5:0,death=state==='death'?smooth((time-.1)/.65):0;
@@ -38,11 +29,20 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,facing=1,phase=
  const root=multiply(scale(facing<0?1:-1,1),multiply(translate(hit+death*20,death*6),rotate(death*1.35)));
  const upperAngle=walk?wave*.015:recoil*.025,upper=multiply(translate(recoil*5,bob+recoil*1.2),rotate(upperAngle));
  const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035),translate(-parts.head.x,-parts.head.y))));
- const gun=parts.rifle,carry=state==='shoot'?aim:-.9+(walk?wave*.025:0),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025,gunAngle=-(state==='shoot'?clamp(desiredAngle,-Math.PI/2,Math.PI/2):desiredAngle)-upperAngle;
+ const gun=parts.rifle,carry=state==='shoot'?aim:-.9+(walk?wave*.025:0),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
+ let gunAngle=-(state==='shoot'?clamp(desiredAngle,-Math.PI/2,Math.PI/2):desiredAngle)-upperAngle;
  // In the native left-facing portrait, the left arm supports the fore-end;
  // the right arm operates the trigger and bolt near the stock.
  const grips={left:[(gun.supportX??105/160)*gun.w,(gun.supportY??19/40)*gun.h],right:[(gun.gripX??55/160)*gun.w-bolt*9/160*gun.w,(gun.gripY??23/40)*gun.h-bolt*17/40*gun.h]};
- const preferred={x:gun.x+recoil*4,y:gun.y+(state==='shoot'?0:walk?10:state==='idle'?8:0)},position=state==='shoot'?supportedGun(parts,grips,gunAngle,preferred):preferred,gunLocal=weaponMatrix(gun,position.x,position.y,gunAngle),gunMatrix=multiply(upper,gunLocal);
+ // Keep the edited firing position fixed: no circle-branch flips or aim-dependent gun jumps.
+ const position={x:gun.x+recoil*4,y:gun.y+(state==='shoot'?0:walk?10:state==='idle'?8:0)};
+ if(state==='shoot'&&target&&Number.isFinite(target.x)&&Number.isFinite(target.y)){
+  const local=transformPoint(inverse(multiply(root,upper)),target.x,target.y),dx=local.x-position.x,dy=local.y-position.y,distance=Math.hypot(dx,dy);
+  // Aim the actual barrel ray, including its offset from the editable rifle pivot.
+  const bore=(13/40-gun.pivotY)*gun.h*gun.scaleY;
+  if(distance>Math.abs(bore)+1e-6)gunAngle=Math.atan2(dy,dx)-Math.PI+Math.asin(bore/distance);
+ }
+ const gunLocal=weaponMatrix(gun,position.x,position.y,gunAngle),gunMatrix=multiply(upper,gunLocal);
  const localHands={left:transformPoint(gunLocal,...grips.left),right:transformPoint(gunLocal,...grips.right)},draws=[],attachments={};
  const add=(key,m,clip=null,suffix='')=>{const p=parts[key];if(p.visible)draws.push({key:key+suffix,part:key,asset:p.asset,matrix:multiply(root,m),w:p.w,h:p.h,clip});};
  const firing=state==='shoot';
@@ -62,7 +62,7 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,facing=1,phase=
   add(key,multiply(upper,matrix(p)));
  }
  // Draw exactly the configured layer order in every animation state.
- const rifle={w:gun.w,h:gun.h,matrix:multiply(root,gunMatrix),grips,muzzle:transformPoint(multiply(root,gunMatrix),gun.w*155/160,gun.h*13/40)};
+ const worldGun=multiply(root,gunMatrix),axis=Math.hypot(worldGun[0],worldGun[1]),rifle={w:gun.w,h:gun.h,matrix:worldGun,grips,muzzle:transformPoint(worldGun,gun.w*155/160,gun.h*13/40),direction:{x:worldGun[0]/axis,y:worldGun[1]/axis}};
  return {draws,rifle,hands:Object.fromEntries(Object.entries(attachments).map(([k,p])=>[k,transformPoint(root,p.hand.x,p.hand.y)])),attachments,root,flash:state==='shoot'&&t<.065?1-t/.065:0,casing:state==='shoot'&&t>.15&&t<.55?(t-.15)/.4:null,alpha:state==='death'?1-smooth((time-.8)/.5):1};
 }
 export function poseBounds(pose,padding=8){

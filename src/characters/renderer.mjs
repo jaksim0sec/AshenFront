@@ -1,10 +1,11 @@
 import {createCatalog,importCatalog,STORAGE_KEY,profileId,migratePhysique} from './model.mjs';
 import {poseBounds,poseCharacter,transformPoint} from './animation.mjs';
 const ROOT=new URL('../../',import.meta.url);
+export const SOLDIER_SCALE=.285;
 export function sampleAnimation(options={},low=false){
  const fps=low?6:18,state=options.state??'idle',time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:state==='idle'?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
  const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,1.4):index/count*duration;
- return {...options,state,time:sample,aim:Math.round((options.aim??0)*8)/8,phase:0};
+ return {...options,state,time:sample,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,phase:0};
 }
 export class SoldierRenderer {
  constructor(){this.catalog=createCatalog();this.images=new Map();this.metadata={};this.cache=new Map();this.cacheBytes=0;this.hits=0;this.misses=0;this.loaded=false;this.error=null;this.revision=0;this.margin=140;
@@ -35,7 +36,9 @@ export class SoldierRenderer {
  }
  draw(ctx,team,rank,options={},low=false){
   if(!this.loaded)return false;const id=profileId(team,rank),profile=this.catalog.profiles[id],sampled=sampleAnimation(options,low),{state,time:sample,aim,phase}=sampled;
-  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low].join(':');let canvas=this.cache.get(key);
+  // Cached sprites face right. Reflect a world-relative target into that same frame.
+  if(sampled.target)sampled.target={x:sampled.target.x*(options.facing<0?-1:1),y:sampled.target.y};
+  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
   if(canvas){this.hits++;this.cache.delete(key);this.cache.set(key,canvas);}
   if(!canvas){this.misses++;
    const options={...sampled,facing:1},bounds=poseBounds(poseCharacter(profile,options)),resolution=Math.min(.57,384/Math.max(bounds.width,bounds.height));
@@ -44,10 +47,10 @@ export class SoldierRenderer {
    while(this.cache.size&&(this.cache.size>=256||this.cacheBytes+bytes>16*1024*1024)){const oldest=this.cache.keys().next().value;this.cacheBytes-=this.cache.get(oldest).bytes;this.cache.delete(oldest);}
    this.cache.set(key,canvas);this.cacheBytes+=bytes;
   }
-  const {bounds}=canvas;ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*.285,bounds.top*.285,bounds.width*.285,bounds.height*.285);ctx.restore();return true;
+  const {bounds}=canvas;ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*SOLDIER_SCALE,bounds.top*SOLDIER_SCALE,bounds.width*SOLDIER_SCALE,bounds.height*SOLDIER_SCALE);ctx.restore();return true;
 
  }
- muzzle(team,rank,options,low=false){const p=poseCharacter(this.catalog.profiles[profileId(team,rank)],sampleAnimation(options,low)).rifle.muzzle;return {x:p.x*.285,y:p.y*.285};}
+ muzzle(team,rank,options,low=false){const p=poseCharacter(this.catalog.profiles[profileId(team,rank)],sampleAnimation(options,low)).rifle.muzzle;return {x:p.x*SOLDIER_SCALE,y:p.y*SOLDIER_SCALE};}
  get stats(){return {loaded:this.loaded,images:this.images.size,cachedFrames:this.cache.size,hits:this.hits,misses:this.misses,cacheBytes:this.cacheBytes,error:this.error};}
  dispose(){removeEventListener('storage',this.onStorage);this.cache.clear();this.cacheBytes=0;}
 }

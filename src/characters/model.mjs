@@ -1,5 +1,6 @@
 import {ASPECTS} from './aspects.mjs';
 import {UNIFORM_PARTS,ASSEMBLIES,BODY_STYLE} from './uniforms.mjs';
+import {REFERENCE_PROFILE,PHYSIQUE_REVISION} from './reference.mjs';
 /** Assembly proportions come from the current archive, with one global scale/translation. */
 export const NATIONS=['arken','velian'];
 export const RANKS=['private','corporal','sergeant','warrant','lieutenant','captain','major','colonel'];
@@ -27,7 +28,8 @@ export function createCatalog(){
   const layers=[...DEFAULT_LAYERS];
   profiles[nation+':'+rank]={nation,rank,parts,layers};
  }
- return {format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,layerRevision:LAYER_REVISION,profiles};
+ profiles['arken:private']=structuredClone(REFERENCE_PROFILE);
+ return unifyPhysique({format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,layerRevision:LAYER_REVISION,profiles},'arken:private');
 }
 function validPart(p){
  if(!p||!ASSETS.includes(p.asset)||typeof p.visible!=='boolean')throw Error('등록되지 않은 파츠입니다.');
@@ -54,23 +56,35 @@ export function importEdits(data,base=createCatalog()){
  return importCatalog(data);
 }
 
-/** Copy physique only; keep every nation's artwork and each rank's insignia. */
+/** Apply a calibrated change of frame, using the source texture's registration point.
+ * Always start from asset calibration; never accumulate offsets from an old target draft.
+ */
+function transferPart(base,current,target){
+ const factor=current.w*current.scaleX/(base.w*base.scaleX),angle=current.rotation-base.rotation,cos=Math.cos(angle),sin=Math.sin(angle);
+ const px=(base.pivotX-current.pivotX)*current.w*current.scaleX,py=(base.pivotY-current.pivotY)*current.h*current.scaleY,c=Math.cos(current.rotation),s=Math.sin(current.rotation);
+ const fitX=current.x+c*px-s*py,fitY=current.y+s*px+c*py,dx=(target.x-base.x)*factor,dy=(target.y-base.y)*factor;
+ return {...target,x:fitX+cos*dx-sin*dy,y:fitY+sin*dx+cos*dy,w:target.w*factor,h:target.h*factor,rotation:target.rotation+angle};
+}
+/** Match identical assets exactly; fit different national artwork through its registered pivot. */
 export function unifyPhysique(c,sourceId){
  validateCatalog(c);if(!Object.hasOwn(c.profiles,sourceId))throw Error('기준 병사가 없습니다.');
- const next=structuredClone(c),source=c.profiles[sourceId],keys=['x','y','w','h','rotation','scaleX','scaleY'];
+ const next=structuredClone(c),source=c.profiles[sourceId];
  for(const [id,p] of Object.entries(next.profiles)){if(id===sourceId)continue;
-  const old=structuredClone(p.parts);
-  for(const key of ['head','body','legLeft','legRight','armLeft','armRight']){for(const field of keys)p.parts[key][field]=source.parts[key][field];p.parts[key].w=p.parts[key].h*ASPECTS[p.parts[key].asset];p.parts[key].scaleY=p.parts[key].scaleX;}
-  for(const [key,parent] of [['hat','head'],['shoulderLeft','body'],['shoulderRight','body'],['sleeveLeft','armLeft'],['sleeveRight','armRight'],['rifle','body']]){
-   const a=old[parent],b=p.parts[parent],sx=b.w*b.scaleX/(a.w*a.scaleX),sy=b.h*b.scaleY/(a.h*a.scaleY),part=p.parts[key];
-   part.x=b.x+(old[key].x-a.x)*sx;part.y=b.y+(old[key].y-a.y)*sy;part.w=old[key].w*Math.min(sx,sy);part.h=old[key].h*Math.min(sx,sy);keepAspect(part);
+  for(const key of ['head','body','legLeft','legRight','armLeft','armRight','hat','rifle']){
+   const src=source.parts[key],old=p.parts[key];
+   p.parts[key]=src.asset===old.asset?{...src,visible:old.visible}:transferPart(UNIFORM_PARTS[src.asset],src,UNIFORM_PARTS[old.asset]);
+   p.parts[key].visible=old.visible;keepAspect(p.parts[key]);
+  }
+  for(const [key,parent] of [['shoulderLeft','body'],['shoulderRight','body'],['sleeveLeft','armLeft'],['sleeveRight','armRight']]){
+   const old=p.parts[key],anchor=p.parts[parent];p.parts[key]=transferPart(UNIFORM_PARTS[anchor.asset],anchor,UNIFORM_PARTS[old.asset]);p.parts[key].visible=old.visible;keepAspect(p.parts[key]);
   }
  }
- next.bodyStyle=BODY_STYLE;validateCatalog(next);return next;
+ next.bodyStyle=BODY_STYLE;next.physiqueRevision=PHYSIQUE_REVISION;validateCatalog(next);return next;
 }
 /** Old raster generations cannot reuse their coordinates with these native crops. */
 export function migratePhysique(c){
  validateCatalog(c);if(c.bodyStyle!==BODY_STYLE)throw Error('이전 파츠용 JSON입니다. 새 파츠 기준으로 다시 조정하세요.');
  // Upgrade the layer order once without discarding saved part positions or later edits.
- if(c.layerRevision!==LAYER_REVISION){for(const p of Object.values(c.profiles))p.layers=[...DEFAULT_LAYERS];c.layerRevision=LAYER_REVISION;}return c;
+ if(c.layerRevision!==LAYER_REVISION){for(const p of Object.values(c.profiles))p.layers=[...DEFAULT_LAYERS];c.layerRevision=LAYER_REVISION;}
+ if(c.physiqueRevision!==PHYSIQUE_REVISION){c.profiles['arken:private']=structuredClone(REFERENCE_PROFILE);return unifyPhysique(c,'arken:private');}return c;
 }

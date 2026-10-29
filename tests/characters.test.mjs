@@ -3,20 +3,32 @@ import {createCatalog,validateCatalog,editPart,exportCatalog,importCatalog,NATIO
 import {poseCharacter,transformPoint} from '../src/characters/animation.mjs';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {RANK_ASSEMBLIES,unifyPhysique} from '../src/characters/model.mjs';
+import {unifyPhysique} from '../src/characters/model.mjs';
 import {ASPECTS} from '../src/characters/aspects.mjs';
-test('replacement PNG transforms retain source geometry and user-defined layers',()=>{
- const rig=JSON.parse(readFileSync(new URL('../assets/soldiers/rig.json',import.meta.url))),manifest=JSON.parse(readFileSync(new URL('../assets/soldiers/manifest.json',import.meta.url))),catalog=createCatalog(),reference=JSON.parse(readFileSync(new URL('../assets/soldiers/layer-reference.json',import.meta.url))),{scale:unit,originPx:[ox,oy]}=manifest.assemblyToGame;
- assert.equal(Object.keys(manifest.assets).length,36);
+test('published physique matches the supplied reference without drifting helmets or altered artwork',()=>{
+ const rig=JSON.parse(readFileSync(new URL('../assets/soldiers/rig.json',import.meta.url))),manifest=JSON.parse(readFileSync(new URL('../assets/soldiers/manifest.json',import.meta.url))),catalog=createCatalog(),reference=JSON.parse(readFileSync(new URL('../assets/soldiers/physique-reference.json',import.meta.url))).profile;
+ assert.equal(Object.keys(manifest.assets).length,36);assert.deepEqual(catalog.profiles['arken:private'],reference);
  for(const [id,meta] of Object.entries(manifest.assets))assert.equal(createHash('sha256').update(readFileSync(new URL('../'+meta.path,import.meta.url))).digest('hex'),rig.parts[id].png_sha256);
  for(const profile of Object.values(catalog.profiles)){
-  const preset=rig.assemblies[RANK_ASSEMBLIES[profile.nation][RANKS.indexOf(profile.rank)]],draws=poseCharacter(profile,{state:'idle',time:0,facing:-1}).draws.filter(d=>d.part!=='rifle');
-  assert.deepEqual(profile.layers,reference.profile.layers);assert.deepEqual(draws.map(d=>d.asset),reference.profile.layers.filter(k=>k!=='rifle'&&profile.parts[k].visible).map(k=>profile.parts[k].asset));
-  for(const d of draws){const source=rig.parts[d.asset],[w,h]=source.size_px,m=preset.nodes[d.asset].canvas_matrix_2x3,p=profile.parts[d.part];assert(Math.abs(p.w/p.h-ASPECTS[d.asset])<1e-10);assert.equal(p.scaleX,p.scaleY);
-   for(const [u,v] of [[0,0],[1,0],[0,1],[1,1]]){const actual=transformPoint(d.matrix,u*d.w,v*d.h),expected={x:(m[0][0]*u*w+m[0][1]*v*h+m[0][2]-ox)*unit,y:(m[1][0]*u*w+m[1][1]*v*h+m[1][2]-oy)*unit};assert(Math.hypot(actual.x-expected.x,actual.y-expected.y)<1e-6,d.asset);}
-  }
+  assert.deepEqual(profile.layers,reference.layers);assert.deepEqual(profile.parts.head,reference.parts.head);
+  for(const part of Object.values(profile.parts))assert(Math.abs(part.w/part.h-ASPECTS[part.asset])<1e-10);
+  if(profile.parts.hat.asset===reference.parts.hat.asset)assert.deepEqual(profile.parts.hat,reference.parts.hat);
+  assert.equal(profile.parts.hat.x,reference.parts.hat.x);assert.equal(profile.parts.hat.y,reference.parts.hat.y);
  }
- const unified=unifyPhysique(catalog,'arken:private');assert(validateCatalog(unified));for(const p of Object.values(unified.profiles))for(const part of Object.values(p.parts))assert(Math.abs(part.w/part.h-ASPECTS[part.asset])<1e-10);
+ editPart(catalog,'arken:private','hat',{x:2,y:-151,pivotX:.48,w:133,rotation:.08});
+ const first=unifyPhysique(catalog,'arken:private'),second=unifyPhysique(first,'arken:private');assert.deepEqual(second,first,'repeated unification must be idempotent');
+ for(const id of ['arken:corporal','arken:warrant'])assert.deepEqual(first.profiles[id].parts.hat,first.profiles['arken:private'].parts.hat);
+ const legacy=structuredClone(catalog);delete legacy.physiqueRevision;legacy.profiles['arken:corporal'].parts.hat.y-=5;const migrated=importCatalog(legacy);assert.deepEqual(migrated.profiles['arken:corporal'].parts.hat,reference.parts.hat);
+});
+test('actual barrel ray reaches the projected target through recoil, reload, motion and both facings',async()=>{
+ const {sampleAnimation}=await import('../src/characters/renderer.mjs');const c=createCatalog();
+ for(const id of ['arken:private','velian:captain'])for(const target of [{x:-650,y:-700},{x:650,y:-90},{x:-400,y:150},{x:1,y:-950}])for(const time of [0,.025,.2,.4,.75,1.2]){
+  const p=c.profiles[id],facing=target.x<0?-1:1,options={state:'shoot',time,target,facing,moving:true},pose=poseCharacter(p,sampleAnimation(options)),{muzzle:m,direction:d}=pose.rifle,dx=target.x-m.x,dy=target.y-m.y;
+  assert(Math.abs(dx*d.y-dy*d.x)<1e-8,'target must be on the actual barrel line');assert(dx*d.x+dy*d.y>0,'target must be in front of the muzzle');
+  for(const key of ['armLeft','armRight']){const a=pose.draws.find(d=>d.part===key);assert(Math.abs(Math.hypot(a.matrix[0],a.matrix[1])-p.parts[key].scaleX)<1e-10);}
+  // The cached right-facing pose is reflected with its target, not just its image.
+  const canonical=poseCharacter(p,sampleAnimation({...options,facing:1,target:{x:target.x*facing,y:target.y}}));assert(Math.hypot(canonical.rifle.muzzle.x*facing-m.x,canonical.rifle.muzzle.y-m.y)<1e-8);
+ }
 });
 test('all nation/rank profiles assemble the calibrated replacement archive',()=>{const c=createCatalog();assert.equal(Object.keys(c.profiles).length,NATIONS.length*RANKS.length);assert(validateCatalog(c));for(const p of Object.values(c.profiles)){assert(p.parts.head.asset==='shared/head');assert(p.parts.hat.asset.startsWith(p.nation==='arken'?'black/':'blue/'));}});
 test('whole original arms remain intact; firing palms meet the rifle grips',()=>{const p=createCatalog().profiles['arken:private'];for(const state of ['idle','walk','shoot'])for(const time of [0,.04,.18,.4,.8,1.3])for(const aim of [-.6,0,.6]){const pose=poseCharacter(p,{state,time,aim,facing:1});if(state==='shoot')for(const side of ['left','right']){const a=pose.hands[side],b=transformPoint(pose.rifle.matrix,...pose.rifle.grips[side]);assert(Math.hypot(a.x-b.x,a.y-b.y)<1e-6);}assert(pose.draws.every(d=>d.matrix.every(Number.isFinite)));assert.deepEqual(pose.draws.map(d=>d.part),p.layers.filter(k=>p.parts[k].visible));for(const key of ['armLeft','armRight']){const d=pose.draws.find(d=>d.part===key),part=p.parts[key];assert(Math.abs(Math.hypot(d.matrix[0],d.matrix[1])-part.scaleX)<1e-10);assert(Math.abs(Math.hypot(d.matrix[2],d.matrix[3])-part.scaleY)<1e-10);}}});
