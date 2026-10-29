@@ -17,7 +17,9 @@ with sync_playwright() as p:
    page.evaluate('''()=>{let guard=0;while(__ashen.state.metrics.shots<30 && !__ashen.state.winner && guard++<40)__ashen.step(100);}''')
    page.evaluate('(z)=>__ashen.camera.zoom=z',zoom)
    page.evaluate('''()=>{const e=__ashen.state.events.findLast(e=>e.kind==='shot');if(e)__ashen.focus(e.x,e.y);}''')
-   if low:page.locator('#low-mode').check()
+   if low:
+    page.locator('#select-squad').click();page.locator('#low-mode').check();page.evaluate("()=>{const e=__ashen.state.events.findLast(e=>e.kind==='shot');if(e)__ashen.focus(e.x,e.y);}")
+   page.evaluate("""()=>{let id=null;window.__profileFollow=setInterval(()=>{const w=__ashen.state;let u=w.units.find(u=>u.id===id&&u.hp>0);if(!u){const e=w.events.findLast(e=>e.kind==='shot'&&e.team==='A');const alive=w.units.filter(u=>u.hp>0&&u.team==='A');alive.sort((a,b)=>e?Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y):a.id-b.id);u=alive[0];id=u?.id;}if(u)__ashen.focus(u.x,u.y);},100);}""")
    page.wait_for_timeout(1200)
    page.evaluate('__ashen.resetStats()')
    start=page.evaluate('performance.now()');tick0=page.evaluate('__ashen.state.tick')
@@ -30,4 +32,4 @@ with sync_playwright() as p:
    assert stats['rendered']>0, 'empty viewport is not a fighting benchmark'
    print(json.dumps(results[-1]),flush=True);ctx.close()
  browser.close()
-Path('artifacts/browser-benchmark.json').write_text(json.dumps({'browser':version,'host':platform.platform(),'note':'Headless Chromium mobile viewport on cloud CPU. No CPU throttling; not physical Android. Each sample 4 wall seconds after warmup; debug fixture load/fast-forward excluded from long-task window.','results':results},indent=2))
+Path('artifacts/browser-benchmark.json').write_text(json.dumps({'browser':version,'host':platform.platform(),'note':'Headless Chromium mobile viewport on cloud CPU. No CPU throttling; not physical Android. Each sample 4 wall seconds after warmup, camera follows a living friendly shooter; debug fixture load/fast-forward excluded from long-task window.','results':results},indent=2))

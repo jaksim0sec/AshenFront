@@ -20,7 +20,8 @@ export function runBots(w) {
 
 function runWarBots(w){
  for(const team of w.botTeams){const allies=w.squads.filter(s=>s.team===team&&s.unitIds.some(id=>w.units[id-1].hp>0)),home=w.commandPosts.find(p=>p.team===team),enemy=w.commandPosts.find(p=>p.team!==team);if(!home||!enemy)continue;
-  const visible=w.tick%20===0?visibleEnemies(w,team):[];const hx=home.center%w.map.width,hy=Math.floor(home.center/w.map.width),threat=visible.some(u=>Math.abs(u.x-hx)+Math.abs(u.y-hy)<12);
+  if(!allies.some(s=>w.tick%20===s.id%20&&w.tick-s.lastOrderTick>=60&&!s.suppressed))continue;
+  const visible=visibleEnemies(w,team);const hx=home.center%w.map.width,hy=Math.floor(home.center/w.map.width),threat=visible.some(u=>Math.abs(u.x-hx)+Math.abs(u.y-hy)<12);
   for(let n=0;n<allies.length;n++){const s=allies[n];if(w.tick%20!==s.id%20||w.tick-s.lastOrderTick<60||s.suppressed)continue;
    const guard=n===0&&allies.length>1;s.role=guard?'guard':'advance';let target;
    if(guard||(threat&&n===1&&allies.length>2))target=home.center;

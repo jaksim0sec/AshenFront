@@ -18,7 +18,7 @@ export function spawnSquad(w,team,x,y,count=10) {
   const u={id:w.units.length+1,team,squadId:s.id,x:ux,y:uy,hp:100,nextFireTick:teamOrdinal%30,moveTo:-1,moveProgress:0,wait:0};
   w.units.push(u);s.unitIds.push(u.id);w.map.occupancy[i]=u.id;
  }
- w.squads.push(s);return s;
+ w.squads.push(s);w.spatialRevision=(w.spatialRevision??0)+1;return s;
 }
 export function assertInvariants(w) {
  const occupied=new Set(),reserved=new Set();

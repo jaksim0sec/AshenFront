@@ -7,8 +7,10 @@ export class Navigation {
   const key=goal+':'+radius+(limit===Infinity?'':':'+limit);if(this.fields.size>=96&&!this.fields.has(key)){const victim=[...this.fields].find(([,f])=>Number.isFinite(f.limit));if(victim)this.fields.delete(victim[0]);}if(this.fields.has(key))return this.fields.get(key);
   const m=this.map,distance=new Int32Array(m.size);distance.fill(-1);const queue=new Int32Array(m.size);let tail=0;
   const gx=goal%m.width,gy=Math.floor(goal/m.width);
-  for(let y=Math.max(0,gy-radius);y<=Math.min(m.height-1,gy+radius);y++)for(let x=Math.max(0,gx-radius);x<=Math.min(m.width-1,gx+radius);x++) {
-   const i=cell(m,x,y);if(Math.abs(x-gx)+Math.abs(y-gy)<=radius&&!m.blocked[i]&&m.floorLevel[i]===m.floorLevel[goal]){distance[i]=0;queue[tail++]=i;}
+  // Only seed the anchor's connected local region, never the far side of a wall.
+  const seeds=[],seen=new Set();if(!m.blocked[goal]){seeds.push(goal);seen.add(goal);}
+  for(let p=0;p<seeds.length;p++){const i=seeds[p];distance[i]=0;queue[tail++]=i;
+   for(const j of neighbors(m,i))if(!seen.has(j)&&m.floorLevel[j]===m.floorLevel[goal]&&Math.abs(j%m.width-gx)+Math.abs(Math.floor(j/m.width)-gy)<=radius&&canStep(m,i,j)){seen.add(j);seeds.push(j);}
   }
   const f={goal,radius,limit,distance,queue,head:0,tail,done:!tail};this.fields.set(key,f);return f;
  }
@@ -30,7 +32,9 @@ export class Navigation {
 }
 function yielding(w,u){
  if(!u.yieldFor)return false;const v=w.units[u.yieldFor-1],s=v&&w.squads[v.squadId-1];
- return v?.hp>0&&s.orderId===u.yieldGeneration&&s.goal!==null&&cell(w.map,v.x,v.y)!==s.slots?.[v.id];
+ const waiting=v?.hp>0&&s.orderId===u.yieldGeneration&&s.goal!==null&&cell(w.map,v.x,v.y)!==s.slots?.[v.id];
+ if(!waiting){u.yieldFor=null;return false;}
+ const seen=new Set([u.id]);let next=v;while(next?.yieldFor){if(seen.has(next.id)){const release=Math.min(...seen);if(u.id===release){u.yieldFor=null;return false;}break;}seen.add(next.id);next=w.units[next.yieldFor-1];}return true;
 }
 function cooperativeCell(w,u,i){
  const id=w.map.occupancy[i];if(!id)return true;
@@ -53,7 +57,9 @@ export function stepMovement(w) {
  for(const u of w.units)if(u.hp>0&&u.moveTo>=0){u.moveProgress++;if(u.moveProgress>=8)finished.push(u);}
  for(const u of finished)m.occupancy[cell(m,u.x,u.y)]=0;
  for(const u of finished){const dest=u.moveTo;m.occupancy[dest]=u.id;m.reservation[dest]=0;u.x=dest%m.width;u.y=Math.floor(dest/m.width);u.moveTo=-1;u.moveProgress=0;w.metrics.moves++;}
+ if(finished.length)w.spatialRevision=(w.spatialRevision??0)+1;
  w.metrics.navExpansions=w.navigation.update();
+ for(const u of w.units)yielding(w,u);
  // Preserve the confirmed footprint; exchange assignments only to resolve
  // an idle member occupying another member's slot after sustained congestion.
  for(const s of w.squads)if(s.placement==='formation'&&!s.suppressed&&s.goal!==null){
@@ -82,7 +88,7 @@ export function stepMovement(w) {
    const i=q[head];w.metrics.navExpansions++;
    for(const j of neighbors(m,i))if(f.distance[j]===0&&!parent.has(j)&&!m.reservation[j]&&canStep(m,i,j)){
     const occupant=m.occupancy[j]?w.units[m.occupancy[j]-1]:null,os=occupant?w.squads[occupant.squadId-1]:null;
-    if(occupant&&(occupant.team!==s.team||occupant.moveTo>=0||os.order==='hold'||os.suppressed||os.goal!==s.goal||os.radius!==s.radius))continue;
+    if(occupant&&(occupant.team!==s.team||occupant.moveTo>=0||os.order==='hold'||os.suppressed||os.placement==='formation'||os.goal!==s.goal||os.radius!==s.radius))continue;
     parent.set(j,i);depth.set(j,depth.get(i)+1);q.push(j);
    }
   }

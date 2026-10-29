@@ -37,3 +37,18 @@ test('INF-01 four allied squads cross a shared four-wide choke with distinct anc
  const m=createTerrain(60,40);for(let y=0;y<40;y++)for(let x=25;x<35;x++)if(y<18||y>21)m.blocked[cell(m,x,y)]=1;
  const w=createGame({map:m,squadsPerTeam:0});for(const [x,y,gx,gy] of [[4,12,50,14],[4,24,50,26],[50,12,5,14],[50,24,5,26]]){const s=spawnSquad(w,'A',x,y);command(w,'A',{type:'move',squadId:s.id,target:cell(m,gx,gy)});}run(w,2400);for(const s of w.squads)assert.equal(s.arrivedCount,10,`squad ${s.id}: ${s.reason}`);
 });
+test('INF-01 retarget during real fire retains latest generation and collision invariants',async()=>{
+ const {tick,createMatch}=await import('../src/sim/engine.mjs');
+ for(let seed=1;seed<=20;seed++){const w=createMatch({seed,botTeams:['B']});let last;
+  for(let n=0;n<900&&!w.winner;n++){if([0,160,300].includes(n)){last=cell(w.map,n===300?22:28,24);command(w,'A',{type:'move',squadId:1,target:last});}tick(w);assert.equal(w.squads[0].goal,last);if(n%50===0)assertInvariants(w);}
+ }
+});
+test('INF-01 destination region cannot seed across a separating wall and report idle partial forever',()=>{
+ const m=createTerrain(40,30);for(let y=0;y<25;y++)m.blocked[cell(m,20,y)]=1;const w=createGame({map:m,squadsPerTeam:0}),s=spawnSquad(w,'A',3,12);command(w,'A',{type:'move',squadId:1,target:cell(m,22,15)});run(w,3000);assert.equal(s.arrivedCount,10,`${s.status}: ${s.reason}`);
+});
+test('INF-01 later rally never displaces a settled precise formation',()=>{
+ const w=createGame({map:createTerrain(40,30),squadsPerTeam:0}),s=spawnSquad(w,'A',3,10),target=cell(w.map,25,15);command(w,'A',{type:'move',squadId:1,target});run(w,900);const positions=w.units.map(u=>[u.x,u.y]);spawnSquad(w,'A',3,20);command(w,'A',{type:'rally',squadId:2,target,radius:3});run(w,1000);assert.deepEqual(w.units.slice(0,10).map(u=>[u.x,u.y]),positions);assert.equal(s.arrivedCount,10);
+});
+test('INF-01 changing area radius creates a new order generation',()=>{
+ const w=createGame(),s=w.squads[0];command(w,'A',{type:'rally',squadId:1,target:1500,radius:4});const id=s.orderId;command(w,'A',{type:'rally',squadId:1,target:1500,radius:2});assert(s.orderId>id);assert.equal(s.radius,2);
+});

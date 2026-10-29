@@ -1,4 +1,4 @@
-import {cell,random} from './world.mjs';import {SpatialIndex} from './spatial.mjs';import {emit} from './state.mjs';
+import {cell,random} from './world.mjs';import {spatialIndex} from './spatial.mjs';import {emit} from './state.mjs';
 // Symmetric supercover rasterization: at corner crossings both adjacent cells count.
 export function sightCells(a,b) {
  let x=a.x,y=a.y,ix=0,iy=0;const nx=Math.abs(b.x-x),ny=Math.abs(b.y-y),sx=Math.sign(b.x-x),sy=Math.sign(b.y-y),out=[];
@@ -26,10 +26,10 @@ export function damage(w,u,amount) {
  if(u.hp<=0)return;u.hp=Math.max(0,u.hp-amount);if(u.hp>0)return;
  const i=cell(w.map,u.x,u.y);if(w.map.occupancy[i]===u.id)w.map.occupancy[i]=0;
  if(u.moveTo>=0&&w.map.reservation[u.moveTo]===u.id)w.map.reservation[u.moveTo]=0;
- u.moveTo=-1;u.moveProgress=0;u.detour=null;emit(w,{kind:'elimination',x:u.x,y:u.y,team:u.team});
+ w.spatialRevision=(w.spatialRevision??0)+1;u.moveTo=-1;u.moveProgress=0;u.detour=null;emit(w,{kind:'elimination',x:u.x,y:u.y,team:u.team});
 }
 export function resolveFire(w) {
- if(!w.combat)return;const index=new SpatialIndex(w.units),shots=[];
+ if(!w.combat)return;const index=spatialIndex(w),shots=[];
  for(const u of w.units) {
   if(u.hp<=0||w.tick<u.nextFireTick)continue;
   w.metrics.queries++;const candidates=index.query(u.x,u.y,9).filter(v=>v.team!==u.team&&v.hp>0).map(v=>({v,d:(v.x-u.x)**2+(v.y-u.y)**2})).filter(o=>o.d<=81);
@@ -46,7 +46,7 @@ export function resolveFire(w) {
  for(const shot of shots)if(shot.amount)damage(w,shot.target,shot.amount);
 }
 export function visibleEnemies(w,team) {
- const index=new SpatialIndex(w.units),seen=new Map();
+ const index=spatialIndex(w),seen=new Map();
  for(const u of w.units)if(u.hp>0&&u.team===team)for(const v of index.query(u.x,u.y,9))if(v.team!==team&&!seen.has(v.id)&&lineOfSight(w.map,u,v))seen.set(v.id,v);
  return [...seen.values()];
 }

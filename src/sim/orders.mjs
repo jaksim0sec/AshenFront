@@ -35,5 +35,6 @@ export function updateOrderStatus(w,s){
   s.status='blocked';s.reason='waiting_for_capacity';
   for(const u of live)for(const i of neighbors(w.map,cell(w.map,u.x,u.y))){const v=w.units[w.map.occupancy[i]-1];if(v?.team===s.team){const vs=w.squads[v.squadId-1];if(vs.order==='hold'||vs.suppressed)s.reason='blocked_by_ally';}}
  }else s.status=live.some(u=>u.moveTo>=0)?'moving':global.done?'partial':'planning';
+ if(s.status==='partial'&&!s.reason)s.reason=live.some(u=>u.yieldFor)?'yielding_to_ally':w.navigation.pending?'planning':'waiting_for_capacity';
  if(w.telemetry){w.orderEvents??=[];const signature=[s.orderId,s.status,s.arrivedCount,s.reason].join(':');if(signature!==s.lastOrderSignature){s.lastOrderSignature=signature;w.orderEvents.push({tick:w.tick,orderId:s.orderId,squadId:s.id,status:s.status,targetCell:s.goal,targetElevation:s.targetElevation,arrived:s.arrivedCount,living:live.length,reason:s.reason,fields:w.navigation.fields.size});if(w.orderEvents.length>512)w.orderEvents.shift();}}
 }
