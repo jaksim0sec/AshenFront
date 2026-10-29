@@ -14,7 +14,7 @@ Each arm remains one whole PNG. Idle poses use the exact archive placement. Slee
 
 ## Edit and export
 
-1. Select country, rank and part. Drag or enter position, size, angle, uniform scale and pivot values. Source aspect ratios stay locked. Head/hat movement can be linked. Preview, pause, scrub, aim, flip and inspect the eight-rank strip.
+1. Select country, rank and part. Drag or enter position, size, angle, uniform scale and pivot values. Source aspect ratios stay locked. Head and hat move independently by default; enable **머리·모자 함께 이동** only when needed. Preview, pause, scrub, aim, flip and inspect the eight-rank strip.
 2. **체면동화** applies the selected soldier's physique to all16 profiles in one undoable operation, preserving each nation's original raster aspect ratios, artwork and rank insignia.
 3. Change images, visibility or layer order; undo/redo and reset the current profile. Export all profiles as `ashenfront-soldiers-final.json`, or export/import a single profile. Unknown image paths, external URLs and invalid numbers are rejected.
 4. **전장에 적용** saves the draft and opens the game. An already-open game receives the same catalog through a storage event. Export JSON for another browser; clearing a draft restores published defaults.
