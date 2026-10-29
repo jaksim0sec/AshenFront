@@ -1,4 +1,5 @@
 /** Pure, view-only animation; no simulation imports, randomness or wall-clock reads. */
+export const DEATH_DURATION=1.7;
 export const IDENTITY=[1,0,0,1,0,0];
 export function multiply(a,b){return[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];}
 export function transformPoint(m,x,y){return{x:m[0]*x+m[2]*y+m[4],y:m[1]*x+m[3]*y+m[5]};}
@@ -22,11 +23,11 @@ function weaponMatrix(p,x,y,angle){
  return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(-p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));
 }
 export function poseCharacter(profile,{state='idle',time=0,aim=0,target=null,facing=1,phase=0,moving=false}={}){
- const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||moving,wave=walk?Math.sin(time*10+phase):0,breath=Math.sin(time*2.6+phase),bob=walk?-Math.abs(wave)*3:breath*1.1;
+ const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||(moving&&state!=='death'),wave=walk?Math.sin(time*10+phase):0,breath=Math.sin(time*2.6+phase),bob=walk?-Math.abs(wave)*3:breath*1.1;
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
- const hit=state==='hit'?(1-smooth(time/.4))*Math.sin(time*30)*5:0,death=state==='death'?smooth((time-.1)/.65):0;
+ const hit=state==='hit'?(1-smooth(time/.4))*Math.sin(time*30)*5:0,death=state==='death'?clamp((time-.12)/.48):0;
  // facing +1 means screen-right; native portraits face screen-left.
- const root=multiply(scale(facing<0?1:-1,1),multiply(translate(hit+death*20,death*6),rotate(death*1.35)));
+ const root=multiply(scale(facing<0?1:-1,1),multiply(translate(hit,0),rotate(state==='death'?Math.sin(clamp(time/.24)*Math.PI)*.22+death*.62:0)));
  const upperAngle=walk?wave*.015:recoil*.025,upper=multiply(translate(recoil*5,bob+recoil*1.2),rotate(upperAngle));
  const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035),translate(-parts.head.x,-parts.head.y))));
  const gun=parts.rifle,carry=state==='shoot'?aim:-.9+(walk?wave*.025:0),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
@@ -62,8 +63,23 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,target=null,fac
   add(key,multiply(upper,matrix(p)));
  }
  // Draw exactly the configured layer order in every animation state.
- const worldGun=multiply(root,gunMatrix),axis=Math.hypot(worldGun[0],worldGun[1]),rifle={w:gun.w,h:gun.h,matrix:worldGun,grips,muzzle:transformPoint(worldGun,gun.w*155/160,gun.h*13/40),direction:{x:worldGun[0]/axis,y:worldGun[1]/axis}};
- return {draws,rifle,hands:Object.fromEntries(Object.entries(attachments).map(([k,p])=>[k,transformPoint(root,p.hand.x,p.hand.y)])),attachments,root,flash:state==='shoot'&&t<.065?1-t/.065:0,casing:state==='shoot'&&t>.15&&t<.55?(t-.15)/.4:null,alpha:state==='death'?1-smooth((time-.8)/.5):1};
+ if(state==='death')scatterDeath(draws,parts,time);
+ const worldGun=state==='death'?(draws.find(d=>d.part==='rifle')?.matrix??multiply(root,gunMatrix)):multiply(root,gunMatrix),axis=Math.hypot(worldGun[0],worldGun[1]),rifle={w:gun.w,h:gun.h,matrix:worldGun,grips,muzzle:transformPoint(worldGun,gun.w*155/160,gun.h*13/40),direction:{x:worldGun[0]/axis,y:worldGun[1]/axis}};
+ return {draws,rifle,hands:Object.fromEntries(Object.entries(attachments).map(([k,p])=>[k,transformPoint(root,p.hand.x,p.hand.y)])),attachments,root,flash:state==='shoot'&&t<.065?1-t/.065:0,casing:state==='shoot'&&t>.15&&t<.55?(t-.15)/.4:null,alpha:state==='death'?clamp((DEATH_DURATION-time)/.35):1};
+}
+/** Staggered whole-part release, arc, ground contact and bounce, inspired by FlowerWars-MINI. */
+function scatterDeath(draws,parts,time){
+ const groups=new Map();
+ for(const d of draws){const key=d.part==='hat'?'head':d.part.startsWith('shoulder')?'body':d.part==='sleeveLeft'?'armLeft':d.part==='sleeveRight'?'armRight':d.part;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(d);}
+ for(const [key,group] of groups){let seed=0;for(const c of key)seed=(seed*31+c.charCodeAt(0))>>>0;
+  const age=Math.max(0,time-(.28+(seed%5)*.035));if(!age)continue;
+  const duration=.48+(seed%3)*.05,p=clamp(age/duration),base=group.find(d=>d.part===key)??group[0],part=parts[base.part],origin=transformPoint(base.matrix,base.w*part.pivotX,base.h*part.pivotY),spin=((seed%9)-4)*.18*p;
+  const turn=multiply(translate(origin.x,origin.y),multiply(rotate(spin),translate(-origin.x,-origin.y)));
+  const turned=group.map(d=>multiply(turn,d.matrix));let bottom=-Infinity;
+  for(let i=0;i<group.length;i++)for(const[x,y]of[[0,0],[group[i].w,0],[0,group[i].h],[group[i].w,group[i].h]])bottom=Math.max(bottom,transformPoint(turned[i],x,y).y);
+  const bounce=age>duration?-Math.abs(Math.sin((age-duration)*15))*Math.exp(-(age-duration)*8)*12:0,dx=((seed%7)-3)*7*p,dy=(-2-bottom)*p*p-Math.sin(p*Math.PI)*28+bounce;
+  const shift=translate(dx,dy);for(let i=0;i<group.length;i++)group[i].matrix=multiply(shift,turned[i]);
+ }
 }
 export function poseBounds(pose,padding=8){
  const points=[{x:0,y:0}];for(const d of pose.draws){let x0=0,y0=0,x1=d.w,y1=d.h;if(Array.isArray(d.clip)){const[x,y,w,h]=d.clip;x0=x*d.w;y0=y*d.h;x1=(x+w)*d.w;y1=(y+h)*d.h;}else if(d.clip?.capsule){const[ax,ay,bx,by,r]=d.clip.capsule;x0=Math.max(0,Math.min(ax,bx)-r);y0=Math.max(0,Math.min(ay,by)-r);x1=Math.min(d.w,Math.max(ax,bx)+r);y1=Math.min(d.h,Math.max(ay,by)+r);}for(const[x,y]of[[x0,y0],[x1,y0],[x1,y1],[x0,y1]])points.push(transformPoint(d.matrix,x,y));}

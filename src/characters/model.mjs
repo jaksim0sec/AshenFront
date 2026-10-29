@@ -9,6 +9,7 @@ export const PARTS=['legLeft','legRight','armLeft','body','armRight','shoulderLe
 // User-exported Arken private order, shared by every nation and rank.
 export const DEFAULT_LAYERS=Object.freeze(["legRight","armLeft","legLeft","body","armRight","head","hat","shoulderLeft","shoulderRight","sleeveLeft","sleeveRight","rifle"]);
 const LAYER_REVISION='arken-private-order-1';
+const RIFLE_REVISION=1,RIFLE_ENLARGEMENT=1.2;
 // A new artwork generation must not silently restore incompatible old browser geometry.
 export const STORAGE_KEY='ashenfront.soldier-workshop.v3';
 export const ASSETS=Object.keys(ASPECTS);
@@ -29,7 +30,8 @@ export function createCatalog(){
   profiles[nation+':'+rank]={nation,rank,parts,layers};
  }
  profiles['arken:private']=structuredClone(REFERENCE_PROFILE);
- return unifyPhysique({format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,layerRevision:LAYER_REVISION,profiles},'arken:private');
+ profiles['arken:private'].parts.rifle.w*=RIFLE_ENLARGEMENT;profiles['arken:private'].parts.rifle.h*=RIFLE_ENLARGEMENT;
+ return unifyPhysique({format:'ashenfront-soldier-catalog',version:1,bodyStyle:BODY_STYLE,layerRevision:LAYER_REVISION,rifleRevision:RIFLE_REVISION,profiles},'arken:private');
 }
 function validPart(p){
  if(!p||!ASSETS.includes(p.asset)||typeof p.visible!=='boolean')throw Error('등록되지 않은 파츠입니다.');
@@ -86,5 +88,6 @@ export function migratePhysique(c){
  validateCatalog(c);if(c.bodyStyle!==BODY_STYLE)throw Error('이전 파츠용 JSON입니다. 새 파츠 기준으로 다시 조정하세요.');
  // Upgrade the layer order once without discarding saved part positions or later edits.
  if(c.layerRevision!==LAYER_REVISION){for(const p of Object.values(c.profiles))p.layers=[...DEFAULT_LAYERS];c.layerRevision=LAYER_REVISION;}
- if(c.physiqueRevision!==PHYSIQUE_REVISION){c.profiles['arken:private']=structuredClone(REFERENCE_PROFILE);return unifyPhysique(c,'arken:private');}return c;
+ if(c.physiqueRevision!==PHYSIQUE_REVISION){c.profiles['arken:private']=structuredClone(REFERENCE_PROFILE);if(c.rifleRevision===RIFLE_REVISION){c.profiles['arken:private'].parts.rifle.w*=RIFLE_ENLARGEMENT;c.profiles['arken:private'].parts.rifle.h*=RIFLE_ENLARGEMENT;}c=unifyPhysique(c,'arken:private');}
+ if(c.rifleRevision!==RIFLE_REVISION){for(const p of Object.values(c.profiles)){p.parts.rifle.w*=RIFLE_ENLARGEMENT;p.parts.rifle.h*=RIFLE_ENLARGEMENT;}c.rifleRevision=RIFLE_REVISION;}return c;
 }

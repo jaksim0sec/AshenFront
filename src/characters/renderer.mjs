@@ -1,10 +1,10 @@
 import {createCatalog,importCatalog,STORAGE_KEY,profileId,migratePhysique} from './model.mjs';
-import {poseBounds,poseCharacter,transformPoint} from './animation.mjs';
+import {poseBounds,poseCharacter,transformPoint,DEATH_DURATION} from './animation.mjs';
 const ROOT=new URL('../../',import.meta.url);
 export const SOLDIER_SCALE=.285;
 export function sampleAnimation(options={},low=false){
  const fps=low?6:18,state=options.state??'idle',time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:state==='idle'?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
- const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,1.4):index/count*duration;
+ const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,state==='death'?DEATH_DURATION:1.4):index/count*duration;
  return {...options,state,time:sample,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,phase:0};
 }
 export class SoldierRenderer {

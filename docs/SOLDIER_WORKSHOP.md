@@ -14,6 +14,10 @@ The native images are from `uniform-parts-crops-1.zip`, with the four whole-arm 
 
 ## Aiming and animation
 
+The rifle is now20% larger (141.6×35.4 rig units), with its original4:1 aspect ratio. Existing drafts enlarge once via `rifleRevision`; later edits retain their selected size.
+
+Death follows the staged whole-part release in FlowerWars-MINI (`0d4e7a5`, character engine): an initial stagger and foot-anchored fall, staggered part release, a short arc, spin, ground contact and damped bounce, then fade over the final0.35s of a1.7s sequence. Hats stay with heads and insignia with their clothing. No new art or limb segments are added. The battlefield corpse lifetime, cache sampling and workshop timeline use the same duration.
+
 Firing keeps the edited rifle position fixed, eliminating aim-dependent jumps between arm-reach solutions. The arms rotate/translate as whole images without changing their configured scale. Their original palms follow the fore-end, trigger and bolt anchors.
 
 The battle passes the actual projected target point relative to the rendered, interpolated soldier, including elevation. The animation transforms that point into the moving torso frame and solves the angle of the actual barrel ray, including its offset from the rifle pivot. Recoil, breathing, movement and left/right reflection use the same coordinate transforms. The cached right-facing sprite reflects its target as well as its image. Coarse firing-angle rounding has been removed; the tracer uses the same sampled muzzle as the rendered rifle.
