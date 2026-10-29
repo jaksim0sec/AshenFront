@@ -14,7 +14,8 @@ export function spawnSquad(w,team,x,y,count=10) {
  for(let n=0;n<count;n++) {
   const ux=x+n%2,uy=y+Math.floor(n/2),i=cell(w.map,ux,uy);
   if(ux<0||uy<0||ux>=w.map.width||uy>=w.map.height||w.map.blocked[i]||w.map.occupancy[i])throw Error('Invalid spawn');
-  const u={id:w.units.length+1,team,squadId:s.id,x:ux,y:uy,hp:100,nextFireTick:(w.units.length+1)%30,moveTo:-1,moveProgress:0,wait:0};
+  const teamOrdinal=w.units.filter(v=>v.team===team).length+1;
+  const u={id:w.units.length+1,team,squadId:s.id,x:ux,y:uy,hp:100,nextFireTick:teamOrdinal%30,moveTo:-1,moveProgress:0,wait:0};
   w.units.push(u);s.unitIds.push(u.id);w.map.occupancy[i]=u.id;
  }
  w.squads.push(s);return s;

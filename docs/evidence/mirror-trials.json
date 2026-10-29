@@ -1,0 +1,322 @@
+[
+  {
+    "seed": 1,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1915,
+    "checksum": "4f694b14"
+  },
+  {
+    "seed": 1,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1575,
+    "checksum": "d00a9165"
+  },
+  {
+    "seed": 2,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1655,
+    "checksum": "a57201a6"
+  },
+  {
+    "seed": 2,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 2450,
+    "checksum": "9f06274f"
+  },
+  {
+    "seed": 3,
+    "mirrored": false,
+    "winner": "B",
+    "leftSideWinner": "B",
+    "ticks": 2185,
+    "checksum": "c4633ca0"
+  },
+  {
+    "seed": 3,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 1650,
+    "checksum": "d4b1b98f"
+  },
+  {
+    "seed": 4,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1565,
+    "checksum": "2eba21d1"
+  },
+  {
+    "seed": 4,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 2110,
+    "checksum": "19b0a083"
+  },
+  {
+    "seed": 5,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1840,
+    "checksum": "bd95a0c0"
+  },
+  {
+    "seed": 5,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1665,
+    "checksum": "829f1185"
+  },
+  {
+    "seed": 6,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1635,
+    "checksum": "9ee3d8bb"
+  },
+  {
+    "seed": 6,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1970,
+    "checksum": "4180ab42"
+  },
+  {
+    "seed": 7,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1615,
+    "checksum": "8d44cd9f"
+  },
+  {
+    "seed": 7,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1695,
+    "checksum": "62f442be"
+  },
+  {
+    "seed": 8,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1580,
+    "checksum": "39f54444"
+  },
+  {
+    "seed": 8,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 2390,
+    "checksum": "7b86f667"
+  },
+  {
+    "seed": 9,
+    "mirrored": false,
+    "winner": "B",
+    "leftSideWinner": "B",
+    "ticks": 2205,
+    "checksum": "612add01"
+  },
+  {
+    "seed": 9,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 1680,
+    "checksum": "9c1e4099"
+  },
+  {
+    "seed": 10,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 2460,
+    "checksum": "3e75e3d2"
+  },
+  {
+    "seed": 10,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1585,
+    "checksum": "8213fbf1"
+  },
+  {
+    "seed": 11,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1600,
+    "checksum": "0df83e92"
+  },
+  {
+    "seed": 11,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 1960,
+    "checksum": "6234c9d9"
+  },
+  {
+    "seed": 12,
+    "mirrored": false,
+    "winner": "B",
+    "leftSideWinner": "B",
+    "ticks": 2300,
+    "checksum": "97352584"
+  },
+  {
+    "seed": 12,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1765,
+    "checksum": "57621246"
+  },
+  {
+    "seed": 13,
+    "mirrored": false,
+    "winner": "B",
+    "leftSideWinner": "B",
+    "ticks": 2090,
+    "checksum": "5192356d"
+  },
+  {
+    "seed": 13,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 1935,
+    "checksum": "8fd24cde"
+  },
+  {
+    "seed": 14,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1585,
+    "checksum": "8576712a"
+  },
+  {
+    "seed": 14,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1765,
+    "checksum": "023ec3e8"
+  },
+  {
+    "seed": 15,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1695,
+    "checksum": "6430ed5c"
+  },
+  {
+    "seed": 15,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 2325,
+    "checksum": "4302e230"
+  },
+  {
+    "seed": 16,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 2145,
+    "checksum": "7004e5ac"
+  },
+  {
+    "seed": 16,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 2020,
+    "checksum": "2568622f"
+  },
+  {
+    "seed": 17,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1715,
+    "checksum": "40886b65"
+  },
+  {
+    "seed": 17,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 1670,
+    "checksum": "e39c83a0"
+  },
+  {
+    "seed": 18,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1785,
+    "checksum": "74246537"
+  },
+  {
+    "seed": 18,
+    "mirrored": true,
+    "winner": "A",
+    "leftSideWinner": "B",
+    "ticks": 1820,
+    "checksum": "3ee298a4"
+  },
+  {
+    "seed": 19,
+    "mirrored": false,
+    "winner": "B",
+    "leftSideWinner": "B",
+    "ticks": 2355,
+    "checksum": "ad286289"
+  },
+  {
+    "seed": 19,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 2610,
+    "checksum": "fbb2cdf5"
+  },
+  {
+    "seed": 20,
+    "mirrored": false,
+    "winner": "A",
+    "leftSideWinner": "A",
+    "ticks": 1725,
+    "checksum": "549a4e12"
+  },
+  {
+    "seed": 20,
+    "mirrored": true,
+    "winner": "B",
+    "leftSideWinner": "A",
+    "ticks": 2130,
+    "checksum": "e6a572d0"
+  }
+]

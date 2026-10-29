@@ -33,9 +33,36 @@ with sync_playwright() as p:
   cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
   assert page.evaluate('__ashen.state.commandLog.length')==n
   page.locator('#cancel').click()
+  page.locator('#focus-squad').click()
+  page.locator('#support').click()
+  friendly=page.evaluate('({x:__ashen.state.units[0].x,y:__ashen.state.units[0].y})')
+  aim=page.evaluate('(p)=>__ashen.screenCell(p.x,p.y)',friendly)
+  page.locator('#battlefield').tap(position=aim)
+  assert page.evaluate('__ashen.state.support.A.uses')==1
+  assert page.evaluate('__ashen.state.units[0].hp')==85
+  page.locator('#low-mode').check()
+  page.screenshot(path=f'artifacts/play-{width}-{dpr}.png')
+  for b in page.locator('.commands button').all():
+   r=b.bounding_box();assert r['height']>=44 and r['width']>=44
+  builds=page.evaluate('__ashen.scene.terrain.rebuilds');page.wait_for_timeout(150)
+  assert page.evaluate('__ashen.scene.terrain.rebuilds')==builds,'stationary terrain rebuilt'
+  page.locator('#low-mode').uncheck()
   page.evaluate('__ashen.finishMatch()');assert page.locator('#result').is_visible()
   page.screenshot(path=f'artifacts/game-{width}-{dpr}.png')
   assert not errors,errors
   print(json.dumps({'viewport':[width,height],'dpr':dpr,'errors':errors,'winner':page.evaluate('__ashen.state.winner')}))
   ctx.close()
+ # Focused renderer/input regressions, isolated from match-outcome assertions.
+ ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=1,has_touch=True)
+ page=ctx.new_page();page.goto('http://127.0.0.1:8000/?debug=1');page.wait_for_function('window.__ashen && __ashen.state.tick>2');page.locator('#pause').click()
+ page.locator('#squad-2').click()
+ page.evaluate("""()=>{const w=__ashen.state,u=w.units[0],m=w.map;m.occupancy[u.y*m.width+u.x]=0;u.x=10;u.y=20;u.moveTo=20*m.width+11;u.moveProgress=7;m.occupancy[20*m.width+10]=u.id;m.reservation[u.moveTo]=u.id;__ashen.clock.backlog=0;__ashen.camera.zoom=1.6;__ashen.focus(10.875,20);}""")
+ page.wait_for_timeout(60)
+ rect=page.locator('#battlefield').bounding_box();page.locator('#battlefield').tap(position={'x':rect['width']/2,'y':rect['height']/2-18*1.6})
+ assert page.locator('#squad-1').evaluate("e=>e.classList.contains('active')"),'moving silhouette could not be selected'
+ page.evaluate("""()=>{const w=__ashen.state,u=w.units[0],m=w.map;u.moveTo=-1;u.moveProgress=0;m.floorLevel[u.y*m.width+u.x]=0;m.terrainKind[u.y*m.width+u.x]=1;m.revision++;__ashen.clock.backlog=0;__ashen.camera.zoom=1;__ashen.focus(10,20);}""")
+ page.wait_for_timeout(60)
+ pixel=page.evaluate("""()=>{const c=document.querySelector('#battlefield'),ctx=c.getContext('2d');return Array.from(ctx.getImageData(Math.round(c.width/2),Math.round(c.height/2-4),1,1).data);}""")
+ assert pixel[:3]==[81,67,51],f'trench lower silhouette not occluded by soil rim: {pixel}'
+ page.screenshot(path='artifacts/trench-occlusion.png');ctx.close()
  browser.close()

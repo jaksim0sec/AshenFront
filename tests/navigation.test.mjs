@@ -30,3 +30,12 @@ test('opponents never double reserve and static no-route is finite',()=>{
  const v=createGame({map:isolated,squadsPerTeam:0}),s=spawnSquad(v,'A',2,3);command(v,'A',{type:'move',squadId:s.id,target:cell(isolated,20,6)});advance(v,100);
  assert.equal(s.movementBlockedReason,'no_route');assert.equal(v.navigation.pending,0);
 });
+test('all four allied squads can fill the 41-cell central rally without sealing out later arrivals',()=>{
+ const w=createGame({botTeams:[],combat:false});for(const u of w.units)if(u.team==='B'){u.hp=0;w.map.occupancy[cell(w.map,u.x,u.y)]=0;}
+ for(const s of w.squads.filter(s=>s.team==='A'))command(w,'A',{type:'rally',squadId:s.id,target:cell(w.map,32,24),radius:4});
+ advance(w,2000);for(const s of w.squads.filter(s=>s.team==='A'))assert(s.reached,`squad ${s.id} stalled`);
+});
+test('invalid region sizes cannot corrupt a retained order or create unbounded search',()=>{
+ const w=createGame(),s=w.squads[0];command(w,'A',{type:'move',squadId:1,target:1000});const goal=s.goal;
+ for(const radius of [-1,Infinity,NaN,100000]){assert(!command(w,'A',{type:'move',squadId:1,target:1001,radius}).ok);assert.equal(s.goal,goal);}
+});

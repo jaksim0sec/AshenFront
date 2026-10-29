@@ -1,4 +1,4 @@
-import {project,unproject,HALF_W as W,HALF_H as H,LEVEL_PX} from './projection.mjs';
+import {tileFaces,project,unproject,HALF_W as W,HALF_H as H,LEVEL_PX} from './projection.mjs';
 export function polygon(ctx,points,fill,stroke) {
  ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();
  if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}
@@ -7,13 +7,7 @@ export function visibleBounds(m,c,width,height,pad=200) {
  const ps=[[-pad,-pad],[width+pad,-pad],[-pad,height+pad],[width+pad,height+pad]].map(([x,y])=>unproject((x-c.x)/c.zoom,(y-c.y)/c.zoom));
  return {x0:Math.max(0,Math.floor(Math.min(...ps.map(p=>p.x)))-3),x1:Math.min(m.width-1,Math.ceil(Math.max(...ps.map(p=>p.x)))+3),y0:Math.max(0,Math.floor(Math.min(...ps.map(p=>p.y)))-3),y1:Math.min(m.height-1,Math.ceil(Math.max(...ps.map(p=>p.y)))+3)};
 }
-export function tileFaces(m,i) {
- const x=i%m.width,y=Math.floor(i/m.width),h=m.floorLevel[i],p=project(x,y,h),faces=[];
- for(const [j,pts] of [[x+1<m.width?i+1:-1,[[p.x,p.y+H],[p.x+W,p.y]]],[y+1<m.height?i+m.width:-1,[[p.x-W,p.y],[p.x,p.y+H]]]]) {
-  const low=j<0?0:m.floorLevel[j]; if(h>low) {const drop=(h-low)*LEVEL_PX;faces.push([...pts,[pts[1][0],pts[1][1]+drop],[pts[0][0],pts[0][1]+drop]]);}
- }
- return faces;
-}
+export {tileFaces} from './projection.mjs';
 export class TerrainRenderer {
  constructor(){this.canvas=document.createElement('canvas');this.key='';this.rebuilds=0;}
  draw(ctx,m,c,width,height,debug=false) {

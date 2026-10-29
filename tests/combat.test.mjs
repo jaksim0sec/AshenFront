@@ -25,3 +25,6 @@ test('suppression pauses retained intent, recovers hysteretically and permits HO
  for(let i=0;i<35;i++){stepMovement(w);w.tick++;recoverSuppression(w);}assert.equal(w.metrics.moves,0);assert.equal(s.movementBlockedReason,'suppressed');
  for(let i=0;i<160;i++){stepMovement(w);w.tick++;recoverSuppression(w);}assert(!s.suppressed);assert(w.metrics.moves>0);assert.equal(s.order,'move');assert(command(w,'A',{type:'hold',squadId:1}).ok);
 });
+test('mirrored armies use matching staggered initial cooldowns rather than a team-wide offset',()=>{
+ const w=createGame(),a=w.units.filter(u=>u.team==='A'),b=w.units.filter(u=>u.team==='B');for(let i=0;i<a.length;i++)assert.equal(a[i].nextFireTick,b[i].nextFireTick);
+});

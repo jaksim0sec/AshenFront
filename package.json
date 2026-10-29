@@ -10,6 +10,7 @@
     "start": "node tools/serve.mjs",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "bench": "node tools/benchmark.mjs",
-    "test:browser": "python3 tests/browser.py"
+    "test:browser": "python3 tests/browser.py",
+    "bench:browser": "python3 tools/browser-benchmark.py"
   }
 }

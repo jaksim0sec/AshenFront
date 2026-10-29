@@ -34,3 +34,17 @@ test('each deployment has two separate routes around central ruins',()=>{
   assert(seen.has(cell(m,32,24)));
  }
 });
+test('moving unit hit position follows the same interpolated foot and height as rendering',async()=>{
+ const {unitFoot}=await import('../src/render/projection.mjs');const m=createTerrain(24,24);m.floorLevel[cell(m,11,20)]=2;
+ const u={x:10,y:20,moveTo:cell(m,11,20),moveProgress:7};const p=unitFoot(m,u,0);assert.deepEqual(p,project(10.875,20,1.875));
+});
+test('a visible raised earth face picks its own tile rather than the hidden floor behind it',()=>{
+ const m=createTerrain(4,4);m.floorLevel[5]=2;
+ for(const zoom of [.3,.8,1.6]){const c={x:80,y:40,zoom},p=toScreen({x:36,y:72},c);assert.equal(pickTile(m,p.x,p.y,c),5);}
+});
+test('authored terrain is exactly mirrored across the battlefield centerline',()=>{
+ const m=createMap();for(let y=0;y<m.height;y++)for(let x=0;x<m.width;x++){const a=cell(m,x,y),b=cell(m,m.width-1-x,y);assert.equal(m.floorLevel[a],m.floorLevel[b],`floor ${x},${y}`);assert.equal(m.blocked[a],m.blocked[b]);}
+});
+test('consecutive small seeds do not give the first firing actor an almost guaranteed hit',async()=>{
+ const {random}=await import('../src/sim/world.mjs');const rolls=Array.from({length:20},(_,i)=>random({seed:i+1}));assert(rolls.filter(v=>v>.55).length>=5);assert(rolls.filter(v=>v<.55).length>=5);
+});

@@ -1,0 +1,522 @@
+{
+  "recordedAt": "2026-10-29T05:41:43.535Z",
+  "runtime": "v24.19.0",
+  "platform": "linux",
+  "os": "6.18.55",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "logicalCpus": 5,
+  "note": "Cloud CPU simulations, not physical Android or render performance. Match mode stops at outcome; soak mode runs full duration with all units alive.",
+  "results": [
+    {
+      "width": 64,
+      "height": 48,
+      "actors": 80,
+      "seed": 42,
+      "mode": "combat-match",
+      "requestedSeconds": 600,
+      "simulatedSeconds": 137.5,
+      "elapsedMs": 143.607511,
+      "p95ms": 0.1829139999999967,
+      "p99ms": 0.3681010000000029,
+      "maxMs": 2.9226500000000044,
+      "winner": "B",
+      "checksum": "18fe29d8",
+      "metrics": {
+        "navExpansions": 0,
+        "moves": 2285,
+        "shots": 1016,
+        "queries": 5444,
+        "losChecks": 1132,
+        "movingTicks": {
+          "A": 2163,
+          "B": 2039
+        },
+        "blocked": {
+          "congestion": 3889,
+          "suppressed": 6961
+        },
+        "captures": {
+          "A": 1,
+          "B": 2
+        },
+        "navTotal": 33049,
+        "navPeak": 2048,
+        "navQueuePeak": 1
+      },
+      "maxObservedWaitTicks": 0,
+      "remaining": 5,
+      "navFields": 1,
+      "heapDelta": 2049720,
+      "arrayBufferDelta": 122880,
+      "memory": [
+        {
+          "seconds": 0,
+          "heap": 4786392,
+          "arrayBuffers": 183583
+        },
+        {
+          "seconds": 60,
+          "heap": 6749424,
+          "arrayBuffers": 306463
+        },
+        {
+          "seconds": 120,
+          "heap": 7147888,
+          "arrayBuffers": 306463
+        }
+      ]
+    },
+    {
+      "width": 64,
+      "height": 48,
+      "actors": 80,
+      "seed": 42,
+      "mode": "living-movement-soak",
+      "requestedSeconds": 600,
+      "simulatedSeconds": 600,
+      "elapsedMs": 635.1333979999999,
+      "p95ms": 0.12612500000000182,
+      "p99ms": 0.20996500000001106,
+      "maxMs": 2.690038999999956,
+      "winner": null,
+      "checksum": "f0308841",
+      "metrics": {
+        "navExpansions": 27,
+        "moves": 35916,
+        "shots": 0,
+        "queries": 0,
+        "losChecks": 0,
+        "movingTicks": {
+          "A": 33472,
+          "B": 31641
+        },
+        "blocked": {
+          "congestion": 88177
+        },
+        "captures": {
+          "A": 0,
+          "B": 0
+        },
+        "navTotal": 968873,
+        "navPeak": 2048,
+        "navQueuePeak": 8
+      },
+      "maxObservedWaitTicks": 779,
+      "remaining": 80,
+      "navFields": 8,
+      "heapDelta": 2329448,
+      "arrayBufferDelta": 2334720,
+      "memory": [
+        {
+          "seconds": 0,
+          "heap": 8450128,
+          "arrayBuffers": 401695
+        },
+        {
+          "seconds": 60,
+          "heap": 7977248,
+          "arrayBuffers": 573727
+        },
+        {
+          "seconds": 120,
+          "heap": 8231096,
+          "arrayBuffers": 844063
+        },
+        {
+          "seconds": 180,
+          "heap": 9201840,
+          "arrayBuffers": 1040671
+        },
+        {
+          "seconds": 240,
+          "heap": 8839744,
+          "arrayBuffers": 1384735
+        },
+        {
+          "seconds": 300,
+          "heap": 11885008,
+          "arrayBuffers": 1556767
+        },
+        {
+          "seconds": 360,
+          "heap": 9983768,
+          "arrayBuffers": 1876255
+        },
+        {
+          "seconds": 420,
+          "heap": 10707216,
+          "arrayBuffers": 1999135
+        },
+        {
+          "seconds": 480,
+          "heap": 10193544,
+          "arrayBuffers": 2343199
+        },
+        {
+          "seconds": 540,
+          "heap": 12385728,
+          "arrayBuffers": 2490655
+        }
+      ]
+    },
+    {
+      "width": 128,
+      "height": 96,
+      "actors": 180,
+      "seed": 42,
+      "mode": "combat-match",
+      "requestedSeconds": 600,
+      "simulatedSeconds": 148.5,
+      "elapsedMs": 225.6403939999999,
+      "p95ms": 0.22765300000003208,
+      "p99ms": 0.4012519999999995,
+      "maxMs": 3.443116000000032,
+      "winner": "A",
+      "checksum": "e8ec644b",
+      "metrics": {
+        "navExpansions": 0,
+        "moves": 10535,
+        "shots": 1720,
+        "queries": 20788,
+        "losChecks": 3364,
+        "movingTicks": {
+          "A": 5974,
+          "B": 6062
+        },
+        "blocked": {
+          "congestion": 5436,
+          "suppressed": 9763
+        },
+        "captures": {
+          "A": 3,
+          "B": 2
+        },
+        "navTotal": 236285,
+        "navPeak": 2048,
+        "navQueuePeak": 12
+      },
+      "maxObservedWaitTicks": 0,
+      "remaining": 43,
+      "navFields": 4,
+      "heapDelta": 341400,
+      "arrayBufferDelta": -1075236,
+      "memory": [
+        {
+          "seconds": 0,
+          "heap": 9049040,
+          "arrayBuffers": 2871583
+        },
+        {
+          "seconds": 60,
+          "heap": 7972896,
+          "arrayBuffers": 1796347
+        },
+        {
+          "seconds": 120,
+          "heap": 7824392,
+          "arrayBuffers": 1796347
+        }
+      ]
+    },
+    {
+      "width": 128,
+      "height": 96,
+      "actors": 180,
+      "seed": 42,
+      "mode": "living-movement-soak",
+      "requestedSeconds": 600,
+      "simulatedSeconds": 600,
+      "elapsedMs": 774.9698560000002,
+      "p95ms": 0.19481199999995624,
+      "p99ms": 0.2967100000000755,
+      "maxMs": 2.4092749999999796,
+      "winner": null,
+      "checksum": "26caa73c",
+      "metrics": {
+        "navExpansions": 129,
+        "moves": 186625,
+        "shots": 0,
+        "queries": 0,
+        "losChecks": 0,
+        "movingTicks": {
+          "A": 101507,
+          "B": 96361
+        },
+        "blocked": {
+          "congestion": 110812
+        },
+        "captures": {
+          "A": 0,
+          "B": 0
+        },
+        "navTotal": 3030989,
+        "navPeak": 2048,
+        "navQueuePeak": 17
+      },
+      "maxObservedWaitTicks": 276,
+      "remaining": 180,
+      "navFields": 14,
+      "heapDelta": -647776,
+      "arrayBufferDelta": 22413312,
+      "memory": [
+        {
+          "seconds": 0,
+          "heap": 10879432,
+          "arrayBuffers": 2865403
+        },
+        {
+          "seconds": 60,
+          "heap": 9438896,
+          "arrayBuffers": 4438267
+        },
+        {
+          "seconds": 120,
+          "heap": 11463296,
+          "arrayBuffers": 7780603
+        },
+        {
+          "seconds": 180,
+          "heap": 14784616,
+          "arrayBuffers": 9353467
+        },
+        {
+          "seconds": 240,
+          "heap": 11938808,
+          "arrayBuffers": 12204283
+        },
+        {
+          "seconds": 300,
+          "heap": 16252160,
+          "arrayBuffers": 13678843
+        },
+        {
+          "seconds": 360,
+          "heap": 16353072,
+          "arrayBuffers": 16824571
+        },
+        {
+          "seconds": 420,
+          "heap": 12461440,
+          "arrayBuffers": 18299131
+        },
+        {
+          "seconds": 480,
+          "heap": 16086800,
+          "arrayBuffers": 21346555
+        },
+        {
+          "seconds": 540,
+          "heap": 14096768,
+          "arrayBuffers": 23017723
+        }
+      ]
+    },
+    {
+      "width": 256,
+      "height": 192,
+      "actors": 360,
+      "seed": 42,
+      "mode": "combat-match",
+      "requestedSeconds": 1200,
+      "simulatedSeconds": 188.5,
+      "elapsedMs": 541.6191510000001,
+      "p95ms": 0.31158000000004904,
+      "p99ms": 0.4610649999999623,
+      "maxMs": 3.855826999999863,
+      "winner": "A",
+      "checksum": "18ac31eb",
+      "metrics": {
+        "navExpansions": 0,
+        "moves": 43729,
+        "shots": 3679,
+        "queries": 63661,
+        "losChecks": 7975,
+        "movingTicks": {
+          "A": 23483,
+          "B": 22927
+        },
+        "blocked": {
+          "congestion": 18961,
+          "suppressed": 21354
+        },
+        "captures": {
+          "A": 2,
+          "B": 2
+        },
+        "navTotal": 845027,
+        "navPeak": 2048,
+        "navQueuePeak": 12
+      },
+      "maxObservedWaitTicks": 0,
+      "remaining": 67,
+      "navFields": 5,
+      "heapDelta": -1151448,
+      "arrayBufferDelta": -18358272,
+      "memory": [
+        {
+          "seconds": 0,
+          "heap": 10067736,
+          "arrayBuffers": 25131259
+        },
+        {
+          "seconds": 60,
+          "heap": 8147600,
+          "arrayBuffers": 6772987
+        },
+        {
+          "seconds": 120,
+          "heap": 13928256,
+          "arrayBuffers": 6772987
+        },
+        {
+          "seconds": 180,
+          "heap": 12884432,
+          "arrayBuffers": 6772987
+        }
+      ]
+    },
+    {
+      "width": 256,
+      "height": 192,
+      "actors": 360,
+      "seed": 42,
+      "mode": "living-movement-soak",
+      "requestedSeconds": 1200,
+      "simulatedSeconds": 1200,
+      "elapsedMs": 5838.164976,
+      "p95ms": 0.4111699999998564,
+      "p99ms": 0.6135449999997036,
+      "maxMs": 13.673420999999507,
+      "winner": null,
+      "checksum": "26187810",
+      "metrics": {
+        "navExpansions": 0,
+        "moves": 585720,
+        "shots": 0,
+        "queries": 0,
+        "losChecks": 0,
+        "movingTicks": {
+          "A": 282809,
+          "B": 279194
+        },
+        "blocked": {
+          "congestion": 269130
+        },
+        "captures": {
+          "A": 0,
+          "B": 0
+        },
+        "navTotal": 38375484,
+        "navPeak": 2048,
+        "navQueuePeak": 32
+      },
+      "maxObservedWaitTicks": 654,
+      "remaining": 360,
+      "navFields": 25,
+      "heapDelta": -20035984,
+      "arrayBufferDelta": 9093120,
+      "memory": [
+        {
+          "seconds": 0,
+          "heap": 31755552,
+          "arrayBuffers": 14588155
+        },
+        {
+          "seconds": 60,
+          "heap": 14686064,
+          "arrayBuffers": 20535547
+        },
+        {
+          "seconds": 120,
+          "heap": 12926656,
+          "arrayBuffers": 40589563
+        },
+        {
+          "seconds": 180,
+          "heap": 10106008,
+          "arrayBuffers": 50026747
+        },
+        {
+          "seconds": 240,
+          "heap": 15216904,
+          "arrayBuffers": 68901115
+        },
+        {
+          "seconds": 300,
+          "heap": 23790672,
+          "arrayBuffers": 79517947
+        },
+        {
+          "seconds": 360,
+          "heap": 15101416,
+          "arrayBuffers": 25254139
+        },
+        {
+          "seconds": 420,
+          "heap": 13425520,
+          "arrayBuffers": 34691323
+        },
+        {
+          "seconds": 480,
+          "heap": 22718120,
+          "arrayBuffers": 56711419
+        },
+        {
+          "seconds": 540,
+          "heap": 17432400,
+          "arrayBuffers": 65755387
+        },
+        {
+          "seconds": 600,
+          "heap": 12846184,
+          "arrayBuffers": 85809403
+        },
+        {
+          "seconds": 660,
+          "heap": 12625584,
+          "arrayBuffers": 24860923
+        },
+        {
+          "seconds": 720,
+          "heap": 8585752,
+          "arrayBuffers": 44914939
+        },
+        {
+          "seconds": 780,
+          "heap": 21691352,
+          "arrayBuffers": 55924987
+        },
+        {
+          "seconds": 840,
+          "heap": 22925984,
+          "arrayBuffers": 77158651
+        },
+        {
+          "seconds": 900,
+          "heap": 18299896,
+          "arrayBuffers": 20535547
+        },
+        {
+          "seconds": 960,
+          "heap": 16137912,
+          "arrayBuffers": 39409915
+        },
+        {
+          "seconds": 1020,
+          "heap": 14848528,
+          "arrayBuffers": 49240315
+        },
+        {
+          "seconds": 1080,
+          "heap": 6920168,
+          "arrayBuffers": 70080763
+        },
+        {
+          "seconds": 1140,
+          "heap": 18454544,
+          "arrayBuffers": 80304379
+        }
+      ]
+    }
+  ]
+}

@@ -13,3 +13,6 @@ test('engine reproducibility includes ordered commands and complete match',()=>{
  function run(){const w=createMatch({seed:991,botTeams:['A','B']});while(!w.winner)tick(w);return checksum(w);}
  assert.equal(run(),run());
 });
+test('three-sector timeout uses accumulated score instead of current ownership',()=>{
+ const w=createMatch({map:createTerrain(128,96),squadsPerTeam:0,sectors:3});w.objectives[0].owner='A';w.objectives[1].owner='A';w.objectives[2].owner='B';w.scores.B=1000;w.tick=23999;updateObjectives(w);assert.equal(w.winner,'B');
+});

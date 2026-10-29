@@ -31,7 +31,7 @@ export function createMap(width=64,height=48) {
  // Repeat a reviewed symmetric sector fixture; larger boards add space, not new mechanics.
  const ys=height===48?[24]:[Math.floor(height*.23),Math.floor(height*.5),Math.floor(height*.77)];
  for(const cy of ys) {
-  const lx=Math.floor(width*.265625),rx=width-1-lx;
+  const lx=Math.floor(width*.265625),rx=width-lx;
   for(const cx of [lx,rx]) {
    for(let y=cy-14;y<=cy+13;y++) for(let x=cx-1;x<=cx;x++) { const i=cell(m,x,y); m.floorLevel[i]=0;m.terrainKind[i]=1;m.coverMask[i]=2|8; }
    for(const y0 of [cy-9,cy+7]) for(let y=y0;y<y0+2;y++) for(let x=cx-5;x<=cx+4;x++) {
@@ -52,4 +52,9 @@ export function createMap(width=64,height=48) {
  }
  return m;
 }
-export function random(state) { let x=state.seed|0; x^=x<<13;x^=x>>>17;x^=x<<5; state.seed=x>>>0;return state.seed/4294967296; }
+// Mulberry32 avoids correlated first shots for adjacent small user seeds.
+export function random(state) {
+ let t=state.seed=(state.seed+0x6D2B79F5)>>>0;
+ t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);
+ return ((t^(t>>>14))>>>0)/4294967296;
+}

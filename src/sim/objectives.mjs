@@ -18,5 +18,5 @@ export function updateObjectives(w) {
   }
   if(w.objectives.length>1)for(const team of ['A','B']){w.teamHold[team]=control[team]>=w.requiredSectors?w.teamHold[team]+5:0;if(w.teamHold[team]>=w.holdTicks)w.winner=team;}
  }
- if(w.tick+1>=w.limitTicks&&!w.winner){const ownership=team=>w.objectives.filter(o=>o.owner===team&&!o.contested).length,delta=ownership('A')-ownership('B')||w.scores.A-w.scores.B;w.winner=delta>0?'A':delta<0?'B':'draw';}
+ if(w.tick+1>=w.limitTicks&&!w.winner){const ownership=team=>w.objectives.filter(o=>o.owner===team&&!o.contested).length,delta=w.objectives.length===1?(ownership('A')-ownership('B')||w.scores.A-w.scores.B):w.scores.A-w.scores.B;w.winner=delta>0?'A':delta<0?'B':'draw';}
 }

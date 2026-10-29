@@ -1,0 +1,362 @@
+[
+  {
+    "seed": 1,
+    "winner": "A",
+    "ticks": 1915,
+    "moving": {
+      "A": 2165,
+      "B": 1891
+    },
+    "blocked": {
+      "congestion": 3303,
+      "suppressed": 5614
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "4f694b14"
+  },
+  {
+    "seed": 2,
+    "winner": "A",
+    "ticks": 1655,
+    "moving": {
+      "A": 2282,
+      "B": 1823
+    },
+    "blocked": {
+      "congestion": 3510,
+      "suppressed": 5965
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "a57201a6"
+  },
+  {
+    "seed": 3,
+    "winner": "B",
+    "ticks": 2185,
+    "moving": {
+      "A": 2144,
+      "B": 2182
+    },
+    "blocked": {
+      "congestion": 3705,
+      "suppressed": 5326
+    },
+    "score": {
+      "A": 280,
+      "B": 935
+    },
+    "checksum": "c4633ca0"
+  },
+  {
+    "seed": 4,
+    "winner": "A",
+    "ticks": 1565,
+    "moving": {
+      "A": 2327,
+      "B": 1840
+    },
+    "blocked": {
+      "congestion": 3450,
+      "suppressed": 4730
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "2eba21d1"
+  },
+  {
+    "seed": 5,
+    "winner": "A",
+    "ticks": 1840,
+    "moving": {
+      "A": 2196,
+      "B": 1974
+    },
+    "blocked": {
+      "congestion": 3505,
+      "suppressed": 5479
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "bd95a0c0"
+  },
+  {
+    "seed": 6,
+    "winner": "A",
+    "ticks": 1635,
+    "moving": {
+      "A": 2268,
+      "B": 1942
+    },
+    "blocked": {
+      "congestion": 3675,
+      "suppressed": 5180
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "9ee3d8bb"
+  },
+  {
+    "seed": 7,
+    "winner": "A",
+    "ticks": 1615,
+    "moving": {
+      "A": 2432,
+      "B": 1842
+    },
+    "blocked": {
+      "congestion": 3802,
+      "suppressed": 4873
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "8d44cd9f"
+  },
+  {
+    "seed": 8,
+    "winner": "A",
+    "ticks": 1580,
+    "moving": {
+      "A": 2393,
+      "B": 1859
+    },
+    "blocked": {
+      "congestion": 3892,
+      "suppressed": 5076
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "39f54444"
+  },
+  {
+    "seed": 9,
+    "winner": "B",
+    "ticks": 2205,
+    "moving": {
+      "A": 2100,
+      "B": 2192
+    },
+    "blocked": {
+      "congestion": 3620,
+      "suppressed": 5014
+    },
+    "score": {
+      "A": 280,
+      "B": 935
+    },
+    "checksum": "612add01"
+  },
+  {
+    "seed": 10,
+    "winner": "A",
+    "ticks": 2460,
+    "moving": {
+      "A": 2139,
+      "B": 2102
+    },
+    "blocked": {
+      "congestion": 3715,
+      "suppressed": 6984
+    },
+    "score": {
+      "A": 1210,
+      "B": 225
+    },
+    "checksum": "3e75e3d2"
+  },
+  {
+    "seed": 11,
+    "winner": "A",
+    "ticks": 1600,
+    "moving": {
+      "A": 2195,
+      "B": 1873
+    },
+    "blocked": {
+      "congestion": 3314,
+      "suppressed": 5096
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "0df83e92"
+  },
+  {
+    "seed": 12,
+    "winner": "B",
+    "ticks": 2300,
+    "moving": {
+      "A": 2306,
+      "B": 2022
+    },
+    "blocked": {
+      "congestion": 3987,
+      "suppressed": 5211
+    },
+    "score": {
+      "A": 535,
+      "B": 935
+    },
+    "checksum": "97352584"
+  },
+  {
+    "seed": 13,
+    "winner": "B",
+    "ticks": 2090,
+    "moving": {
+      "A": 2081,
+      "B": 2230
+    },
+    "blocked": {
+      "congestion": 3680,
+      "suppressed": 5347
+    },
+    "score": {
+      "A": 0,
+      "B": 900
+    },
+    "checksum": "5192356d"
+  },
+  {
+    "seed": 14,
+    "winner": "A",
+    "ticks": 1585,
+    "moving": {
+      "A": 2315,
+      "B": 1894
+    },
+    "blocked": {
+      "congestion": 3552,
+      "suppressed": 4161
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "8576712a"
+  },
+  {
+    "seed": 15,
+    "winner": "A",
+    "ticks": 1695,
+    "moving": {
+      "A": 2194,
+      "B": 1948
+    },
+    "blocked": {
+      "congestion": 3425,
+      "suppressed": 5766
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "6430ed5c"
+  },
+  {
+    "seed": 16,
+    "winner": "A",
+    "ticks": 2145,
+    "moving": {
+      "A": 2201,
+      "B": 2009
+    },
+    "blocked": {
+      "congestion": 3589,
+      "suppressed": 5440
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "7004e5ac"
+  },
+  {
+    "seed": 17,
+    "winner": "A",
+    "ticks": 1715,
+    "moving": {
+      "A": 2289,
+      "B": 1866
+    },
+    "blocked": {
+      "congestion": 3520,
+      "suppressed": 5458
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "40886b65"
+  },
+  {
+    "seed": 18,
+    "winner": "A",
+    "ticks": 1785,
+    "moving": {
+      "A": 2158,
+      "B": 1951
+    },
+    "blocked": {
+      "congestion": 3495,
+      "suppressed": 5150
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "74246537"
+  },
+  {
+    "seed": 19,
+    "winner": "B",
+    "ticks": 2355,
+    "moving": {
+      "A": 2197,
+      "B": 2128
+    },
+    "blocked": {
+      "congestion": 4092,
+      "suppressed": 5197
+    },
+    "score": {
+      "A": 340,
+      "B": 935
+    },
+    "checksum": "ad286289"
+  },
+  {
+    "seed": 20,
+    "winner": "A",
+    "ticks": 1725,
+    "moving": {
+      "A": 2248,
+      "B": 1909
+    },
+    "blocked": {
+      "congestion": 3734,
+      "suppressed": 5059
+    },
+    "score": {
+      "A": 900,
+      "B": 35
+    },
+    "checksum": "549a4e12"
+  }
+]
