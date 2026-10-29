@@ -1,0 +1,233 @@
+{
+  "version": 2,
+  "purpose": "Four edited left/right arm PNGs for black/blue factions",
+  "rig_version": 2,
+  "base_rig": "uniform-parts-crops-1.zip/rig.json",
+  "part_paths": [
+    "black/arm_left.png",
+    "black/arm_right.png",
+    "blue/arm_left.png",
+    "blue/arm_right.png"
+  ],
+  "side_convention": "viewer_left_and_viewer_right",
+  "canvas_size_px": [
+    640,
+    800
+  ],
+  "overlay_order": "arms use z_index 20; torso 30; sleeve ranks 60",
+  "arm_target_visible_height_px": 226,
+  "arm_source_sheet_sha256": "b0cee8631a3f6db380d7218b3e32669d98fa95346b217ab96f6d1de308f0763f",
+  "parts": {
+    "black/arm_left": {
+      "path": "black/arm_left.png",
+      "size_px": [
+        169,
+        234
+      ],
+      "pivot_px": [
+        124,
+        43
+      ],
+      "scale_correction": [
+        1.0,
+        1.0
+      ],
+      "assembly": {
+        "position_px": [
+          222,
+          434
+        ],
+        "rotation_deg": -10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            0.984807753,
+            0.173648178,
+            92.416966987
+          ],
+          [
+            -0.173648178,
+            0.984807753,
+            413.185640651
+          ]
+        ],
+        "display_size_px": [
+          169,
+          234
+        ],
+        "visible_display_size_px": [
+          161,
+          226
+        ],
+        "pivot_px": [
+          124,
+          43
+        ]
+      },
+      "rank_socket_px": [
+        96,
+        105
+      ],
+      "sha256": "44a0b2cb2252e30fe937eeb576d159738a7ac58d9bfc2ed208690990d030c453"
+    },
+    "black/arm_right": {
+      "path": "black/arm_right.png",
+      "size_px": [
+        168,
+        234
+      ],
+      "pivot_px": [
+        44,
+        43
+      ],
+      "scale_correction": [
+        1.0,
+        1.0
+      ],
+      "assembly": {
+        "position_px": [
+          416,
+          429
+        ],
+        "rotation_deg": 10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            0.984807753,
+            -0.173648178,
+            380.135330507
+          ],
+          [
+            0.173648178,
+            0.984807753,
+            379.012746803
+          ]
+        ],
+        "display_size_px": [
+          168,
+          234
+        ],
+        "visible_display_size_px": [
+          160,
+          226
+        ],
+        "pivot_px": [
+          44,
+          43
+        ]
+      },
+      "rank_socket_px": [
+        73,
+        105
+      ],
+      "sha256": "adc6ee66455409c687e259b33e1e3228e2b9b344911e0dad2bb4c4e9d11e09c6"
+    },
+    "blue/arm_left": {
+      "path": "blue/arm_left.png",
+      "size_px": [
+        168,
+        234
+      ],
+      "pivot_px": [
+        124,
+        43
+      ],
+      "scale_correction": [
+        1.0,
+        1.0
+      ],
+      "assembly": {
+        "position_px": [
+          222,
+          434
+        ],
+        "rotation_deg": -10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            0.984807753,
+            0.173648178,
+            92.416966987
+          ],
+          [
+            -0.173648178,
+            0.984807753,
+            413.185640651
+          ]
+        ],
+        "display_size_px": [
+          168,
+          234
+        ],
+        "visible_display_size_px": [
+          160,
+          226
+        ],
+        "pivot_px": [
+          124,
+          43
+        ]
+      },
+      "rank_socket_px": [
+        96,
+        105
+      ],
+      "sha256": "34c2d13051c9cfbd258c3154f6136720bca1ca1c7dd92e7876d550b4a048b0ba"
+    },
+    "blue/arm_right": {
+      "path": "blue/arm_right.png",
+      "size_px": [
+        168,
+        234
+      ],
+      "pivot_px": [
+        44,
+        43
+      ],
+      "scale_correction": [
+        1.0,
+        1.0
+      ],
+      "assembly": {
+        "position_px": [
+          416,
+          429
+        ],
+        "rotation_deg": 10,
+        "z_index": 20,
+        "matrix_2x3": [
+          [
+            0.984807753,
+            -0.173648178,
+            380.135330507
+          ],
+          [
+            0.173648178,
+            0.984807753,
+            379.012746803
+          ]
+        ],
+        "display_size_px": [
+          168,
+          234
+        ],
+        "visible_display_size_px": [
+          160,
+          226
+        ],
+        "pivot_px": [
+          44,
+          43
+        ]
+      },
+      "rank_socket_px": [
+        73,
+        105
+      ],
+      "sha256": "cec53c4514be720e75d8366feb302d10a118c0c7402c5bb7681f74441586e895"
+    }
+  },
+  "apply": "Overwrite the four PNG paths and deep-merge rig.patch.json into the existing rig.json. For a turnkey archive use uniform-parts-arms-updated.zip.",
+  "runtime_tested": false,
+  "validation_image": "uniform-arms-assembled-validation.png (provided separately)"
+}

@@ -3,7 +3,7 @@
   "version": 1,
   "sourceArchive": "uniform-parts-crops-1.zip",
   "archiveSha256": "1c0d816989a1b71c7f599293074f3f38f730574478b5e81fd698a5e7482ef462",
-  "note": "Unchanged native PNG crops. Full-crop rendering preserves padding and aspect ratio. Assembly coordinates, uniform scales and layers come from this archive rig.json. Arken uses black; Velian uses blue.",
+  "note": "Base uniform-parts-crops-1 crops with four supplied uniform-arms-rigged replacement PNGs, copied unchanged. The supplied rig patch updates arm pivots, uniform scales, assembly matrices and sleeve-rank sockets. Arken uses black; Velian uses blue.",
   "assemblyToGame": {
     "scale": 0.32051282051282054,
     "originPx": [
@@ -86,39 +86,39 @@
     },
     "blue/arm_left": {
       "path": "assets/soldiers/blue/arm_left.png",
-      "width": 191,
-      "height": 225,
+      "width": 168,
+      "height": 234,
       "crop": [
         0,
         0,
-        191,
-        225
+        168,
+        234
       ],
       "visibleBounds": [
         4,
         4,
-        183,
-        217
+        160,
+        226
       ],
-      "sha256": "f6ea8d3b69f94c3b72fedbb1422c00173092c4719fde1f05be01b20a1e464b2d"
+      "sha256": "34c2d13051c9cfbd258c3154f6136720bca1ca1c7dd92e7876d550b4a048b0ba"
     },
     "blue/arm_right": {
       "path": "assets/soldiers/blue/arm_right.png",
-      "width": 188,
-      "height": 224,
+      "width": 168,
+      "height": 234,
       "crop": [
         0,
         0,
-        188,
-        224
+        168,
+        234
       ],
       "visibleBounds": [
         4,
         4,
-        180,
-        216
+        160,
+        226
       ],
-      "sha256": "9c1bb8e135e83370cf41023a7a92afc7f48a76d7d006fd8c95ed34ebb6c90478"
+      "sha256": "cec53c4514be720e75d8366feb302d10a118c0c7402c5bb7681f74441586e895"
     },
     "blue/rank_bars_left": {
       "path": "assets/soldiers/blue/rank_bars_left.png",
@@ -410,39 +410,39 @@
     },
     "black/arm_left": {
       "path": "assets/soldiers/black/arm_left.png",
-      "width": 148,
-      "height": 204,
+      "width": 169,
+      "height": 234,
       "crop": [
         0,
         0,
-        148,
-        204
+        169,
+        234
       ],
       "visibleBounds": [
         4,
         4,
-        140,
-        196
+        161,
+        226
       ],
-      "sha256": "e395263cabbc5a6647da59008d4d0df3bb6fabd594a79929409f4b3ad6b59e1f"
+      "sha256": "44a0b2cb2252e30fe937eeb576d159738a7ac58d9bfc2ed208690990d030c453"
     },
     "black/arm_right": {
       "path": "assets/soldiers/black/arm_right.png",
-      "width": 163,
-      "height": 207,
+      "width": 168,
+      "height": 234,
       "crop": [
         0,
         0,
-        163,
-        207
+        168,
+        234
       ],
       "visibleBounds": [
         4,
         4,
-        155,
-        199
+        160,
+        226
       ],
-      "sha256": "87093a482c666719058a9beb8ad64cfc90656b275c1caabe2c3603bd0774c8de"
+      "sha256": "adc6ee66455409c687e259b33e1e3228e2b9b344911e0dad2bb4c4e9d11e09c6"
     },
     "shared/leg_left": {
       "path": "assets/soldiers/shared/leg_left.png",
@@ -660,5 +660,13 @@
       ],
       "sha256": "52a238dc3fa0048eddb68a2e123680e3147cc938abc98e70dc3919aa250ed89a"
     }
-  }
+  },
+  "patches": [
+    {
+      "sourceArchive": "uniform-arms-rigged.zip",
+      "archiveSha256": "0e18b733fb1b0a8b9a06ac490a553970b6248801dc7f128a274d78f1a56b2284",
+      "manifest": "assets/soldiers/patches/uniform-arms-rigged/manifest.json",
+      "rigPatch": "assets/soldiers/patches/uniform-arms-rigged/rig.patch.json"
+    }
+  ]
 }

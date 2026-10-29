@@ -1,12 +1,14 @@
 # Soldier parts and animation workshop
 
+Current arm update: `uniform-arms-rigged.zip` replaces the four black/blue arm PNGs. Its `rig.patch.json` is deep-merged into the base rig, including arm pivots/assembly matrices and reanchored left/right sleeve insignia. Supplied PNG bytes and aspect ratios are preserved; the new visible arm height is226 source canvas pixels. Source manifest and patch are retained under `assets/soldiers/patches/uniform-arms-rigged/`. Generated defaults and the published16-profile catalog use these definitions. No tests, browser checks or runtime validation were run for this arm update, as requested. Verification records below predate it.
+
 Run `npm start`, then open **병사** in the game header or `/soldier-workshop.html`.
 
 ## Current artwork and proportions
 
-The current source is **uniform-parts-crops-1.zip**. All36 native PNGs are copied byte for byte; Arken uses `black`, Velian uses `blue`, and both use the same shared head and legs. The archive's `rig.json` is preserved in `assets/soldiers/rig.json`. Its assembly coordinates, uniform scales, native pivots, rotations and ascending layer order now define the default appearance. The earlier archive and its hand-calibrated defaults are replaced.
+The base source is **uniform-parts-crops-1.zip**, with the four arms replaced by **uniform-arms-rigged.zip**. All36 native PNGs are copied byte for byte; Arken uses `black`, Velian uses `blue`, and both use the same shared head and legs. The archive's `rig.json` is preserved in `assets/soldiers/rig.json`. Its assembly coordinates, uniform scales, native pivots, rotations and ascending layer order now define the default appearance. The earlier archive and its hand-calibrated defaults are replaced.
 
-The entire640×800 assembly receives one global scale (`100 / 312`) and foot-origin translation (`320, 732.6`) to fit the existing battlefield. Visible torso width is therefore100 game rig units, head width280/312×100, hat width390/312×100, arm height218/312×100 and leg height126/312×100. Full native crops, including transparent padding, are rendered without changing pixel data or raster aspect ratios. Scaling is never applied twice. Source PNG checksums, visible bounds and the canvas conversion are recorded in `assets/soldiers/manifest.json`.
+The entire640×800 assembly receives one global scale (`100 / 312`) and foot-origin translation (`320, 732.6`) to fit the existing battlefield. Visible torso width is therefore100 game rig units, head width280/312×100, hat width390/312×100, arm height226/312×100 and leg height126/312×100. Full native crops, including transparent padding, are rendered without changing pixel data or raster aspect ratios. Scaling is never applied twice. Source PNG checksums, visible bounds and the canvas conversion are recorded in `assets/soldiers/manifest.json`.
 
 The archive provides six appearances per nation. These map to the existing eight game ranks: private; the three successive enlisted insignia; plain-epaulette officer for lieutenant/captain; striped-epaulette officer for major/colonel. Left and right insignia use their respective original files. No additional rank artwork, elbow parts or limb segments are generated. Approved faction flags remain unchanged.
 
@@ -19,7 +21,7 @@ Each arm remains one whole PNG. Idle poses use the exact archive placement. Slee
 3. Change images, visibility or layer order; undo/redo and reset the current profile. Export all profiles as `ashenfront-soldiers-final.json`, or export/import a single profile. Unknown image paths, external URLs and invalid numbers are rejected.
 4. **전장에 적용** saves the draft and opens the game. An already-open game receives the same catalog through a storage event. Export JSON for another browser; clearing a draft restores published defaults.
 
-This artwork generation uses browser storage key `ashenfront.soldier-workshop.v2`. Old drafts remain under the previous key but are not applied to incompatible replacement crops. Old-archive JSON is rejected rather than silently restoring its proportions.
+This artwork generation uses browser storage key `ashenfront.soldier-workshop.v3`. Old drafts remain under the previous key but are not applied to incompatible replacement crops. Old-archive JSON is rejected rather than silently restoring its proportions.
 
 To publish exported adjustments:
 

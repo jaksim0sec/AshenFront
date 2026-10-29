@@ -6,7 +6,7 @@ export const RANKS=['private','corporal','sergeant','warrant','lieutenant','capt
 export const LABELS={arken:'아르켄 제국',velian:'벨리안 연방',private:'병사',corporal:'상병',sergeant:'하사',warrant:'상사',lieutenant:'소위',captain:'대위',major:'소령',colonel:'대령'};
 export const PARTS=['legLeft','legRight','armLeft','body','armRight','shoulderLeft','shoulderRight','sleeveLeft','sleeveRight','head','hat','rifle'];
 // A new artwork generation must not silently restore incompatible old browser geometry.
-export const STORAGE_KEY='ashenfront.soldier-workshop.v2';
+export const STORAGE_KEY='ashenfront.soldier-workshop.v3';
 export const ASSETS=Object.keys(ASPECTS);
 export const RANK_ASSEMBLIES={
  arken:['black_private','black_single_bar','black_double_bar','black_chevron','black_officer','black_officer','black_senior_officer','black_senior_officer'],
