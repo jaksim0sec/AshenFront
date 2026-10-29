@@ -7,6 +7,15 @@ export class Scene {
   this.resize();const ctx=this.canvas.getContext('2d'),m=w.map;ctx.setTransform(this.dpr,0,0,this.dpr,0,0);ctx.fillStyle='#252e25';ctx.fillRect(0,0,this.width,this.height);
   this.terrain.draw(ctx,m,c,this.width,this.height);ctx.save();ctx.translate(c.x,c.y);ctx.scale(c.zoom,c.zoom);
   for(const o of w.objectives){const x=o.center%m.width,y=Math.floor(o.center/m.width),r=o.radius+.5,points=[[x-r,y],[x,y-r],[x+r,y],[x,y+r]].map(([x,y])=>{const p=project(x,y,1);return[p.x,p.y];});polygon(ctx,points,o.contested?'#d3aa422a':o.owner==='A'?'#88c5df24':o.owner==='B'?'#d0aa7724':'#f2e7a216');ctx.strokeStyle=o.owner?colors[o.owner]:'#e0d294';ctx.lineWidth=3;ctx.stroke();}
+  const selection=w.squads[selected-1];
+  if(selection?.goal!==null&&selection?.goal!==undefined){
+   const g=selection.goal,p=project(g%m.width,Math.floor(g/m.width),m.floorLevel[g]);
+   ctx.strokeStyle='#D1D4D5';ctx.lineWidth=2/c.zoom;ctx.setLineDash([5/c.zoom,4/c.zoom]);
+   polygon(ctx,[[p.x,p.y-H],[p.x+W,p.y],[p.x,p.y+H],[p.x-W,p.y]],null,'#D1D4D5');
+   for(const i of Object.values(selection.slots??{})){const q=project(i%m.width,Math.floor(i/m.width),m.floorLevel[i]);ctx.strokeRect(q.x-9,q.y-5,18,10);}
+   const live=selection.unitIds.map(id=>w.units[id-1]).filter(u=>u.hp>0);if(live.length){const a=unitFoot(m,live[0],alpha);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(p.x,p.y);ctx.stroke();}
+   ctx.setLineDash([]);ctx.fillStyle='#D1D4D5';ctx.font='18px system-ui';ctx.fillText(`H${m.floorLevel[g]} · #${selection.orderId}`,p.x,p.y-H-8);
+  }
   const b=visibleBounds(m,c,this.width,this.height,60),index=new SpatialIndex(w.units),units=index.query((b.x0+b.x1)/2,(b.y0+b.y1)/2,Math.max(b.x1-b.x0,b.y1-b.y0)/2+8),sprites=[];
   for(const u of units){if(u.team==='B'&&!visible.has(u.id))continue;const h=m.floorLevel[u.y*m.width+u.x],p=unitFoot(m,u,alpha),screen=toScreen(p,c);if(screen.x<-30||screen.x>this.width+30||screen.y<-40||screen.y>this.height+45)continue;sprites.push({u,p,h});}
   sprites.sort((a,b)=>a.p.y-b.p.y||a.u.id-b.u.id);this.rendered=sprites.length;

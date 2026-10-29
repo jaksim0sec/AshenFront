@@ -5,13 +5,14 @@ const seed=Number(params.get('seed'))||1977;
 let w=createMatch({seed}),selected=1,mode=null,paused=false,clock=new FixedClock(),visible=new Map(),lastVisibility=-1,lastUI=0,previous=performance.now(),lastFrame=previous,activeSector=0;
 const camera={x:0,y:0,zoom:innerWidth<600?.36:.5},scene=new Scene($('battlefield')),overview=new Overview($('overview')),timings=[],frames=[],renderTimes=[],longTasks=[];
 if(debug && typeof PerformanceObserver!=='undefined')try{new PerformanceObserver(list=>{for(const e of list.getEntries())longTasks.push({start:e.startTime,duration:e.duration});if(longTasks.length>300)longTasks.splice(0,longTasks.length-300);}).observe({type:'longtask',buffered:true});}catch{}
+w.telemetry=debug;
 function message(text){$('status').textContent=text;}
 function focus(x,y){scene.resize();const p=project(x,y,w.map.floorLevel[Math.round(y)*w.map.width+Math.round(x)]??1);camera.x=scene.width/2-p.x*camera.zoom;camera.y=scene.height/2-p.y*camera.zoom;}
 function focusSquad(){if(w.objectives.length>1)$('objective').textContent=w.objectives.map((v,n)=>`${n===activeSector?'▸':''}${['북부','중앙','남부'][n]} ${v.contested?'경합':v.owner??'—'}`).join(' · ');
  const s=w.squads[selected-1],live=s.unitIds.map(id=>w.units[id-1]).filter(u=>u.hp>0);if(live.length)focus(live.reduce((a,u)=>a+u.x,0)/live.length,live.reduce((a,u)=>a+u.y,0)/live.length);}
 function focusObjective(){const o=w.objectives[activeSector];focus(o.center%w.map.width,Math.floor(o.center/w.map.width));}
 function setMode(next){mode=next;for(const id of ['move','support'])$(id).classList.toggle('active',mode===id);message(mode==='move'?'이동 목적지를 터치하세요 · 드래그와 핀치는 명령을 내리지 않습니다':mode==='support'?'반경 3칸 지원 · 아군도 피해 · 아군 시야 내 지역을 터치하세요':'분대 선택 → 이동 → 목적지 터치 · 드래그로 전장 이동');}
-function issue(c){const result=command(w,'A',c);message(result.ok?'명령 전달됨':result.reason);return result;}
+function issue(c){const result=command(w,'A',c);window.lastResolvedOrder={...c,elevation:w.map.floorLevel[c.target],orderId:result.orderId};message(result.ok?'명령 전달됨':result.reason);return result;}
 function select(id,center=false){if(w.squads[id-1]?.team!=='A')return;selected=id;setMode(null);if(center)focusSquad();refreshHUD();}
 const input=bindCamera($('battlefield'),camera,{changed(){},tap(x,y){const i=pickTile(w.map,x,y,camera);if(i<0){message('전장 밖입니다');return;}
  if(mode==='move'){const r=issue({type:'move',squadId:selected,target:i});if(r.ok){setMode(null);message('이동 명령 전달됨');}return;}
@@ -39,7 +40,7 @@ function refreshHUD(){
  const o=w.objectives[activeSector];$('objective').textContent=o.contested?'◎ 중앙 · 경합 중':o.owner?`◎ 중앙 · ${o.owner} 통제 · ${Math.max(0,Math.ceil((w.holdTicks-o.progressTicks)/20))}초 유지`:'◎ 중앙 · 45초간 확보하여 승리';
  if(w.objectives.length>1)$('objective').textContent=w.objectives.map((v,n)=>`${n===activeSector?'▸':''}${['북부','중앙','남부'][n]} ${v.contested?'경합':v.owner??'—'}`).join(' · ');
  const s=w.squads[selected-1],live=s.unitIds.filter(id=>w.units[id-1].hp>0).length;$('squad-name').textContent=`${selected} 분대 · ${live}/10`;
- const names={hold:'대기',move:'이동',rally:'집결'},reasons={suppressed:'제압 중 · 회복 대기',congestion:'혼잡 · 우회 중',no_route:'경로 없음'};$('squad-info').textContent=reasons[s.movementBlockedReason]??(s.reached?'목적지 도착':names[s.order]);$('suppression-label').textContent=`제압 ${Math.round(s.suppression)}`;$('suppression-bar').style.width=s.suppression+'%';
+ const names={hold:'대기',move:'이동',rally:'집결',withdraw:'철수'},reasons={suppressed:'제압 중 · 회복 대기',congestion:'혼잡 · 우회 중',no_route:'경로 없음'};$('squad-info').textContent=`#${s.orderId??0} ${s.status??names[s.order]} ${s.arrivedCount??0}/${live}${s.reason?' · '+s.reason:''}`;$('suppression-label').textContent=`제압 ${Math.round(s.suppression)}`;$('suppression-bar').style.width=s.suppression+'%';
  for(const v of w.squads)if(v.team==='A'){const b=$('squad-'+v.id),n=v.unitIds.filter(id=>w.units[id-1].hp>0).length;b.textContent=`${v.id}분대 ${n}`;b.disabled=!n;b.classList.toggle('active',v.id===selected);}
  if(w.winner){$('result').hidden=false;$('result').querySelector('h1').textContent=w.winner==='A'?'전선 확보':w.winner==='B'?'전선 상실':'무승부';$('result').querySelector('p').textContent=`전투 종료 · ${$('clock').textContent}\n잔존 병력 A ${living('A')} / B ${living('B')} · 통제 점수 ${w.scores.A} : ${w.scores.B}`;}
  if(debug){$('debug').hidden=false;$('debug').textContent=`${(1000/(frames.reduce((a,b)=>a+b,0)/Math.max(1,frames.length))).toFixed(0)} FPS · tick ${w.tick}\nsim p95 ${quantile(timings,.95).toFixed(2)}ms\nnav ${w.metrics.navExpansions}/2048 · queue ${w.navigation.pending}\nrender ${scene.rendered}/${living('A')+living('B')} · cache ${scene.terrain.rebuilds}\nbacklog ${clock.backlog.toFixed(0)}ms · zoom ${camera.zoom.toFixed(2)}`;}
