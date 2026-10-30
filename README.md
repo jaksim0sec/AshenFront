@@ -1,3 +1,19 @@
+# FlowerWars original-engine playable transplant
+
+Default route loads the new FlowerWars-based simulation. Query ?legacy=1 loads the previous AshenFront engine and UI, preserved for regression.
+
+Core files from FlowerWars-MINI main at 0d4e7a5 have been copied into src/fw: Board, cooperative Navigation, combat, formation planner, squad commands, FlagMatch, deployment, BotCommand and the full strategy/doctrine dependencies.
+
+The first implementation uses original FlowerWars game simulation and 176x128 battlefield, but renders troops with existing AshenFront published catalog, PNG art, soldier animations and rank profiles. Four 10-person rifle squads per side use original FlagMatch deployment, original squad commands and bot operations. Original FlowerWars character art, multiplayer and equipment are not imported.
+
+The original AI operation size is adapted to one squad so that the four bot squads receive distinct tactical roles. Rifleman parameters are centralized in src/fw/ashen-setup.mjs.
+
+The first pass explicitly does NOT carry AshenFront H0/H1/H2 elevations, connected ramps, suppression, artillery or custom cover yet. These exist in legacy mode only. The map is original FlowerWars terrain with AshenFront colors. The original renderer has not been copied. The existing AshenFront interface layout is kept while reconnected directly to the original FlowerWars squad command API.
+
+Smoke test: node --test tests/flowerwars-port.test.mjs. Browser/manual combat validation is still needed before declaring this production ready.
+
+---
+
 # AshenFront · 灰燼戰線
 
 Offline, mobile-first Canvas 2D squad RTS. Command 40 infantry against a bot across real trench floors, ground and ridges. Seize the enemy command post or eliminate its army; the elapsed clock never ends a battle.

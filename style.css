@@ -17,3 +17,11 @@
 #tools-toggle{display:flex;align-items:center;justify-content:center}#tools-toggle svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}body[data-play-mode=deploy] #toggle-map{top:104px;bottom:auto}
 
 #game-tools #debug{position:static;margin:8px 0 0;font-size:9px;white-space:pre-wrap;overflow-wrap:anywhere;background:#1d2022aa}
+
+
+/* FlowerWars simulation entry retains the AshenFront command layout. */
+#squad-tabs .platoon-title{display:block;width:100%;min-height:32px;padding:5px 8px;margin-bottom:5px;text-align:left;font-size:11px;background:#22282cbb;border:0}
+#squad-tabs .squad-card.active{border-color:#b4cbdc;background:#556675d5}
+#squad-tabs .squad-card canvas{width:47px;height:63px;flex:none}
+#squad-tabs .squad-card span{display:flex;flex-direction:column;gap:4px}
+#squad-tabs .squad-card small{white-space:normal;word-break:keep-all}
