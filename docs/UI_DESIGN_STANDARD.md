@@ -34,7 +34,7 @@ These tokens belong in `src/flower-ui.css` and must be reused. Avoid unrelated h
 
 - A platoon heading selects the **current two live match squads** in that visible platoon, including those deployed *after* its button was created. Its fold control affects display only, not selection.
 - Individual squad cards choose individual squads unless additive selection is enabled; eliminated squads cannot be selected. Show grouped selection state.
-- Minimap opens by default as a circular, non-animated radar, with mobile width set to 32.5vw (the desktop 180px radar remains unchanged). Its small X is intentionally hidden for now; reopen the radar from the menu. It must stay below alerts and result overlays. A tap dismissing any other open menu must not accidentally deploy or command troops.
+- Minimap opens by default as a circular north-up radar, with mobile width set to 32.5vw (the desktop 180px radar remains unchanged). Its 120×120-tile square ensures equal scale in both axes. A camera-center reticle replaces the skewed isometric viewport outline. Keep the existing 500ms redraw, spatial index and cached terrain; no new full-board queries or terrain-rendering passes. Its small X is intentionally hidden for now; reopen the radar from the menu. It must stay below alerts and result overlays. A tap dismissing any other open menu must not accidentally deploy or command troops.
 - Keep panels separate by function, keep the selected squad information chip content-sized rather than stretched with empty space, respect screen safe areas and touch target sizes, preserve short transitions and `prefers-reduced-motion`, and maintain meaningful `aria-pressed`/`aria-expanded` values.
 
 ## Tools, compact commands and global overlay order

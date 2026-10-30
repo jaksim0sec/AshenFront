@@ -9,7 +9,7 @@ import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
 import {drawSquadTeamFlags} from './fw/match-overlay.mjs';
 import {drawCommandOverlay} from './fw/command-overlay.mjs';
 import {BattlefieldTerrainRenderer} from './fw/terrain-art.mjs';
-import {minimapRegion,minimapWorldPoint,minimapScreenFootprint,MINIMAP_SAMPLE_STEP} from './fw/minimap-region.mjs';
+import {minimapRegion,minimapWorldPoint,minimapCameraMarker,MINIMAP_SAMPLE_STEP} from './fw/minimap-region.mjs';
 import {icon} from './fw/ui-icons.mjs';
 import {applyPalette} from './render/palette.mjs';
 applyPalette(document.documentElement);
@@ -249,18 +249,25 @@ function paintMini(){
  mctx.drawImage(miniGround.bitmap,0,0);
  const sx=mini.width/area.width,sy=mini.height/area.height;
  const cx=area.x0+area.width/2,cy=area.y0+area.height/2;
- const radius=Math.max(area.width,area.height)/2+8;
+ // Covers the square viewport corners using the same existing spatial index.
+ const radius=Math.hypot(area.width,area.height)/2;
  for(const id of board.spatial.candidates(cx,cy,radius)){
   const u=board.unit(id);
   if(!u||u.health.current<=0||u.x<area.x0||u.x>=area.x1||u.y<area.y0||u.y>=area.y1)continue;
   mctx.fillStyle=colors[u.team];mctx.fillRect((u.x-area.x0)*sx-1,(u.y-area.y0)*sy-1,3,3);
  }
- const polygon=minimapScreenFootprint(area,camera,canvas.clientWidth,canvas.clientHeight,mini.width,mini.height);
- mctx.save();mctx.beginPath();mctx.rect(0,0,mini.width,mini.height);mctx.clip();
- mctx.beginPath();mctx.moveTo(polygon[0].x,polygon[0].y);
- for(let i=1;i<polygon.length;i++)mctx.lineTo(polygon[i].x,polygon[i].y);
- mctx.closePath();mctx.strokeStyle='#e8e1c9';mctx.lineWidth=1.5;mctx.stroke();
- mctx.restore();
+ // North-up marker instead of a visually tilted isometric viewport diamond.
+ const center=minimapCameraMarker(area,camera,canvas.clientWidth,canvas.clientHeight,mini.width,mini.height);
+ if(center.x>=0&&center.x<=mini.width&&center.y>=0&&center.y<=mini.height){
+  mctx.save();mctx.strokeStyle='#f5e5bd';mctx.lineWidth=1.8;
+  mctx.beginPath();mctx.arc(center.x,center.y,5,0,Math.PI*2);mctx.stroke();
+  mctx.beginPath();
+  mctx.moveTo(center.x-8,center.y);mctx.lineTo(center.x-5,center.y);
+  mctx.moveTo(center.x+5,center.y);mctx.lineTo(center.x+8,center.y);
+  mctx.moveTo(center.x,center.y-8);mctx.lineTo(center.x,center.y-5);
+  mctx.moveTo(center.x,center.y+5);mctx.lineTo(center.x,center.y+8);
+  mctx.stroke();mctx.restore();
+ }
 }
 // Persistent cards from the original FlowerWars roster approach: create once, update fields.
 const rosterCards=new Map();
