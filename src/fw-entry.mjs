@@ -101,23 +101,24 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
   const s=squadIndex.get(u.squadId),rank=s?.leaderId===u.id?(match.squadIds[u.team][0]===u.squadId?'captain':'sergeant'):'private';
-  const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':match.phase==='battle'?'guard':'idle';
+  const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':match.phase!=='preparation'&&(u.hasMoved||u.hasEngaged)?'guard':'idle';
   const shot=state==='shoot',orientation=shot?firingOrientation(board,u):null;
   const facing=orientation?.facing??u.facing,rawAim=shot?orientation.aim:0;
   // Smooth view-only stance changes; simulation and authoritative attack timing stay untouched.
   const view=u._visualStance??(u._visualStance={blend:0,walk:state==='walk'?1:0,crouch:0,aim:rawAim,time:board.time});
   const delta=Math.max(0,Math.min(.1,board.time-view.time));view.time=board.time;
+  const fighting=shot||state==='hit'||(u.hitPulseUntil??-1)>board.time;
   const targetBlend=shot?1:state==='guard'?.63:0;
   view.blend+=(targetBlend-view.blend)*(1-Math.exp(-delta/.11));
   view.walk+=((state==='walk'?1:0)-view.walk)*(1-Math.exp(-delta/.12));
-  // All idle troops brace once battle begins, without waiting for their first hit or shot.
-  const braceTarget=state==='guard'?1:0;
-  view.crouch+=(braceTarget-view.crouch)*(1-Math.exp(-delta/.24));
+  // No timers: fighting raises the guard and subsequent rendered frames relax it.
+  const braceTarget=fighting?1:state==='guard'?.16:0;
+  view.crouch+=(braceTarget-view.crouch)*(1-Math.exp(-delta/(fighting?.10:.55)));
   const difference=Math.atan2(Math.sin(rawAim-view.aim),Math.cos(rawAim-view.aim));
   view.aim+=difference*Math.min(1,delta/.13);
   const hitReaction=Math.max(0,Math.min(1,((u.hitPulseUntil??-1)-board.time)/.16));
   const pose=distant&&state!=='death'
-   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0,crouchBlend:state==='guard'?1:0}
+   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0,crouchBlend:shot||state==='hit'?1:state==='guard'?.16:0}
    :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,facing,aim:view.aim,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:view.blend,walkBlend:view.walk,crouchBlend:view.crouch,hitReaction};
   const muzzle=shot?(u._shotMuzzle??(u._shotMuzzle={})):null;
   if(muzzle)muzzle.valid=false;
@@ -174,7 +175,9 @@ const ACTION_NAMES=Object.fromEntries(Object.entries(SQUAD_ACTIONS).map(([k,v])=
 const phaseName=s=>PHASES[s?.order?.phase]||ACTION_NAMES[s?.order?.type]||'대기';
 function roster(){
  document.body.dataset.selected=String(selected.size>0);
- const host=$('squad-tabs'),all=squads();
+ const host=$('squad-tabs'),all=[...squadsFor(board).values()].filter(s=>s.team==='A');
+ for(const squad of all)if(!living(squad).length)selected.delete(squad.id);
+ document.body.dataset.selected=String(selected.size>0);
  if(rosterEpoch!==board.byId){
   host.replaceChildren();rosterCards.clear();rosterEpoch=board.byId;
  }
@@ -218,13 +221,15 @@ function roster(){
    const alive=squadSummary(board,s.id);
    const n=alive?.alive??living(s).length;
    const phase=phaseName(s);
-   const statusText=n+'/'+s.memberIds.length+' · '+(s.order?.after?'우회 → 공격':phase);
+   const statusText=n+'/'+s.memberIds.length+' · '+(n===0?'전멸':s.order?.after?'우회 → 공격':phase);
    if(node.status.textContent!==statusText)node.status.textContent=statusText;
    const type=s.order?.type||'wait';
    if(node.activityType!==type){node.activity.innerHTML=icon(type);node.activityType=type;}
    const target=s.order?.target;
    const dest=target?.x!=null?' → '+(target.x+1)+','+(target.y+1):target?.unitId?' → 적 병사':'';
    node.activity.title=(ACTION_NAMES[type]||'대기')+' · '+phase+dest;
+   node.button.classList.toggle('is-eliminated',n===0);
+   node.button.disabled=n===0;
    const active=selected.has(s.id);node.button.classList.toggle('active',active);
    node.button.classList.toggle('is-selected',active);node.button.setAttribute('aria-pressed',String(active));
    node.button.classList.toggle('leader-down',alive?!alive.commanderAlive:false);
@@ -238,16 +243,17 @@ function roster(){
 function hud(){
  // The battlefield loses color only after the actual elimination of the player's army.
  // Flag capture or the initial empty deployment screen must not trigger this effect.
- document.body.dataset.annihilated=String(match.phase!=='preparation'&&match.counts.A===0);
+ const a=Math.min(match.counts.A,board.teamAlive.A),b=Math.min(match.counts.B,board.teamAlive.B);
+ document.body.dataset.annihilated=String(match.phase!=='preparation'&&a===0);
  document.body.dataset.phase=match.phase==='finished'?'battle':match.phase;$('match-phase').textContent=match.phase==='preparation'?'병력 배치':match.phase==='battle'?'전투 중':'전투 종료';
  const time=match.phase==='preparation'?match.remaining:match.elapsed,clock=String(Math.floor(time/60)).padStart(2,'0')+':'+String(Math.floor(time%60)).padStart(2,'0');
- $('preparation-clock').textContent=clock;$('clock').textContent=clock;$('forces').textContent='아르켄 '+match.counts.A+' : '+match.counts.B+' 벨리안';$('army-a').textContent=match.counts.A;$('army-b').textContent=match.counts.B;
+ $('preparation-clock').textContent=clock;$('clock').textContent=clock;$('forces').textContent='아르켄 '+a+' : '+b+' 벨리안';$('army-a').textContent=a;$('army-b').textContent=b;
  $('deployment-reserve').textContent='예비 '+match.reserve.A+'명 · 배치 '+match.counts.A+'명';
  $('army-size').disabled=match.phase!=='preparation';
  $('start-battle').hidden=match.phase!=='preparation';$('match-charge').hidden=match.phase!=='battle';$('auto-deploy').hidden=match.phase!=='preparation'||match.reserve.A===0;$('deployment-toggle').hidden=match.phase!=='preparation';
  const ids=selectedIds(),s=squadsFor(board).get(ids[0]);$('squad-name').textContent=ids.length>1?ids.length+'개 분대 선택':s?'제'+(s.matchIndex+1)+'분대 · '+living(s).length+'명':'분대 지휘';
  $('squad-info').textContent=s?phaseName(s):'';$('objective').textContent='적 지휘소 점령 또는 적군 전멸';
- if(match.phase==='finished'&&$('result').hidden){$('result').hidden=false;$('result').querySelector('h1').textContent=match.winner==='A'?'아르켄 승리':'벨리안 승리';$('result').querySelector('p').textContent='전투 종료';}
+ if(match.phase==='finished'&&$('result').hidden){$('result').hidden=false;$('result').querySelector('h1').textContent=match.winner==='A'?'아르켄 승리':'벨리안 승리';$('result').querySelector('p').textContent=match.finishReason==='annihilation'?'병력 전멸':'지휘소 함락';}
 }
 function bind(){
  const sizeSelect=$('army-size');sizeSelect.value=String(armySize);

@@ -134,6 +134,7 @@ export class FlagMatch{
   if(this.board.byId!==this.epoch||this.phase==='finished'||!Number.isFinite(dt)||dt<=0)return;
   this.elapsed+=dt;
   if(this.phase==='preparation'){this.remaining=Math.max(0,this.remaining-dt);if(this.remaining<=1e-8)this.start();}
+  if(this.phase==='battle'&&(this.board.teamAlive.A===0||this.board.teamAlive.B===0))this.refreshStatus();
   if(this.elapsed>=this.nextStatus){this.nextStatus=this.elapsed+.25;this.refreshStatus();}
   if(this.multiplayer)return;
   if(this.phase==='battle'&&(this.elapsed>=this.command.nextRefresh||this.aiImplementation==='utility'&&this.command.observer.revision!==this.board.obstacleRevision))this.command.refresh();
@@ -158,9 +159,14 @@ export class FlagMatch{
   }
   if(counts.A!==this.counts.A||counts.B!==this.counts.B)this.statusRevision++;
   this.counts=counts;
+  this.board.teamAlive.A=counts.A;this.board.teamAlive.B=counts.B;
   this.centers={A:counts.A?{x:sums.A.x/counts.A,y:sums.A.y/counts.A}:null,B:counts.B?{x:sums.B.x/counts.B,y:sums.B.y/counts.B}:null};
   const destroyed=Object.values(this.flags).filter(flag=>flag.health.current<=0);
-  if(this.phase==='battle'&&destroyed.length){this.winner=destroyed.length===2?'draw':destroyed[0].team==='A'?'B':'A';this.phase='finished';this.statusRevision++;
+  const eliminated=this.phase==='battle'?Object.entries(counts).filter(([,n])=>n===0).map(([team])=>team):[];
+  if(this.phase==='battle'&&(destroyed.length||eliminated.length)){
+   this.finishReason=destroyed.length?'headquarters':'annihilation';
+   const losers=destroyed.length?destroyed.map(flag=>flag.team):eliminated;
+   this.winner=losers.length===2?'draw':losers[0]==='A'?'B':'A';this.phase='finished';this.statusRevision++;
    for(const u of this.board.units){this.board.interrupt(u);u.combat.auto=false;}
   }
  }

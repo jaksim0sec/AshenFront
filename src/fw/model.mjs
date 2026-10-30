@@ -177,6 +177,7 @@ export class Board {
     if(replace)this.interrupt(u);else this.cancelCommand(u);u.target=targetId;u.command={type:'attack',target:targetId};this.navigation.plan(u);return true;
   }
   beginStep(u,next) {
+    u.hasMoved=true;
     u.state='walk';u.elapsed=0;u.step={...next,elapsed:0,duration:Math.max(u.movement.stepTime,u.marchStepTime||0)*terrainStepMultiplier(this,u,next)/(nearOwnFlag(this,u,next)?1.05:1)};u.path=[next];
     this.reservations.set(next.y*this.width+next.x,u.id);this.spatial.move(u);this.navigation.touch(u.x,u.y);this.navigation.touch(next.x,next.y);
     u.facing=project(next.x-u.x,next.y-u.y).x>=0?1:-1;

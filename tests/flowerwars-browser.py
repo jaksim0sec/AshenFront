@@ -95,18 +95,21 @@ try:
    assert page.evaluate("document.querySelectorAll('#faction-ribbon img').length")==2
    assert page.evaluate("Array.from(document.querySelectorAll('#faction-ribbon img')).every(img=>img.complete && img.naturalWidth>0)")
    assert page.evaluate('__ashenFlower.match.counts.B')==40
-   # Even troops without combat history adopt the braced resting pose in battle.
+   # Never-moved, unengaged soldiers remain at attention, then relax to mild guard after moving.
    page.locator('.squad-card').first.dblclick()
    page.wait_for_timeout(180)
    stage=page.evaluate("""()=>{
      const id=__ashenFlower.match.squadIds.A[0];
      const u=__ashenFlower.board.units.find(u=>u.squadId===id&&u.team==='A'&&u._visualStance&&u.state==='idle');
-     if(!u)return null;u.hasEngaged=false;return u.id;
+     if(!u)return null;u.hasEngaged=false;u.hasMoved=false;return u.id;
    }""")
    assert stage is not None,'first selected squad must be in viewport after focus'
+   assert page.evaluate('(id)=>__ashenFlower.board.unit(id)._visualStance.crouch<.1',stage)
+   page.evaluate('(id)=>{__ashenFlower.board.unit(id).hasMoved=true;}',stage)
    page.wait_for_function("""id=>{
-     const u=__ashenFlower.board.unit(id);return u?._visualStance?.crouch>.45;
+     const u=__ashenFlower.board.unit(id);return u?._visualStance?.crouch>.05;
    }""",arg=stage,timeout=10000)
+   assert page.evaluate('(id)=>__ashenFlower.board.unit(id)._visualStance.crouch<.25',stage)
    assert page.locator('.squad-card').count()==4
    await_s=page.evaluate('({n:__ashenFlower.board.units.length,squads:__ashenFlower.match.squadIds.A.length})')
    assert await_s['n']==80,await_s
@@ -150,6 +153,11 @@ try:
      match.refreshStatus();
    }""")
    page.wait_for_function("document.body.dataset.annihilated==='true'",timeout=5000)
+   assert page.locator('.squad-card').count()==4,'fully eliminated squads must remain listed'
+   assert page.locator('.squad-card.is-eliminated').count()==4
+   assert 'grayscale(1)' in page.locator('.squad-card .commander-photo').first.evaluate('el=>getComputedStyle(el).filter')
+   assert page.evaluate('__ashenFlower.match.finishReason')=='annihilation'
+   assert page.locator('#army-a').text_content()=='0'
    # CSS fades over 850ms; check the fully desaturated computed frame, not the first transition frame.
    page.wait_for_function("getComputedStyle(document.querySelector('#field')).filter.includes('grayscale(1)')",timeout=5000)
    assert 'grayscale(1)' in page.locator('#field').evaluate("el=>getComputedStyle(el).filter")

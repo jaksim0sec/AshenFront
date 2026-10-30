@@ -62,3 +62,23 @@ test('expanded AshenFront battlefield keeps the original match and valid headqua
  assert.ok(board.battlefield?.paths?.length>0);
  assert.ok(board.battlefield?.protectedCells?.length===512*384);
 });
+
+test('annihilation ends combat on the last real casualty with an exact survivor count',()=>{
+ const {board,match}=createAshenMatch({seed:1977});
+ autoDeployPlayer(match);assert.equal(match.start(),true);
+ const army=board.units.filter(u=>u.team==='A');
+ for(const soldier of army.slice(0,-1))board.damage(soldier.id,soldier.health.current);
+ assert.equal(board.teamAlive.A,1);
+ match.refreshStatus();
+ assert.equal(match.counts.A,1);
+ assert.equal(match.phase,'battle');
+ const last=army.at(-1);
+ board.damage(last.id,last.health.current);
+ assert.equal(board.teamAlive.A,0);
+ match.update(.05);
+ assert.equal(match.counts.A,0);
+ assert.equal(match.phase,'finished');
+ assert.equal(match.winner,'B');
+ assert.equal(match.finishReason,'annihilation');
+ assert.ok(match.flags.A.health.current>0,'the HQ must remain standing');
+});

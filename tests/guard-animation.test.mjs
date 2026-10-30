@@ -105,3 +105,12 @@ test('a soldier remembers combat after a shot or incoming damage',async()=>{
  assert(board.damage(b.id,1,1,a.id));
  assert.equal(b.hasEngaged,true,'a wounded troop remembers engagement');
 });
+
+test('the first movement step marks a soldier as formerly mobile, not a timer',async()=>{
+ const {Board}=await import('../src/fw/model.mjs');
+ const board=new Board(24,16);
+ const soldier=board.spawn(6,6,null,{team:'A'});
+ assert.equal(soldier.hasMoved,undefined);
+ board.beginStep(soldier,{x:7,y:6});
+ assert.equal(soldier.hasMoved,true);
+});
