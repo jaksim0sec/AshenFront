@@ -24,10 +24,12 @@ test('Original squad orders cause physical movement and bot responds',()=>{
  assert(autoDeployPlayer(match).complete);
  match.start();
  const soldiers=board.units.filter(u=>u.team==='A'&&u.health.current>0),initial=soldiers.map(u=>[u.x,u.y]);
+ const enemy=board.units.filter(u=>u.team==='B'&&u.health.current>0),enemyStart=enemy.map(u=>[u.x,u.y]);
  const id=match.squadIds.A[0];
  const result=orderSquads(board,[id],'advance',{x:Math.floor(board.width*.4),y:Math.floor(board.height*.5)});
  assert.equal(result.accepted.length,1);
- for(let i=0;i<300;i++){board.update(.05);match.update(.05);updateSquadOrders(board);}
+ for(let i=0;i<800;i++){board.update(.05);match.update(.05);updateSquadOrders(board);}
  assert(soldiers.some((u,i)=>u.x!==initial[i][0]||u.y!==initial[i][1]),'soldiers must move physically');
  assert([...squadsFor(board).values()].some(s=>s.team==='B'&&s.order),'bot must give source squad orders');
+ assert(enemy.some((u,i)=>u.x!==enemyStart[i][0]||u.y!==enemyStart[i][1]),'enemy soldiers must physically move rather than just shoot in place');
 });

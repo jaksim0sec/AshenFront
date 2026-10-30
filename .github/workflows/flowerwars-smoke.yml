@@ -13,4 +13,6 @@ jobs:
         with:
           node-version: '22'
       - name: Verify FlowerWars match and infantry deployment
-        run: node --test tests/flowerwars-port.test.mjs
+        run: |
+          node --check src/fw-entry.mjs
+          npm test
