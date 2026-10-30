@@ -21,12 +21,23 @@ try:
    page.evaluate("""() => {for(let i=0;i<40;i++)document.getElementById('zoom-in').click();}""")
    assert abs(page.evaluate('__ashenFlower.camera.scale')-2.4)<1e-10, 'zoom-in limit changed'
    page.evaluate("document.getElementById('fit-view').click()")
-   page.locator('#toggle-map').click()
+   # Mobile radar is controlled through the tools panel; the desktop floating
+   # toggle is intentionally hidden below 700px.
+   if width<=700:
+    page.locator('#tools-toggle').click()
+    page.locator('#mobile-map-toggle').click()
+   else:
+    page.locator('#toggle-map').click()
+    page.locator('#toggle-map').click()
    page.wait_for_function('window.__ashenFlower.renderStats.miniArea !== null')
    sample=page.evaluate('window.__ashenFlower.renderStats')
    assert sample['miniArea']['width']==120 and sample['miniArea']['height']==120,sample
    assert sample['miniQueries']<=3600,sample
-   page.locator('#toggle-map').click()
+   if width<=700:
+    page.locator('#tools-toggle').click()
+    page.locator('#tools-toggle').click()
+   else:
+    page.locator('#toggle-map').click()
    page.wait_for_timeout(250)
    assert not errors, 'preparation canvas error: '+repr(errors)
    assert page.evaluate('__ashenFlower.match.counts.A')==0
