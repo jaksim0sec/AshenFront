@@ -1,0 +1,17 @@
+name: Steering Branch Validation
+on:
+  push:
+    branches: ['feat/continuous-squad-steering-20261030']
+  workflow_dispatch:
+jobs:
+  node-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/flowerwars-steering.test.mjs
+      - run: npm test
+      - run: node --test tests/flowerwars-capacity.test.mjs
