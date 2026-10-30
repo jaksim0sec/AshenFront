@@ -8,15 +8,17 @@ export function separationOffset(board,unit){
   if(!unit||unit.health?.current<=0)return {x:0,y:0};
   const {x,y}=unit;
   let sx=0,sy=0;
-  const processed=new Set();
   for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
     const nx=x+dx,ny=y+dy;
     if(!board.inside(nx,ny))continue;
     const key=ny*board.width+nx;
-    for(const id of [board.cells.get(key),board.reservations.get(key)]){
-      if(id==null||id===unit.id||processed.has(id))continue;
-      processed.add(id);
+    for(let source=0;source<2;source++){
+      const id=source===0?board.cells.get(key):board.reservations.get(key);
+      if(id==null||id===unit.id)continue;
       const other=board.unit(id);
+      // A moving unit appears at source and reservation. If its source
+      // lies inside this 3x3 window it has already been counted once.
+      if(source===1&&other&&Math.abs(other.x-x)<=1&&Math.abs(other.y-y)<=1)continue;
       if(!other||other.health.current<=0)continue;
       // For a cell reservation, anticipate its destination.
       const ox=other.step?.x??other.x,oy=other.step?.y??other.y;

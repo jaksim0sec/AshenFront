@@ -249,7 +249,17 @@ function runOrder(board,s,replace=false){
  if(o.phase==='holding')for(const u of units)u.combat.holdPosition=true;
  if(o.phase==='arrived'&&o.after){const next=o.after;s.order=null;orderSquad(board,s.id,next.type,next.target);}
 }
-export function updateSquadOrders(board){for(const s of squadsFor(board).values())if(s.order&&!['wait','hold'].includes(s.order.type))runOrder(board,s);}
+// Orders are accepted immediately by orderSquad(). Maintenance only
+// needs to run at navigation cadence, not at 20/60 render frames per second.
+export function updateSquadOrders(board){
+ for(const s of squadsFor(board).values()){
+  const order=s.order;
+  if(!order||['wait','hold'].includes(order.type))continue;
+  if(!order.dirty&&board.time<(order.nextUpdateAt??-Infinity))continue;
+  runOrder(board,s);
+  if(s.order===order)order.nextUpdateAt=board.time+.12;
+ }
+}
 export function squadSummary(board,id){
  const s=squadsFor(board).get(id);if(!s)return null;
  const units=alive(board,s);
