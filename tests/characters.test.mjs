@@ -6,8 +6,8 @@ import {createHash} from 'node:crypto';
 import {unifyPhysique} from '../src/characters/model.mjs';
 import {ASPECTS} from '../src/characters/aspects.mjs';
 test('published physique matches the supplied reference without drifting helmets or altered artwork',()=>{
- const rig=JSON.parse(readFileSync(new URL('../assets/soldiers/rig.json',import.meta.url))),manifest=JSON.parse(readFileSync(new URL('../assets/soldiers/manifest.json',import.meta.url))),catalog=createCatalog(),reference=JSON.parse(readFileSync(new URL('../assets/soldiers/physique-reference.json',import.meta.url))).profile;
- reference.parts.rifle.w*=1.2;reference.parts.rifle.h*=1.2;assert.equal(Object.keys(manifest.assets).length,36);for(const key of Object.keys(reference.parts).filter(k=>!k.startsWith('sleeve')))assert.deepEqual(catalog.profiles['arken:private'].parts[key],reference.parts[key]);
+ const rig=JSON.parse(readFileSync(new URL('../assets/soldiers/rig.json',import.meta.url))),manifest=JSON.parse(readFileSync(new URL('../assets/soldiers/manifest.json',import.meta.url))),catalog=createCatalog(),reference=JSON.parse(readFileSync(new URL('../assets/soldiers/catalog-reference.json',import.meta.url))).profiles['arken:private'];
+ assert.equal(Object.keys(manifest.assets).length,36);for(const key of Object.keys(reference.parts).filter(k=>!k.startsWith('sleeve')))assert.deepEqual(catalog.profiles['arken:private'].parts[key],reference.parts[key]);
  for(const [id,meta] of Object.entries(manifest.assets))assert.equal(createHash('sha256').update(readFileSync(new URL('../'+meta.path,import.meta.url))).digest('hex'),rig.parts[id].png_sha256);
  for(const profile of Object.values(catalog.profiles)){
   assert.deepEqual(profile.layers,reference.layers);assert.deepEqual(profile.parts.head,reference.parts.head);
@@ -45,9 +45,9 @@ test('cached walking samples repeat at the actual gait duration',async()=>{const
 test('national officer caps, blue helmets and sleeve insignia follow user fitting references',async()=>{
  const {FITTING_REFERENCES:refs}=await import('../src/characters/fittings.mjs');const c=createCatalog();
  for(const catalog of [c,unifyPhysique(c,'arken:private')])for(const p of Object.values(catalog.profiles)){
-  const hatRef=Object.values(refs).find(r=>r.parts.hat.asset===p.parts.hat.asset);
+  const hatRef=refs[p.nation+':'+p.rank];
   if(hatRef)for(const key of ['x','y','w','h','pivotX','pivotY','rotation'])assert(Math.abs(p.parts.hat[key]-hatRef.parts.hat[key])<1e-10,p.nation+':'+p.rank+' '+key);
-  if(p.nation==='arken')for(const side of ['sleeveLeft','sleeveRight']){const actual=p.parts[side],expected=refs['arken:corporal'].parts[side];for(const k of ['x','y','rotation'])assert(Math.abs(actual[k]-expected[k])<1e-10);}
+  if(p.nation==='arken')for(const side of ['sleeveLeft','sleeveRight']){const actual=p.parts[side],expected=refs[p.nation+':'+p.rank].parts[side];for(const k of ['x','y','rotation'])assert(Math.abs(actual[k]-expected[k])<1e-10);}
  }
  assert.deepEqual(unifyPhysique(unifyPhysique(c,'arken:private'),'arken:private'),unifyPhysique(c,'arken:private'));
 });
@@ -58,3 +58,5 @@ test('death is a connected falling body, with no detached limbs or drifting equi
   const initial=anchors(0),origin=initial.get('body');for(const t of [.2,.5,.8,1.2]){const next=anchors(t),body=next.get('body');for(const [key,a]of initial)assert(Math.abs(Math.hypot(a.x-origin.x,a.y-origin.y)-Math.hypot(next.get(key).x-body.x,next.get(key).y-body.y))<1e-8,key+' detached');}
  }
 });
+
+test('all published profiles and runtime defaults preserve the complete uploaded JSON exactly',()=>{const reference=JSON.parse(readFileSync(new URL('../assets/soldiers/catalog-reference.json',import.meta.url))),published=JSON.parse(readFileSync(new URL('../assets/soldiers/catalog.json',import.meta.url)));assert.deepEqual(createCatalog(),reference);assert.deepEqual(importCatalog(reference),reference);assert.deepEqual(published,reference);});

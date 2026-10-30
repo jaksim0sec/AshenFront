@@ -1,0 +1,113 @@
+
+> ashenfront@0.1.0 test
+> node --test --test-isolation=none tests/*.test.mjs
+
+BOT_TRIALS [{"seed":1,"winner":"A","ticks":1585,"moving":{"A":2590,"B":1674},"blocked":{"congestion":4264,"suppressed":3341},"score":{"A":900,"B":0},"checksum":"cc604fee"},{"seed":2,"winner":"A","ticks":1590,"moving":{"A":2484,"B":1676},"blocked":{"congestion":4359,"suppressed":3534},"score":{"A":900,"B":0},"checksum":"5b4e7d23"},{"seed":3,"winner":"A","ticks":1560,"moving":{"A":2620,"B":1691},"blocked":{"congestion":4539,"suppressed":4109},"score":{"A":900,"B":0},"checksum":"d10eef3c"},{"seed":4,"winner":"A","ticks":1540,"moving":{"A":2557,"B":1697},"blocked":{"congestion":4339,"suppressed":3675},"score":{"A":900,"B":0},"checksum":"dcbe563a"},{"seed":5,"winner":"A","ticks":1560,"moving":{"A":2577,"B":1665},"blocked":{"congestion":4567,"suppressed":3445},"score":{"A":900,"B":0},"checksum":"a080a5e1"},{"seed":6,"winner":"A","ticks":1935,"moving":{"A":2503,"B":1773},"blocked":{"congestion":4607,"suppressed":3861},"score":{"A":900,"B":0},"checksum":"c47b86ce"},{"seed":7,"winner":"A","ticks":1945,"moving":{"A":2502,"B":1750},"blocked":{"congestion":5564,"suppressed":4870},"score":{"A":900,"B":0},"checksum":"1ba13e98"},{"seed":8,"winner":"A","ticks":1580,"moving":{"A":2482,"B":1697},"blocked":{"congestion":5106,"suppressed":3728},"score":{"A":900,"B":0},"checksum":"eeee996e"},{"seed":9,"winner":"A","ticks":1600,"moving":{"A":2532,"B":1669},"blocked":{"congestion":4219,"suppressed":3530},"score":{"A":900,"B":0},"checksum":"b9737aa5"},{"seed":10,"winner":"A","ticks":1570,"moving":{"A":2655,"B":1748},"blocked":{"congestion":4461,"suppressed":4093},"score":{"A":900,"B":0},"checksum":"87a6f18e"},{"seed":11,"winner":"A","ticks":1540,"moving":{"A":2438,"B":1685},"blocked":{"congestion":3971,"suppressed":3491},"score":{"A":900,"B":0},"checksum":"5a741bc6"},{"seed":12,"winner":"A","ticks":1530,"moving":{"A":2471,"B":1727},"blocked":{"congestion":4444,"suppressed":3518},"score":{"A":900,"B":0},"checksum":"a412066c"},{"seed":13,"winner":"A","ticks":1795,"moving":{"A":2446,"B":1819},"blocked":{"congestion":5804,"suppressed":5007},"score":{"A":900,"B":0},"checksum":"8f4a59c2"},{"seed":14,"winner":"A","ticks":1550,"moving":{"A":2565,"B":1700},"blocked":{"congestion":4671,"suppressed":3647},"score":{"A":900,"B":0},"checksum":"8f786e0d"},{"seed":15,"winner":"A","ticks":1625,"moving":{"A":2482,"B":1690},"blocked":{"congestion":4788,"suppressed":4054},"score":{"A":900,"B":0},"checksum":"b42921e8"},{"seed":16,"winner":"A","ticks":1565,"moving":{"A":2487,"B":1657},"blocked":{"congestion":3975,"suppressed":3670},"score":{"A":900,"B":0},"checksum":"18058065"},{"seed":17,"winner":"A","ticks":1595,"moving":{"A":2390,"B":1686},"blocked":{"congestion":3885,"suppressed":3855},"score":{"A":900,"B":0},"checksum":"7848b95e"},{"seed":18,"winner":"A","ticks":1590,"moving":{"A":2632,"B":1705},"blocked":{"congestion":4530,"suppressed":3364},"score":{"A":900,"B":0},"checksum":"c06f84d6"},{"seed":19,"winner":"A","ticks":1565,"moving":{"A":2603,"B":1694},"blocked":{"congestion":4879,"suppressed":3768},"score":{"A":900,"B":0},"checksum":"e4d8bccf"},{"seed":20,"winner":"A","ticks":1610,"moving":{"A":2358,"B":1758},"blocked":{"congestion":3953,"suppressed":4099},"score":{"A":900,"B":0},"checksum":"4c209a9b"}]
+WAR_MATCH {"seed":1,"winner":"B","ticks":4498,"checksum":"f7156234"}
+WAR_MATCH {"seed":7,"winner":"B","ticks":5110,"checksum":"f9b2fe8a"}
+WAR_MATCH {"seed":42,"winner":"A","ticks":5303,"checksum":"14f27690"}
+✔ war AI assigns stable specialist roles and replaces a lost HQ guard (95.84141ms)
+✔ hidden enemy position and health do not change bot orders (59.874309ms)
+✔ war bots progress through real ramp topology and capture an undefended HQ (24.808213ms)
+✔ suppressed bots issue a bounded recovery order and resume the offensive (58.786129ms)
+✔ war AI is deterministic, queues bounded work and does not repeat stationary guard commands (186.980871ms)
+✔ bots explicitly attack visible immediate enemies through the command queue (1.539141ms)
+✔ terrain observer excludes disconnected islands and rebuilds after a passage opens (3.577091ms)
+✔ shared observation remains the only source of enemy data between refreshes (4.435693ms)
+✔ stalled approaches replace their movement command without per-tick retries (23.730107ms)
+✔ mobile operations use staged flank commands when lateral terrain is connected (117.360457ms)
+✔ 20 seeded bot matches move, compete, finish, and preserve invariants (2144.020276ms)
+✔ swapping team labels swaps the seeded outcome without changing side behavior (3642.582379ms)
+✔ bots fill the objective with 2 or 4 allied squads when opponents are gone (148.576834ms)
+✔ published physique matches the supplied reference without drifting helmets or altered artwork (23.677414ms)
+✔ actual barrel ray reaches the projected target through recoil, reload, motion and both facings (7.917553ms)
+✔ all nation/rank profiles assemble the calibrated replacement archive (1.848219ms)
+✔ whole original arms remain intact; firing palms meet the rifle grips (4.462421ms)
+✔ nation/rank adjustments export and reload atomically, invalid or external assets are rejected (5.706641ms)
+✔ firing has recoil, bolt/reload hand motion and muzzle timing; paused sampling is deterministic (2.899022ms)
+✔ single-profile exports merge without replacing other nation adjustments (5.089617ms)
+✔ edited whole-arm proportions retain exact rifle grip attachment (1.772695ms)
+✔ actual arm image palm anchors coincide with rifle grips in every facing and firing phase (2.556164ms)
+✔ editable rifle dimensions preserve actual SVG grip and muzzle positions (4.126625ms)
+✔ falling and large edited poses have complete cache bounds instead of a fixed avatar crop (3.83007ms)
+✔ part dragging in a rotated death pose uses the animated parent basis (2.784065ms)
+✔ cached walking samples repeat at the actual gait duration (0.286929ms)
+✔ national officer caps, blue helmets and sleeve insignia follow user fitting references (12.374892ms)
+✔ death is a connected falling body, with no detached limbs or drifting equipment (5.904859ms)
+✔ LOS is symmetric, ridges and diagonal opaque corners block, H0 can fire over H1 (4.695498ms)
+✔ directional cover and worn cover use target-to-attacker direction, X ties (0.679772ms)
+✔ seeded shots, cooldown, HP and final outcome are reproducible (27.496801ms)
+✔ death during a reserved step releases both cells exactly once (1.257284ms)
+✔ suppression pauses retained intent, recovers hysteretically and permits HOLD (2.056396ms)
+✔ mirrored armies use matching staggered initial cooldowns rather than a team-wide offset (0.394658ms)
+✔ exactly three floor levels, one floor per cell, multiple reciprocal trench exits (0.715912ms)
+✔ only explicit reciprocal ramps allow one-level changes, no diagonal or two-level jump (0.123216ms)
+✔ height-aware visible tile picking roundtrips at zoom and pan values (1.049799ms)
+✔ each deployment has two separate routes around central ruins (6.524387ms)
+✔ moving unit hit position follows the same interpolated foot and height as rendering (0.363222ms)
+✔ a visible raised earth face picks its own tile rather than the hidden floor behind it (0.430489ms)
+✔ authored terrain is exactly mirrored across the battlefield centerline (3.285452ms)
+✔ consecutive small seeds do not give the first firing actor an almost guaranteed hit (0.342725ms)
+✔ INF-01 precise slots, all-member completion and stable repeated order (65.491337ms)
+✔ INF-01 retarget keeps step but invalidates old slots; HOLD and suppression do not displace (42.268187ms)
+✔ INF-01 edge formations have bounded slots and truthful insufficient room (3.191861ms)
+✔ INF-01 twenty seeds: latest command arrives with all ten distinct slots (741.834189ms)
+✔ INF-01 four distinct anchors, no false 80-percent success (145.630072ms)
+✔ INF-01 holders and suppressed allies never yield; traffic routes around them (69.152916ms)
+✔ INF-02 visual revision does not flush navigation; topology revision does (0.457471ms)
+✔ INF-01 exact squads traverse H1-H0-H1 and H1-H2-H1 at authored exits (508.970297ms)
+✔ INF-01 four allied squads cross a shared four-wide choke with distinct anchors (234.733556ms)
+✔ INF-01 retarget during real fire retains latest generation and collision invariants (1361.109713ms)
+✔ INF-01 destination region cannot seed across a separating wall and report idle partial forever (97.727289ms)
+✔ INF-01 later rally never displaces a settled precise formation (80.311318ms)
+✔ INF-01 changing area radius creates a new order generation (0.871753ms)
+✔ ten soldiers cross authored ramps and reach the retained region (43.770844ms)
+✔ atomic override and HOLD finish already reserved steps (0.695159ms)
+✔ friendly squads pass opposite directions through two-wide passage without starvation (62.540949ms)
+✔ opponents never double reserve and static no-route is finite (18.230956ms)
+✔ all four allied squads can fill the 41-cell central rally without sealing out later arrivals (291.151558ms)
+✔ invalid region sizes cannot corrupt a retained order or create unbounded search (1.138355ms)
+✔ 45 seconds of objective presence wins, not a touch (0.67898ms)
+✔ contested and empty freeze, changing contender resets; radius is Manhattan (0.696155ms)
+✔ eight-minute fallback permits draw and compares control score (0.373205ms)
+✔ engine reproducibility includes ordered commands and complete match (197.180709ms)
+✔ three-sector timeout uses accumulated score instead of current ownership (0.452264ms)
+✔ player selection toggles, prunes dead squads and never selects enemies (0.886567ms)
+✔ group movement separates legal anchors on the requested elevation without mutating the world (1.375199ms)
+✔ support validates visibility, use count, cooldown and processes a radius event once (0.735761ms)
+✔ one parameterized objective engine handles three-sector victory and 20-minute cap (11.707799ms)
+✔ render rates 15/30/60 FPS produce identical ordered-command replay and no skipped ticks (263.636291ms)
+✔ replay checksum covers mutable cover, pending commands and multi-sector hold state (15.86765ms)
+✔ four formations produce distinct connected footprints and arrive with exact slots (191.073964ms)
+✔ formation switch cancels pursuit at living centroid and preserves committed steps (42.588498ms)
+✔ slots respect target elevation, separating edges, reserved cells and other squads claims (0.585885ms)
+✔ attack accepts visible enemies, follows moving target without new generation, and finishes on death (4.006202ms)
+✔ attack validates visibility and friendly targets atomically (0.546018ms)
+✔ flank traverses lateral waypoints then moves to a ground target (67.094639ms)
+✔ flank enemy followup is canceled by hold and a fresh ground flank never inherits it (62.232736ms)
+✔ suppression retains staged flank intent and resumes after recovery (53.731924ms)
+✔ focused fire prioritizes designated visible enemy over nearer enemy (0.619541ms)
+✔ enemy flank becomes an attack under the same command generation (98.187403ms)
+✔ lost visibility retains last known destination without tracking hidden movement (54.525022ms)
+✔ formation slots cannot cross an unconnected edge boundary near the anchor (1.170938ms)
+✔ a fresh attack can reacquire the same target after a previous search ended (49.216771ms)
+✔ a lone survivor reforms at its own centroid in every formation (1.885106ms)
+✔ INF-03 undefended enemy HQ is seized from authoritative occupancy (0.850024ms)
+✔ INF-03 defenders contest HQ, neutral sectors and elapsed time cannot win (0.727036ms)
+✔ INF-03 elimination and simultaneous HQ captures resolve deterministically (1.203918ms)
+✔ INF-03 bot keeps a home guard while others advance, legal complete seeded matches (1409.72047ms)
+✔ INF-03 visible HQ threat actually redirects an available squad on its staggered decision tick (3.220572ms)
+✔ INF-02 strategic centers occupy real trench and high ground, HQ spawns stay clear (0.900762ms)
+ℹ tests 92
+ℹ suites 0
+ℹ pass 92
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13010.389453
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

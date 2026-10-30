@@ -1,3 +1,4 @@
+import {drawCommandOverlay} from './command-overlay.mjs';
 import {DEATH_DURATION} from '../characters/animation.mjs';
 import {SoldierRenderer,SOLDIER_SCALE} from '../characters/renderer.mjs';
 import {palette as P} from './palette.mjs';
@@ -6,7 +7,7 @@ const colors={A:P.teamA,B:P.teamB};
 export class Scene {
  constructor(canvas){this.canvas=canvas;this.terrain=new TerrainRenderer();this.rendered=0;this.low=false;this.soldiers=new SoldierRenderer();this.soldiers.ready.catch(()=>{});this.shots=new Map();this.hp=new Map();this.hitTicks=new Map();this.muzzles=new Map();this.lastSeen=new Map();this.deathFacings=new Map();this.width=1;this.height=1;}
  resize(){const r=this.canvas.getBoundingClientRect(),dpr=Math.min(this.low?1:2,devicePixelRatio||1);this.width=r.width;this.height=r.height;if(this.canvas.width!==Math.round(r.width*dpr)||this.canvas.height!==Math.round(r.height*dpr)){this.canvas.width=Math.round(r.width*dpr);this.canvas.height=Math.round(r.height*dpr);}this.dpr=dpr;}
- draw(w,c,selected,visible,alpha=0) {
+ draw(w,c,selected,visible,alpha=0,selectedIds=new Set(selected?[selected]:[])) {
   if(this.world!==w){this.world=w;this.shots.clear();this.hp.clear();this.hitTicks.clear();this.muzzles.clear();this.lastSeen.clear();this.deathFacings.clear();}
   for(const u of visible.values())this.lastSeen.set(u.id,w.tick);
   if(this.eventTick!==w.tick){this.eventTick=w.tick;for(const e of w.events)if(e.kind==='shot'&&e.unitId)this.shots.set(e.unitId,e);}
@@ -14,21 +15,13 @@ export class Scene {
   this.terrain.draw(ctx,m,c,this.width,this.height);ctx.save();ctx.translate(c.x,c.y);ctx.scale(c.zoom,c.zoom);
   for(const o of w.objectives){const x=o.center%m.width,y=Math.floor(o.center/m.width),r=o.radius+.5,points=[[x-r,y],[x,y-r],[x+r,y],[x,y+r]].map(([x,y])=>{const p=project(x,y,1);return[p.x,p.y];});polygon(ctx,points,o.contested?'#D1D4D52A':'#D1D4D510');ctx.strokeStyle=o.owner?colors[o.owner]:P.edge;ctx.lineWidth=3;ctx.stroke();}
   for(const post of w.commandPosts??[]){const p=project(post.center%m.width,Math.floor(post.center/m.width),m.floorLevel[post.center]);ctx.strokeStyle=colors[post.team];ctx.lineWidth=4/c.zoom;ctx.strokeRect(p.x-26,p.y-35,52,35);ctx.fillStyle=colors[post.team];ctx.font='bold 22px system-ui';ctx.fillText(post.team+' HQ',p.x-30,p.y-45);}
-  const selection=w.squads[selected-1];
-  if(selection?.goal!==null&&selection?.goal!==undefined){
-   const g=selection.goal,p=project(g%m.width,Math.floor(g/m.width),m.floorLevel[g]);
-   ctx.strokeStyle='#D1D4D5';ctx.lineWidth=2/c.zoom;ctx.setLineDash([5/c.zoom,4/c.zoom]);
-   polygon(ctx,[[p.x,p.y-H],[p.x+W,p.y],[p.x,p.y+H],[p.x-W,p.y]],null,'#D1D4D5');
-   for(const i of Object.values(selection.slots??{})){const q=project(i%m.width,Math.floor(i/m.width),m.floorLevel[i]);ctx.strokeRect(q.x-9,q.y-5,18,10);}
-   const live=selection.unitIds.map(id=>w.units[id-1]).filter(u=>u.hp>0);if(live.length){const a=unitFoot(m,live[0],alpha);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(p.x,p.y);ctx.stroke();}
-   ctx.setLineDash([]);ctx.fillStyle='#D1D4D5';ctx.font='18px system-ui';ctx.fillText(`H${m.floorLevel[g]} · #${selection.orderId}`,p.x,p.y-H-8);
-  }
+  drawCommandOverlay(ctx,w,c,selectedIds,alpha);
   const margin=Math.max(40,this.soldiers.margin*c.zoom),b=visibleBounds(m,c,this.width,this.height,margin),index=spatialIndex(w),units=index.query((b.x0+b.x1)/2,(b.y0+b.y1)/2,Math.max(b.x1-b.x0,b.y1-b.y0)/2+8),sprites=[];
   for(const u of units){if(u.team==='B'&&!visible.has(u.id))continue;const h=m.floorLevel[u.y*m.width+u.x],p=unitFoot(m,u,alpha),screen=toScreen(p,c);if(screen.x< -margin||screen.x>this.width+margin||screen.y< -margin||screen.y>this.height+margin)continue;sprites.push({u,p,h});}
   for(const e of w.events.filter(e=>e.kind==='elimination'&&e.unitId&&w.tick-e.tick<DEATH_DURATION*20).slice(-32)){const u=w.units[e.unitId-1];if(u&&(u.team==='A'||w.tick-(this.lastSeen.get(u.id)??-1000)<40)){const p=project(e.x,e.y,m.floorLevel[e.y*m.width+e.x]);sprites.push({u,p,h:m.floorLevel[e.y*m.width+e.x],deathAge:(w.tick-e.tick+alpha)/20});}}
   this.actorFrames=new Map();
   sprites.sort((a,b)=>a.p.y-b.p.y||a.u.id-b.u.id);this.rendered=sprites.length;
-  for(const {u,p,h,deathAge} of sprites){const s=w.squads[u.squadId-1],chosen=u.squadId===selected;ctx.save();ctx.translate(p.x,p.y);
+  for(const {u,p,h,deathAge} of sprites){const s=w.squads[u.squadId-1],chosen=selectedIds.has(u.squadId);ctx.save();ctx.translate(p.x,p.y);
    ctx.save();if(deathAge!==undefined)ctx.globalAlpha=Math.max(0,Math.min(1,(DEATH_DURATION-deathAge)/.35));ctx.fillStyle='#1D202266';ctx.beginPath();ctx.ellipse(0,1,14,7,0,0,Math.PI*2);ctx.fill();ctx.restore();
    if(chosen&&deathAge===undefined){ctx.strokeStyle=P.selection;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,19,10,0,0,Math.PI*2);ctx.stroke();}
    const shot=this.shots.get(u.id),age=shot?(w.tick-shot.tick+alpha)/20:Infinity,target=shot?project(shot.tx,shot.ty,m.floorLevel[shot.ty*m.width+shot.tx]):null,aimVector=target?{x:target.x-p.x,y:target.y-36-p.y}:null;

@@ -2,6 +2,12 @@
 
 Offline, mobile-first Canvas 2D squad RTS. Command 40 infantry against a bot across real trench floors, ground and ridges. Seize the enemy command post or eliminate its army; the elapsed clock never ends a battle.
 
+## FlowerWars 구조 이식
+
+기존 고저차·엄폐·제압·포격·지휘소 점령 규칙을 유지하면서 FlowerWars의 지휘 화면, 복수 선택, 진형, 전술 명령과 AI 구조를 이식했습니다. **분대**에서 소대 전체 또는 개별 분대를 고르세요. **복수 선택**이나 Shift 클릭으로 함께 지휘할 수 있습니다. 횡대·종대·방진·산개, 이동·공격·우회·사수·집결을 지원합니다. 지점을 누르면 이동하고, 보이는 적을 누르면 집중 공격합니다. 명시적 명령은 버튼을 먼저 선택하세요. 드래그·핀치는 명령을 내리지 않습니다.
+
+캐릭터·조립 JSON·국가별 설정과 기존 회색 팔레트는 보존했습니다. PvP·온라인 의존성·예비 병력 배치·깃발 파괴 규칙은 포함하지 않습니다. [이식 범위와 검증](docs/FLOWERWARS_TRANSPLANT.md).
+
 ## Soldier workshop
 
 Open **병사** in the header or `/soldier-workshop.html` to adjust the supplied character parts by country/rank, preview animations, and download final JSON. The same catalog and animations render in battle. See [the workshop guide](docs/SOLDIER_WORKSHOP.md) for import/export and applying published defaults.
@@ -45,4 +51,4 @@ Keep `npm start` running for browser tools. Python Playwright and Chromium are t
 
 The low-level `createMatch()` API retains the old point-control fixture for reproducibility of the original32 tests. The application and debug battlefield fixtures explicitly select `scenario:'war'` and share the same engine, movement, combat and world arrays. Original timer tests remain compatibility checks, not current gameplay rules.
 
-See [the infrastructure report](docs/INFRASTRUCTURE_REPORT.md) for commits, exact tests, screenshots, profiling and limitations. [The previous report](docs/IMPLEMENTATION_REPORT.md) records the earlier prototype. No FlowerWars-MINI files were modified or copied. Physical Android, thermal stability, arbitrary crowded-order completion and final art remain unverified.
+See [the infrastructure report](docs/INFRASTRUCTURE_REPORT.md) for commits, exact tests, screenshots, profiling and limitations. [The previous report](docs/IMPLEMENTATION_REPORT.md) records the earlier prototype. FlowerWars-MINI algorithms and UI composition were adapted; its repository was not modified and its character artwork, PvP and CSS palette were not copied. Physical Android, thermal stability, arbitrary crowded-order completion and final art remain unverified.

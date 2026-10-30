@@ -1,5 +1,7 @@
 # Soldier parts and animation workshop
 
+Current authoritative settings: **ashenfront-soldiers-final (1).json**, preserved as `assets/soldiers/catalog-reference.json`. All16 profiles, including dimensions, position, pivots, rotation, visibility, weapon grips and layer order, are applied exactly. Factory defaults and the published catalog match the complete export. Earlier per-part references below are historical; national/rank fitting anchors now come from this full export. New browser drafts use `ashenfront.soldier-workshop.v4` so older saved drafts cannot override the new default. No PNGs, game rules or command/AI transplant code were changed by this update.
+
 Run `npm start`, then open **병사** in the game header or `/soldier-workshop.html`.
 
 ## Current reference and physique
@@ -33,7 +35,7 @@ The native portrait faces left and the SVG rifle points right; their facing conv
 3. Download the full `ashenfront-soldiers-final.json` or one profile. Both import again. Unknown images, external URLs and invalid numbers are rejected.
 4. **전장에 적용** saves the browser draft and opens the game. An already-open game receives the same catalog through a storage event. Clearing a draft restores the published defaults.
 
-Current browser storage key: `ashenfront.soldier-workshop.v3`. Export JSON to transfer edits between browsers.
+Current browser storage key: `ashenfront.soldier-workshop.v4`. Export JSON to transfer edits between browsers.
 
 To publish exported adjustments:
 

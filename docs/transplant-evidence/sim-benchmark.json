@@ -1,0 +1,48 @@
+{
+  "node": "v24.19.0",
+  "kind": "Node simulation only, no browser or device FPS measurement",
+  "results": [
+    {
+      "map": [
+        64,
+        48
+      ],
+      "actors": 80,
+      "ticks": 100,
+      "averageMs": 0.9022313599999999,
+      "p95Ms": 1.6270760000000024,
+      "maxMs": 22.091318,
+      "navPeak": 2048,
+      "aiOrders": 6,
+      "defaultRelease": true
+    },
+    {
+      "map": [
+        128,
+        96
+      ],
+      "actors": 180,
+      "ticks": 100,
+      "averageMs": 1.2460438199999972,
+      "p95Ms": 2.4656030000000158,
+      "maxMs": 19.48433700000001,
+      "navPeak": 2048,
+      "aiOrders": 9,
+      "defaultRelease": false
+    },
+    {
+      "map": [
+        256,
+        192
+      ],
+      "actors": 360,
+      "ticks": 100,
+      "averageMs": 3.0650335200000014,
+      "p95Ms": 5.76253399999996,
+      "maxMs": 58.703509999999994,
+      "navPeak": 2048,
+      "aiOrders": 18,
+      "defaultRelease": false
+    }
+  ]
+}

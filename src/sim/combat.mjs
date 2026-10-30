@@ -33,7 +33,8 @@ export function resolveFire(w) {
  for(const u of w.units) {
   if(u.hp<=0||w.tick<u.nextFireTick)continue;
   w.metrics.queries++;const candidates=index.query(u.x,u.y,9).filter(v=>v.team!==u.team&&v.hp>0).map(v=>({v,d:(v.x-u.x)**2+(v.y-u.y)**2})).filter(o=>o.d<=81);
-  candidates.sort((a,b)=>a.d-b.d||a.v.id-b.v.id);let choice;
+  const ownSquad=w.squads[u.squadId-1],focused=v=>ownSquad.order==='attack'&&(ownSquad.targetUnitId!=null?v.id===ownSquad.targetUnitId:v.squadId===ownSquad.targetSquadId);
+  candidates.sort((a,b)=>Number(focused(b.v))-Number(focused(a.v))||a.d-b.d||a.v.id-b.v.id);let choice;
   for(const c of candidates){w.metrics.losChecks++;if(lineOfSight(w.map,u,c.v)){choice=c;break;}}
   // Recheck an empty field cheaply; full firing cooldown starts on an actual shot.
   u.nextFireTick=w.tick+(choice?30:10);if(!choice)continue;

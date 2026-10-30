@@ -1,0 +1,30 @@
+[
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "cards": 4,
+    "multipleSelection": true,
+    "formation": true,
+    "groupAnchors": true,
+    "flankAndCancel": true,
+    "navBudget": true,
+    "visibleTargetAttack": true,
+    "pageErrors": []
+  },
+  {
+    "viewport": [
+      1280,
+      800
+    ],
+    "cards": 4,
+    "multipleSelection": true,
+    "formation": true,
+    "groupAnchors": true,
+    "flankAndCancel": true,
+    "navBudget": true,
+    "visibleTargetAttack": true,
+    "pageErrors": []
+  }
+]

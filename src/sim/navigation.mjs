@@ -26,7 +26,7 @@ export class Navigation {
  }
  prune(squads) {
   const live=new Set(squads.filter(s=>s.goal!==null).map(s=>s.goal+':'+s.radius));
-  for(const s of squads)if(s.placement==='formation'&&s.goal!==null)for(const i of Object.values(s.slots??{}))live.add(i+':0:8');
+  for(const s of squads)if(s.placement==='formation'&&s.goal!==null)for(const i of Object.values(s.slots??{})){live.add(i+':0:'+(s.slotFieldLimit??8));live.add(i+':0');}
   for(const key of this.fields.keys())if(!live.has(key))this.fields.delete(key);
  }
 }
