@@ -83,7 +83,7 @@ export class Board {
       Array.from({ length: this.width }, (_, x) => (x === 3 || x === 4 || y === 2 && x > 1 && x < 6) ? 'soil' : 'grass'));
   }
   resize(width,height){
-    if(!Number.isInteger(width)||!Number.isInteger(height)||width<4||height<4||width>256||height>256||this.navigation.collecting)return false;
+    if(!Number.isInteger(width)||!Number.isInteger(height)||width<4||height<4||width>1024||height>1024||this.navigation.collecting)return false;
     const inside=p=>p.x>=0&&p.y>=0&&p.x<width&&p.y<height;
     if(this.units.some(u=>u.health.current>0&&(!inside(u)||u.step&&!inside(u.step)||u.command?.type==='move'&&!inside(u.command))))return false;
     const oldWidth=this.width,terrain=this.terrain,obstacles=this.obstacles;

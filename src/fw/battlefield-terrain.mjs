@@ -6,8 +6,8 @@ export function terrainStepMultiplier(board,from,to){
  return 2/(speed(from)+speed(to));
 }
 // Expand the battle space without expanding the per-frame rendering footprint.
-export const BATTLEFIELD_WIDTH=256;
-export const BATTLEFIELD_HEIGHT=192;
+export const BATTLEFIELD_WIDTH=512;
+export const BATTLEFIELD_HEIGHT=384;
 // Strategic coordinates keep doctrine proportions while local combat distances
 // and movement speed remain in actual tiles.
 export const fieldX=(board,x)=>Math.round(x*(board.width-1)/99);

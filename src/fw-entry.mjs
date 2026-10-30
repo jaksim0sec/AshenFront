@@ -9,6 +9,7 @@ import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
 import {drawSquadTeamFlags} from './fw/match-overlay.mjs';
 import {drawCommandOverlay} from './fw/command-overlay.mjs';
 import {BattlefieldTerrainRenderer} from './fw/terrain-art.mjs';
+import {minimapRegion,minimapWorldPoint,minimapScreenFootprint,MINIMAP_SAMPLE_STEP} from './fw/minimap-region.mjs';
 import {icon} from './fw/ui-icons.mjs';
 import {applyPalette} from './render/palette.mjs';
 applyPalette(document.documentElement);
@@ -21,16 +22,16 @@ let armySize=ASHEN_ARMY_CHOICES.includes(Number(params.get('army')))?Number(para
 let {board,match}=createAshenMatch({seed,count:armySize}),selected=new Set(),mode=null,hover=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
 let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1;
 const renderSamples=[];let renderedFrames=0,visibleTroops=0;
-let miniGround=null;
-const camera={x:0,y:0,scale:.30},pointers=new Map(),colors={A:'#a7c6dd',B:'#d39283'};
+let miniGround=null,miniArea=null,miniQueries=0;
+const camera={x:0,y:0,scale:.40},pointers=new Map(),colors={A:'#a7c6dd',B:'#d39283'};
 const living=s=>s.memberIds.map(id=>board.unit(id)).filter(u=>u?.health.current>0);
 const squads=()=>[...squadsFor(board).values()].filter(s=>s.team==='A'&&living(s).length);
 const selectedIds=()=>[...selected].filter(id=>squadsFor(board).has(id));
 function notice(s){$('battle-notice').textContent=s;$('status').textContent=s;}
 function resize(){const r=canvas.getBoundingClientRect();drawDpr=Math.min(low?1:2,devicePixelRatio||1);canvas.width=Math.round(r.width*drawDpr);canvas.height=Math.round(r.height*drawDpr);}
 function focus(x,y){const p=project(x,y);camera.x=canvas.clientWidth/2-p.x*camera.scale;camera.y=canvas.clientHeight/2-p.y*camera.scale;}
-function fit(){camera.scale=innerWidth<650?.30:.42;focus(board.width*.34,board.height*.5);}
-function zoom(ratio,x=canvas.clientWidth/2,y=canvas.clientHeight/2){const scale=Math.min(2.4,Math.max(.22,camera.scale*ratio)),r=scale/camera.scale;camera.x=x-(x-camera.x)*r;camera.y=y-(y-camera.y)*r;camera.scale=scale;}
+function fit(){camera.scale=innerWidth<650?.40:.48;focus(board.width*.34,board.height*.5);}
+function zoom(ratio,x=canvas.clientWidth/2,y=canvas.clientHeight/2){const scale=Math.min(2.4,Math.max(.32,camera.scale*ratio)),r=scale/camera.scale;camera.x=x-(x-camera.x)*r;camera.y=y-(y-camera.y)*r;camera.scale=scale;}
 function switchMode(m){playMode=m;document.body.dataset.playMode=m;$('deployment-toggle').textContent=m==='deploy'?'지휘 모드':'배치 모드';}
 function choose(id,more=false){if(!more)selected.clear();if(id){if(more&&selected.has(id))selected.delete(id);else selected.add(id);}document.body.dataset.selected=String(selected.size>0);if(selected.size&&playMode==='deploy')switchMode('control');roster();hud();}
 let feedbackTimer=null;
@@ -130,23 +131,40 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
  drawBattleEffects(ctx,board,shotStamp);ctx.restore();
 }
 function paintMini(){
+ const area=minimapRegion(board,camera,canvas.clientWidth,canvas.clientHeight);
+ miniArea=area;
  const key=board.terrainRevision+':'+board.obstacleRevision;
- if(!miniGround||miniGround.board!==board||miniGround.key!==key){
+ if(!miniGround||miniGround.board!==board||miniGround.key!==key||
+    miniGround.area.x0!==area.x0||miniGround.area.y0!==area.y0||
+    miniGround.area.width!==area.width||miniGround.area.height!==area.height){
   const bitmap=document.createElement('canvas');bitmap.width=mini.width;bitmap.height=mini.height;
-  const background=bitmap.getContext('2d'),sx=mini.width/board.width,sy=mini.height/board.height;
+  const background=bitmap.getContext('2d'),sx=mini.width/area.width,sy=mini.height/area.height;
   background.fillStyle='#30383b';background.fillRect(0,0,mini.width,mini.height);
-  // Sampling work stays bounded as map dimensions grow.
-  const step=Math.max(2,Math.ceil(board.width/180),Math.ceil(board.height/126));
-  for(let y=0;y<board.height;y+=step)for(let x=0;x<board.width;x+=step){
-   const t=board.terrain[y][x];if(t==='void')continue;
-   background.fillStyle=t==='forest'?'#43616b':t==='soil'?'#666762':'#777e7a';
-   background.fillRect(x*sx,y*sy,Math.ceil(sx*step),Math.ceil(sy*step));
-  }
-  miniGround={board,key,bitmap};
+  for(let y=area.y0;y<area.y1;y+=MINIMAP_SAMPLE_STEP)
+   for(let x=area.x0;x<area.x1;x+=MINIMAP_SAMPLE_STEP){
+    miniQueries++;
+    const t=board.terrain[y][x];if(t==='void')continue;
+    background.fillStyle=t==='forest'?'#43616b':t==='soil'?'#666762':'#777e7a';
+    background.fillRect((x-area.x0)*sx,(y-area.y0)*sy,
+     Math.ceil(sx*MINIMAP_SAMPLE_STEP),Math.ceil(sy*MINIMAP_SAMPLE_STEP));
+   }
+  miniGround={board,key,area,bitmap};
  }
  mctx.drawImage(miniGround.bitmap,0,0);
- const sx=mini.width/board.width,sy=mini.height/board.height;
- for(const u of board.units)if(u.health.current>0){mctx.fillStyle=colors[u.team];mctx.fillRect(u.x*sx-1,u.y*sy-1,3,3);}
+ const sx=mini.width/area.width,sy=mini.height/area.height;
+ const cx=area.x0+area.width/2,cy=area.y0+area.height/2;
+ const radius=Math.max(area.width,area.height)/2+8;
+ for(const id of board.spatial.candidates(cx,cy,radius)){
+  const u=board.unit(id);
+  if(!u||u.health.current<=0||u.x<area.x0||u.x>=area.x1||u.y<area.y0||u.y>=area.y1)continue;
+  mctx.fillStyle=colors[u.team];mctx.fillRect((u.x-area.x0)*sx-1,(u.y-area.y0)*sy-1,3,3);
+ }
+ const polygon=minimapScreenFootprint(area,camera,canvas.clientWidth,canvas.clientHeight,mini.width,mini.height);
+ mctx.save();mctx.beginPath();mctx.rect(0,0,mini.width,mini.height);mctx.clip();
+ mctx.beginPath();mctx.moveTo(polygon[0].x,polygon[0].y);
+ for(let i=1;i<polygon.length;i++)mctx.lineTo(polygon[i].x,polygon[i].y);
+ mctx.closePath();mctx.strokeStyle='#e8e1c9';mctx.lineWidth=1.5;mctx.stroke();
+ mctx.restore();
 }
 // Persistent cards from the original FlowerWars roster approach: create once, update fields.
 const rosterCards=new Map();
@@ -270,7 +288,7 @@ function bind(){
  const end=e=>{const p=pointers.get(e.pointerId);if(!p)return;pointers.delete(e.pointerId);if(e.type==='pointerup'&&!p.multi&&Math.hypot(e.clientX-p.ox,e.clientY-p.oy)<7){const r=canvas.getBoundingClientRect();tap(e.clientX-r.left,e.clientY-r.top,e.shiftKey);}};
  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
  canvas.addEventListener('pointerleave',()=>{hover=null;});
- mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect();focus((e.clientX-r.left)/r.width*board.width,(e.clientY-r.top)/r.height*board.height);});
+ mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect();const area=miniArea||minimapRegion(board,camera,canvas.clientWidth,canvas.clientHeight);const target=minimapWorldPoint(area,e.clientX-r.left,e.clientY-r.top,r.width,r.height);focus(Math.max(0,Math.min(board.width-1,target.x)),Math.max(0,Math.min(board.height-1,target.y)));paintMini();});
  addEventListener('resize',resize);document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const key=e.key.toLowerCase();if(key==='m')setCommand('move');if(key==='a')setCommand('attack');if(key==='h')$('hold').click();if(key==='escape')setCommand(null);if(key===' '){e.preventDefault();$('pause').click();}});
 }
 function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
@@ -279,4 +297,4 @@ function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  requestAnimationFrame(frame);
 }
 bind();resize();fit();switchMode('deploy');hud();roster();requestAnimationFrame(frame);
-window.__ashenFlower={get board(){return board;},get camera(){return {...camera};},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},get armySize(){return armySize;},get renderStats(){const samples=[...renderSamples].sort((a,b)=>a-b);const sum=samples.reduce((n,v)=>n+v,0);return {frames:renderedFrames,visibleTroops,avgMs:sum/(samples.length||1),p95Ms:samples[Math.floor((samples.length-1)*.95)]||0,terrainRebuilds:terrainArt.rebuilds,terrainCacheHits:terrainArt.cacheHits,terrainZoomReuses:terrainArt.zoomReuses,terrainEvictions:terrainArt.evictions,terrainPages:terrainArt.pages.length,terrainCacheBytes:terrainArt.cacheBytes,terrainVisibleTiles:terrainArt.cache?.tiles??0,spriteCache:soldiers.stats};},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};
+window.__ashenFlower={get board(){return board;},get camera(){return {...camera};},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},get armySize(){return armySize;},get renderStats(){const samples=[...renderSamples].sort((a,b)=>a-b);const sum=samples.reduce((n,v)=>n+v,0);return {frames:renderedFrames,visibleTroops,avgMs:sum/(samples.length||1),p95Ms:samples[Math.floor((samples.length-1)*.95)]||0,terrainRebuilds:terrainArt.rebuilds,terrainCacheHits:terrainArt.cacheHits,terrainZoomReuses:terrainArt.zoomReuses,terrainEvictions:terrainArt.evictions,terrainPages:terrainArt.pages.length,terrainCacheBytes:terrainArt.cacheBytes,terrainVisibleTiles:terrainArt.cache?.tiles??0,miniQueries,miniArea,spriteCache:soldiers.stats};},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};

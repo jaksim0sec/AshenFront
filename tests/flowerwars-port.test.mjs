@@ -55,10 +55,10 @@ test('original FlowerWars command overlay renders squad route, target marker and
 
 test('expanded AshenFront battlefield keeps the original match and valid headquarters',()=>{
  const {board,match}=createAshenMatch({seed:1977});
- assert.equal(BATTLEFIELD_WIDTH,256);assert.equal(BATTLEFIELD_HEIGHT,192);
- assert.equal(board.width,256);assert.equal(board.height,192);
+ assert.equal(BATTLEFIELD_WIDTH,512);assert.equal(BATTLEFIELD_HEIGHT,384);
+ assert.equal(board.width,512);assert.equal(board.height,384);
  assert.ok(board.inside(match.flags.A.x,match.flags.A.y));
  assert.ok(board.inside(match.flags.B.x,match.flags.B.y));
  assert.ok(board.battlefield?.paths?.length>0);
- assert.ok(board.battlefield?.protectedCells?.length===256*192);
+ assert.ok(board.battlefield?.protectedCells?.length===512*384);
 });

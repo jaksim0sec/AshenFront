@@ -105,7 +105,7 @@ test('terrain viewport LRU reuses return pans, settles zoom, and expires stale p
 });
 
 test('visible terrain work depends on viewport size, not total battlefield area',()=>{
- const small=board(176,128),large=board(256,192);
+ const small=board(176,128),large=board(512,384);
  // Same camera position in world-space, far from boundaries in either board.
  const point={x:90,y:60},scale=.35,width=390,height=844;
  const camera={x:width/2-(point.x-point.y)*72*scale,y:height/2-(point.x+point.y)*42*scale,scale};
