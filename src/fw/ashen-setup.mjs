@@ -9,7 +9,8 @@ export const RIFLE_STATS=Object.freeze({
  maxHealth:85,damage:18,attackPeriod:1.35,range:7,
  rangeShape:'king',preferredRange:6,lineOfSight:true,searchInterval:.3
 });
-export const RIFLE_MOVEMENT=Object.freeze({stepTime:.50,waitBeforeDetour:.24,yieldAfter:.65});
+// Slow flat-ground marching from 0.50 to 0.70 seconds per tile.
+export const RIFLE_MOVEMENT=Object.freeze({stepTime:.70,waitBeforeDetour:.24,yieldAfter:.65});
 
 // Each soldier receives a deterministic 5/6/7-cell maximum firing range at spawn.
 // Use that same distance for preferred engagement range, keeping the original combat logic.

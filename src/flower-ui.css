@@ -71,10 +71,20 @@ body[data-engine=flower] #game-tools button{font-size:11px;border-radius:10px;ba
 body[data-engine=flower] #fit-view{width:100%;margin-top:6px}
 body[data-engine=flower] .tool-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:8px}
 body[data-engine=flower] #soldier-workshop{font-size:11px}
-body[data-engine=flower] #overview{
+body[data-engine=flower] #overview-shell{
  position:fixed;right:12px;left:auto;bottom:188px;top:auto;
- width:180px;height:126px;border:1px solid var(--af-line);z-index:9;
+ width:180px;height:126px;z-index:9
+}
+body[data-engine=flower] #overview{
+ display:block;position:absolute;inset:0;width:100%;height:100%;
+ border:1px solid var(--af-line);border-radius:10px;
  background:var(--af-bg);box-shadow:0 6px 22px #070c0faa
+}
+body[data-engine=flower] #overview-close{
+ position:absolute;right:5px;top:5px;z-index:2;
+ display:grid;place-items:center;width:24px;height:24px;min-width:24px;min-height:24px;
+ padding:0;border:1px solid #d6c29a99;border-radius:50%;
+ background:#382e23e8;color:#f9edda;font-size:17px;line-height:1
 }
 body[data-engine=flower][data-play-mode=deploy] #roster-panel,
 body[data-engine=flower][data-play-mode=deploy] #command-dock,
@@ -125,12 +135,12 @@ body[data-engine=flower] #roster-panel{
 }
 body[data-engine=flower] .roster-tools{display:none}
 body[data-engine=flower] #roster-shortcuts{
- display:flex;flex:none;width:52px;align-items:center;justify-content:center;gap:3px;
- padding-top:18px
+ display:flex;flex:none;width:52px;align-items:flex-start;justify-content:center;gap:3px;
+ padding-top:27px
 }
 body[data-engine=flower] #multi-select{
  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;
- width:49px;height:57px;min-width:49px;min-height:57px;padding:3px;
+ width:49px;height:76px;min-width:49px;min-height:76px;padding:3px;
  border:1px solid var(--af-command-edge);border-radius:12px;background:var(--af-command-bg);color:var(--af-command-ink);font-size:10px
 }
 body[data-engine=flower] #multi-select svg{width:21px;height:21px}
@@ -138,7 +148,7 @@ body[data-engine=flower] #multi-select[aria-pressed=true]{
  background:var(--af-command-selected);border-color:var(--af-command-selected-edge);color:var(--af-command-deep)
 }
 body[data-engine=flower] #squad-tabs{
- display:flex;flex:1;flex-direction:row;align-items:flex-end;gap:9px;
+ display:flex;flex:1;flex-direction:row;align-items:flex-start;gap:9px;
  width:auto;min-width:0;overflow-x:auto;overflow-y:hidden;
  overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x
 }
@@ -367,12 +377,12 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
   top:calc(max(8px,env(safe-area-inset-top)) + 60px);right:8px;
   width:min(255px,calc(100vw - 16px));max-height:65dvh;overflow-y:auto
  }
- body[data-engine=flower] #overview{
+ body[data-engine=flower] #overview-shell{
   top:calc(max(8px,env(safe-area-inset-top)) + 62px);right:8px;bottom:auto;
   width:min(190px,48vw);height:auto;aspect-ratio:180/126
  }
  body[data-engine=flower].hud-open #tools-toggle,
- body[data-engine=flower].hud-open #overview{opacity:0;pointer-events:none}
+ body[data-engine=flower].hud-open #overview-shell{opacity:0;pointer-events:none}
  body[data-engine=flower] #battle-notice{top:calc(max(8px,env(safe-area-inset-top)) + 58px)}
  body[data-engine=flower] #deployment-tools{bottom:calc(12px + env(safe-area-inset-bottom));width:calc(100vw - 16px)}
  body[data-engine=flower] .deployment-head{padding:9px}
@@ -384,8 +394,8 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
   height:calc(112px + env(safe-area-inset-bottom));
   max-height:none;padding:7px 6px calc(5px + env(safe-area-inset-bottom));gap:6px
  }
- body[data-engine=flower] #roster-shortcuts{width:48px;padding-top:16px}
- body[data-engine=flower] #multi-select{width:45px;min-width:45px;height:57px;min-height:57px}
+ body[data-engine=flower] #roster-shortcuts{width:48px;padding-top:27px}
+ body[data-engine=flower] #multi-select{width:45px;min-width:45px;height:65px;min-height:65px}
  body[data-engine=flower] #squad-tabs{
   gap:8px;padding-block:3px 3px;min-height:0;scroll-padding-inline:6px
  }
@@ -553,14 +563,14 @@ body[data-engine=flower] #squad-tabs .commander-photo{
  transition:filter .34s ease;
 }
 /* Floating map uses reversible show/hide instead of a hard display toggle. */
-body[data-engine=flower] #overview{
+body[data-engine=flower] #overview-shell{
  display:block;visibility:hidden;opacity:0;pointer-events:none;
  transform:translateY(-6px) scale(.97);
  transition:opacity var(--af-ui-normal) ease,
   transform var(--af-ui-normal) var(--af-ui-ease),
   visibility var(--af-ui-normal);
 }
-body[data-engine=flower].map-open #overview{
+body[data-engine=flower].map-open #overview-shell{
  visibility:visible;opacity:1;pointer-events:auto;transform:none;
 }
 @keyframes af-ui-enter{
@@ -593,7 +603,7 @@ body[data-engine=flower][data-play-mode=control][data-selected=true] #command-do
 /* Accessibility and mobile power: no continuous effects or cached animation layers. */
 @media(prefers-reduced-motion:reduce){
  body[data-engine=flower] :is(
-  #overview,#match-hud,.match-details,#deployment-tools,#roster-panel,
+  #overview-shell,#match-hud,.match-details,#deployment-tools,#roster-panel,
   #command-dock,#game-tools,#formation-panel,#battle-notice,
   button,select,#primary-orders button svg,#formation-controls button .ui-icon,
   .deployment-types button svg,#squad-tabs .squad-card,
