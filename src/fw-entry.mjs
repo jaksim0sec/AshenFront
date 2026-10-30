@@ -440,6 +440,8 @@ function bind(){
  $('close-roster').onclick=()=>document.body.classList.remove('roster-open');
  $('selection-platoon').onclick=()=>{const first=squads().find(s=>selected.has(s.id));if(first){selected=new Set(platoonSquadIds(board,Math.floor(first.matchIndex/2)));roster();hud();}};
  $('selection-locate').onclick=()=>{const members=selectedIds().flatMap(id=>living(squadsFor(board).get(id)));if(members.length)focus(members.reduce((s,u)=>s+u.x,0)/members.length,members.reduce((s,u)=>s+u.y,0)/members.length);};
+ $('zoom-in').onclick=()=>zoom(1.13);
+ $('zoom-out').onclick=()=>zoom(.89);
  $('fit-view').onclick=fit;
  $('home-view').onclick=()=>focus(match.flags.A.x,match.flags.A.y);$('enemy-view').onclick=()=>focus(match.flags.B.x,match.flags.B.y);
  $('toggle-map').onclick=()=>setMapOpen(!document.body.classList.contains('map-open'));
