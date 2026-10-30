@@ -12,7 +12,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify FlowerWars match and infantry deployment
+      - name: Verify original-engine entry and real enemy movement on Node 22
         run: |
           node --check src/fw-entry.mjs
-          npm test
+          node --test tests/flowerwars-port.test.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run full AshenFront regression suite with supported test runner
+        run: npm test
