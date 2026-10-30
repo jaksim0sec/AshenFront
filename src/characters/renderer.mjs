@@ -39,10 +39,14 @@ export class SoldierRenderer {
   if(!this.loaded)return false;const id=profileId(team,rank),profile=this.catalog.profiles[id],sampled=sampleAnimation(options,low),{state,time:sample,aim,phase}=sampled;
   // Cached sprites face right. Reflect a world-relative target into that same frame.
   if(sampled.target)sampled.target={x:sampled.target.x*(options.facing<0?-1:1),y:sampled.target.y};
-  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,sampled.shootBlend,sampled.hitReaction,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
+  // Cache at the effective screen size; world sprites are only 0.285x before camera zoom.
+  // Keeping a 0.57x offscreen bitmap at mobile zoom wastes ~9x raster area.
+  const density=Number.isFinite(options.pixelDensity)?Math.max(.16,Math.min(.57,options.pixelDensity)):.57;
+  const resolutionBucket=Math.round(density*100)/100;
+  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,resolutionBucket,sampled.shootBlend,sampled.hitReaction,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
   if(canvas){this.hits++;this.cache.delete(key);this.cache.set(key,canvas);}
   if(!canvas){this.misses++;
-   const options={...sampled,facing:1},bounds=poseBounds(poseCharacter(profile,options)),resolution=Math.min(.57,384/Math.max(bounds.width,bounds.height));
+   const options={...sampled,facing:1},bounds=poseBounds(poseCharacter(profile,options)),resolution=Math.min(resolutionBucket,384/Math.max(bounds.width,bounds.height));
    const bitmap=document.createElement('canvas');bitmap.width=Math.min(384,Math.max(1,Math.ceil(bounds.width*resolution)));bitmap.height=Math.min(384,Math.max(1,Math.ceil(bounds.height*resolution)));const c=bitmap.getContext('2d');c.scale(resolution,resolution);c.translate(-bounds.left,-bounds.top);this.drawPose(c,profile,options);
    const bytes=bitmap.width*bitmap.height*4;canvas={bitmap,bounds,bytes,resolution};
    while(this.cache.size&&(this.cache.size>=256||this.cacheBytes+bytes>16*1024*1024)){const oldest=this.cache.keys().next().value;this.cacheBytes-=this.cache.get(oldest).bytes;this.cache.delete(oldest);}

@@ -101,7 +101,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   const pose=distant&&state!=='death'
    ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing:u.facing,phase:0,aim:Math.round(rawAim*4)/4,shootBlend:shot?1:state==='guard'?.63:0}
    :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,aim:view.aim,shootBlend:view.blend,hitReaction};
-  if(!soldiers.draw(ctx,u.team,rank,pose,distant)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
+  if(!soldiers.draw(ctx,u.team,rank,{...pose,pixelDensity:camera.scale*drawDpr*.285*1.8},distant)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
   ctx.restore();
  }
  drawSquadTeamFlags(ctx,board,camera.scale,camera,w,h,[...selected]);
