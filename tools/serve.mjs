@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {resolve,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {pwaRelease} from './pwa-assets.mjs';
-import {iconPng} from './pwa-icon.mjs';
+import {iconForPath} from './pwa-icon.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url)),port=Number(process.env.PORT||8000);
 const types={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.md':'text/plain; charset=utf-8','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp'};
@@ -11,7 +11,7 @@ const release=await pwaRelease(root);
 const source=await readFile(resolve(root,'sw.js'),'utf8'),marker='/*RELEASE*/';
 if(source.split(marker).length!==2)throw Error('PWA version marker missing');
 const sw=source.replace(marker,'const VERSION='+JSON.stringify(release.version)+';const ASSETS='+JSON.stringify(release.assets)+';');
-const icons=new Map(['/icons/192.png','/icons/512.png'].map((path,i)=>[path,iconPng(i?512:192)]));
+const icons=new Map(release.assets.filter(path=>path.startsWith('/icons/')).map(path=>[path,iconForPath(path)]));
 
 http.createServer(async(req,res)=>{
  const send=(status,data,type,cache='no-cache')=>{

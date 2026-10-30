@@ -14,7 +14,7 @@ export async function releaseAssets(root){
   }
  }
  await visit('src');await visit('assets');
- paths.push('/icons/192.png','/icons/512.png');
+ paths.push('/icons/32.png','/icons/180.png','/icons/192.png','/icons/512.png','/icons/192-maskable.png','/icons/512-maskable.png');
  return [...new Set(paths)].sort();
 }
 export async function pwaRelease(root){
@@ -23,7 +23,7 @@ export async function pwaRelease(root){
   if(item.startsWith('/icons/'))continue;
   hash.update(item);hash.update(await readFile(resolve(root,item.slice(1))));
  }
- for(const item of ['sw.js','tools/serve.mjs','tools/pwa-assets.mjs','tools/pwa-icon.mjs']){
+ for(const item of ['sw.js','tools/serve.mjs','tools/pwa-assets.mjs','tools/pwa-icon.mjs','assets/branding/app-icon.br']){
   hash.update(item);hash.update(await readFile(resolve(root,item)));
  }
  return {version:hash.digest('hex').slice(0,20),assets};

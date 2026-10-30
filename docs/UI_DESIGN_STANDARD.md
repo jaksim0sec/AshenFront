@@ -34,7 +34,7 @@ These tokens belong in `src/flower-ui.css` and must be reused. Avoid unrelated h
 
 - A platoon heading selects the **current two live match squads** in that visible platoon, including those deployed *after* its button was created. Its fold control affects display only, not selection.
 - Individual squad cards choose individual squads unless additive selection is enabled; eliminated squads cannot be selected. Show grouped selection state.
-- Minimap opens by default as a circular, non-animated radar at the previous width. Its small X is intentionally hidden for now; reopen the radar from the menu. It must stay below alerts and result overlays. A tap dismissing any other open menu must not accidentally deploy or command troops.
+- Minimap opens by default as a circular, non-animated radar, with mobile width set to 22.5vw (the desktop 180px radar remains unchanged). Its small X is intentionally hidden for now; reopen the radar from the menu. It must stay below alerts and result overlays. A tap dismissing any other open menu must not accidentally deploy or command troops.
 - Keep panels separate by function, keep the selected squad information chip content-sized rather than stretched with empty space, respect screen safe areas and touch target sizes, preserve short transitions and `prefers-reduced-motion`, and maintain meaningful `aria-pressed`/`aria-expanded` values.
 
 ## Tools, compact commands and global overlay order
@@ -48,3 +48,7 @@ These tokens belong in `src/flower-ui.css` and must be reused. Avoid unrelated h
 ## Verification gate
 
 Before declaring UI changes complete, check HUD open/closed, settings open/closed, mobile and desktop layout, fold/unfold, incremental deployment followed by platoon selection, multi-selection and elimination. A code review or automated test is not a substitute for a physical phone screenshot; report each verification level accurately.
+
+## App identity assets
+
+The approved two-army opposing-cap emblem is the single PWA/browser app identity. `assets/branding/app-icon.br` stores a compressed palette image master; `tools/pwa-icon.mjs` generates 32px favicon, 180px Apple touch icon, 192px/512px normal PNGs and separately padded 192px/512px maskable PNGs. The build and development server must use the **same** icon generator. Include the source blob in the release hash so existing offline installs are offered the changed icon with the next PWA update.

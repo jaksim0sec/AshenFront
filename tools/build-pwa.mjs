@@ -2,7 +2,7 @@ import {mkdir,rm,copyFile,readFile,writeFile} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {pwaRelease} from './pwa-assets.mjs';
-import {iconPng} from './pwa-icon.mjs';
+import {iconForPath} from './pwa-icon.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const output=resolve(root,'dist');
@@ -12,8 +12,8 @@ await mkdir(output,{recursive:true});
 for(const url of release.assets){
  const target=resolve(output,url.slice(1));
  await mkdir(dirname(target),{recursive:true});
- if(url==='/icons/192.png')await writeFile(target,iconPng(192));
- else if(url==='/icons/512.png')await writeFile(target,iconPng(512));
+ const icon=iconForPath(url);
+ if(icon)await writeFile(target,icon);
  else await copyFile(resolve(root,url.slice(1)),target);
 }
 const template=await readFile(resolve(root,'sw.js'),'utf8');

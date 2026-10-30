@@ -390,7 +390,7 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
  }
  body[data-engine=flower] #overview-shell{
   top:calc(max(8px,env(safe-area-inset-top)) + 62px);right:8px;bottom:auto;
-  width:min(190px,48vw);height:auto;aspect-ratio:1/1
+  width:22.5vw;height:auto;aspect-ratio:1/1
  }
  body[data-engine=flower].hud-open #tools-toggle,
  body[data-engine=flower].hud-open #overview-shell{opacity:0;pointer-events:none}
