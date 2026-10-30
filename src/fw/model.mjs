@@ -190,10 +190,12 @@ export class Board {
     const target=this.unit(targetId);
     if(u.structure||!target||target.health.current<=0||u.health.current<=0||u.step||!inAttackRange(u,target,false)||u.team&&u.team===target.team)return false;
     if(this.time+1e-9<u.combat.nextAttackAt)return false;
-    u.target=targetId;u.facing=project(target.visualX-u.visualX,target.visualY-u.visualY).x>=0?1:-1;
-    u.attackVector=project(target.visualX-u.visualX,target.visualY-u.visualY);
+    u.target=targetId;u.facing=project(target.x-u.visualX,target.y-u.visualY).x>=0?1:-1;
+    // Commit a world tile at trigger pull: neither aim nor the tracer homes
+    // in on a moving target, and the shot survives target removal.
+    u.attackVector=project(target.x-u.visualX,target.y-u.visualY);
     const flagBuff=nearOwnFlag(this,u),scholarBuff=nearAlliedScholar(this,u),period=u.combat.period/((flagBuff?1.2:1)*(scholarBuff?1.1:1));
-    u.strike={target:targetId,automatic,duration:u.combat.activeDuration||period,impactTime:u.combat.impactTime??period*IMPACT_TIME/BASE_ATTACK_DURATION};
+    u.strike={target:targetId,aimX:target.x,aimY:target.y,automatic,duration:u.combat.activeDuration||period,impactTime:u.combat.impactTime??period*IMPACT_TIME/BASE_ATTACK_DURATION};
     if(u.combat.charge){u.strike.damageMultiplier=u.combat.chargeSteps>=u.combat.chargeDistance?u.combat.chargeDamageMultiplier:1;u.combat.chargeSteps=0;}
     if(flagBuff)u.strike.damageMultiplier=(u.strike.damageMultiplier??1)*1.1;
     u.combat.nextAttackAt=this.time+period;
@@ -278,8 +280,18 @@ export class Board {
               const gained=this.heal(target.id,u.healing.amount);
               if(gained)this.effects.push({x:target.visualX,y:target.visualY,age:0,healing:true,amount:gained});
             }
-          }else if(target&&target.health.current>0&&inAttackRange(u,target)&&(!u.combat.lineOfSight||hasLineOfSight(this,u,target))) {
-            impacts.push({target,attackerId:u.id,damage:u.damage*(strike.damageMultiplier??1),direction:project(target.visualX-u.visualX,target.visualY-u.visualY).x>=0?1:-1});
+          }else {
+            const x=strike.aimX??target?.x,y=strike.aimY??target?.y;
+            const victim=Number.isInteger(x)&&Number.isInteger(y)?this.at(x,y):null;
+            const tile={visualX:x,visualY:y};
+            // The round reaches its original tile, not a target's new location.
+            // Departed/dead enemies leave a miss; another enemy on the tile can
+            // be struck, but allies never receive accidental friendly fire.
+            if(victim?.health.current>0&&victim.team&&victim.team!==u.team&&
+                Math.abs(victim.visualX-x)<.5&&Math.abs(victim.visualY-y)<.5&&
+                inAttackRange(u,tile)&&(!u.combat.lineOfSight||hasLineOfSight(this,u,tile))) {
+              impacts.push({target:victim,attackerId:u.id,damage:u.damage*(strike.damageMultiplier??1),direction:project(x-u.visualX,y-u.visualY).x>=0?1:-1});
+            }
           }
         }
         if(u.elapsed+1e-9>=strike.duration){

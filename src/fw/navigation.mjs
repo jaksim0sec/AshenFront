@@ -288,9 +288,11 @@ export class Navigation {
     if(u.step||!['idle','walk'].includes(u.state))return;
     if(u.state==='walk')u.state='idle';
     if(tryHeal(b,u))return;
-    if(this.keepDistance(u))return;
     if(b.unit(u.id)!==u||u.health.current<=0||u.step||!['idle','walk'].includes(u.state))return;
+    // Engage first. A preferred rifle distance must never cause a retreat
+    // while a valid enemy can be fired upon.
     if(b.tryAutoAttack(u)){if(u.courtesy)this.cancelCooperation(u);return;}
+    if(this.keepDistance(u))return;
     if(u.courtesy&&this.serviceCooperation(u))return;
     if(this.returnCourtesy(u))return;
     if(this.counterStep(u))return;

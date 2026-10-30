@@ -83,12 +83,10 @@ function nextSearch(board,actor) {
   return (Math.floor((board.time-phase)/interval)+1)*interval+phase;
 }
 export function tryAutoAttack(board,actor) {
-  if(actor.healing)return false;
+  // A selected target is an explicit pursuit order, not a suggestion that
+  // opportunistic local auto-fire may indefinitely override.
+  if(actor.healing||actor.command?.type==='attack')return false;
   if(!actor.combat.auto||!actor.team||actor.step)return false;
-  const marked=actor.command?.type==='attack'?board.unit(actor.command.target):null;
-  // Leave an in-range explicit strike to the command path. Otherwise defend
-  // locally while retaining the distant designated target for pursuit.
-  if(validEnemy(board,actor,marked))return false;
   let target=board.unit(actor.combat.targetId);
   if(!validEnemy(board,actor,target)) {
     actor.combat.targetId=null;target=null;

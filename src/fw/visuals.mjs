@@ -36,9 +36,11 @@ export function drawBattleEffects(ctx,board,frameStamp){
   if(unit.state!=='attack'||!unit.strike||!unit.impacted||unit.strike.healing||unit._shotMuzzleStamp!==frameStamp||!unit._shotMuzzle?.valid)continue;
   const age=unit.elapsed-unit.strike.impactTime;
   if(age<0||age>.13)continue;
-  const target=board.unit(unit.strike.target);
-  if(!target)continue;
-  const foot=project(unit.visualX,unit.visualY),a={x:foot.x+unit._shotMuzzle.x,y:foot.y+unit._shotMuzzle.y},b=project(target.visualX,target.visualY),dx=b.x-a.x,dy=b.y-30-a.y;
+  const target=board.unit(unit.strike.target),strike=unit.strike;
+  const locked=Number.isInteger(strike.aimX)&&Number.isInteger(strike.aimY);
+  if(!locked&&!target)continue;
+  const foot=project(unit.visualX,unit.visualY),a={x:foot.x+unit._shotMuzzle.x,y:foot.y+unit._shotMuzzle.y};
+  const b=project(locked?strike.aimX:target.visualX,locked?strike.aimY:target.visualY),dx=b.x-a.x,dy=b.y-30-a.y;
   const len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
   const start=a,end={x:b.x-ux*13,y:b.y-30-uy*13};
   const alpha=1-age/.13;
