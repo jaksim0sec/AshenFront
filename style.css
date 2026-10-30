@@ -274,3 +274,7 @@ body[data-engine=flower] #command-feedback{
 body[data-engine=flower] #command-feedback[hidden]{display:none}
 body[data-engine=flower] #command-feedback.confirmed{animation:ashen-command-mark .56s ease-out both}
 @keyframes ashen-command-mark{from{transform:translate(-50%,-50%) scale(.45);opacity:0}30%{opacity:1}to{transform:translate(-50%,-50%) scale(1.22);opacity:0}}
+
+/* Army annihilation desaturation: battlefield only; keep the order UI readable. */
+body[data-engine=flower] #field{transition:filter .85s ease-in-out;}
+body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brightness(.73);}

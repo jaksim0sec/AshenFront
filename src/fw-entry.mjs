@@ -184,7 +184,11 @@ function roster(){
   }
  }
 }
-function hud(){document.body.dataset.phase=match.phase==='finished'?'battle':match.phase;$('match-phase').textContent=match.phase==='preparation'?'병력 배치':match.phase==='battle'?'전투 중':'전투 종료';
+function hud(){
+ // The battlefield loses color only after the actual elimination of the player's army.
+ // Flag capture or the initial empty deployment screen must not trigger this effect.
+ document.body.dataset.annihilated=String(match.phase!=='preparation'&&match.counts.A===0);
+ document.body.dataset.phase=match.phase==='finished'?'battle':match.phase;$('match-phase').textContent=match.phase==='preparation'?'병력 배치':match.phase==='battle'?'전투 중':'전투 종료';
  const time=match.phase==='preparation'?match.remaining:match.elapsed,clock=String(Math.floor(time/60)).padStart(2,'0')+':'+String(Math.floor(time%60)).padStart(2,'0');
  $('preparation-clock').textContent=clock;$('clock').textContent=clock;$('forces').textContent='아르켄 '+match.counts.A+' : '+match.counts.B+' 벨리안';$('army-a').textContent=match.counts.A;$('army-b').textContent=match.counts.B;
  $('deployment-reserve').textContent='예비 '+match.reserve.A+'명 · 배치 '+match.counts.A+'명';

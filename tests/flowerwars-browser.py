@@ -130,6 +130,20 @@ try:
    assert not errors,errors
    page.screenshot(path=str(out/f'battle-{width}.png'))
    reports[-1].update({'player':40,'enemy':40,'squads':4,'pageErrors':errors})
+   # Player annihilation colors the battle, not the controls or empty preparation.
+   assert page.evaluate("document.body.dataset.annihilated")=='false'
+   page.evaluate("""()=>{
+     const {board,match}=__ashenFlower;
+     for(const u of board.units)if(u.team==='A')u.health.current=0;
+     match.refreshStatus();
+   }""")
+   page.wait_for_function("document.body.dataset.annihilated==='true'",timeout=5000)
+   assert 'grayscale(1)' in page.locator('#field').evaluate("el=>getComputedStyle(el).filter")
+   assert 'grayscale(1)' not in page.locator('#match-hud').evaluate("el=>getComputedStyle(el).filter")
+   page.wait_for_timeout(950)
+   page.screenshot(path=str(out/f'annihilated-{width}.png'))
+   page.locator('#restart').click()
+   page.wait_for_function("document.body.dataset.annihilated==='false'",timeout=5000)
    context.close()
   # Full-size renderer stress: 35 squads each, 700 live soldiers.
   stress=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=1,has_touch=True)
