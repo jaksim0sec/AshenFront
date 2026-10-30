@@ -40,6 +40,14 @@ function tap(px,py,shift=false){const p=locate(px,py);if(!p)return;if(playMode==
  if(mode==='move'){if(command('advance',p))setCommand(null);return;}
  if(u?.team==='B')command('focus',{unitId:u.id});else command('advance',p);
 }
+function bounds(){
+ const w=canvas.clientWidth,h=canvas.clientHeight;
+ const corners=[[0,0],[w,0],[0,h],[w,h]].map(([px,py])=>unproject((px-camera.x)/camera.scale,(py-camera.y)/camera.scale));
+ return {x0:Math.max(0,Math.floor(Math.min(...corners.map(p=>p.x))-4)),
+ x1:Math.min(board.width-1,Math.ceil(Math.max(...corners.map(p=>p.x))+4)),
+ y0:Math.max(0,Math.floor(Math.min(...corners.map(p=>p.y))-4)),
+ y1:Math.min(board.height-1,Math.ceil(Math.max(...corners.map(p=>p.y))+4))};
+}
 function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransform(drawDpr,0,0,drawDpr,0,0);ctx.fillStyle='#272e31';ctx.fillRect(0,0,w,h);terrainArt.draw(ctx,board,camera,w,h,drawDpr,low);ctx.save();ctx.translate(camera.x,camera.y);ctx.scale(camera.scale,camera.scale);
  drawHeadquarters(ctx,match.flags,board.time);
  if(playMode==='deploy'&&match.phase==='preparation'){const b=bounds();ctx.fillStyle='#adc1d026';for(let y=b.y0;y<=b.y1;y+=3)for(let x=b.x0;x<Math.min(b.x1,board.width/2);x+=3){if(board.navigation.blocked(y*board.width+x))continue;const p=project(x,y);ctx.fillRect(p.x-5,p.y-3,10,6);}}
