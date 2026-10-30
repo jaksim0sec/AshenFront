@@ -1,5 +1,11 @@
 # FlowerWars original-engine playable transplant
 
+## Battlefield terrain artwork
+
+The default 2.5D battlefield now renders war-toned FlowerWars ground surfaces (10 deterministic variants per material), dirt roads, ponds, rock obstacles, shoreline seams, and sparse static scenery. Only a padded viewport is cached; camera pans reuse that cache until it falls out of range. Tactical tiles, navigation, and combat are unchanged. Low-quality mode omits decorative sprites and large ground patches.
+
+Source artwork: `jaksim0sec/FlowerWars-MINI` at `0d4e7a5` (`assets/world/terrain/atlas.webp`, `decorations.webp`). The self-contained WebP images are stored here as `.webp.b64` text assets to accommodate the repository upload interface; the browser decodes them once and tints them into cached canvases. No external image host is used. Legacy `?legacy=1` rendering is unaffected. Geometry/cache regression tests: `tests/terrain-art.test.mjs`. Real mobile frame times and final visual QA remain unverified.
+
 Default route loads the new FlowerWars-based simulation. Query ?legacy=1 loads the previous AshenFront engine and UI, preserved for regression.
 
 Core files from FlowerWars-MINI main at 0d4e7a5 have been copied into src/fw: Board, cooperative Navigation, combat, formation planner, squad commands, FlagMatch, deployment, BotCommand and the full strategy/doctrine dependencies.
