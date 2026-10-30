@@ -1,36 +1,48 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {terrainVariant,terrainMaterial,visibleTerrainTiles,terrainDecorations} from '../src/fw/terrain-art.mjs';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {terrainVariant,terrainMaterial,terrainMaterialCounts,visibleTerrainTiles,terrainDecorations,BattlefieldTerrainRenderer} from '../src/fw/terrain-art.mjs';
 
-function board(width=30,height=24){
+function board(width=80,height=70){
  return {width,height,seed:1977,terrainRevision:1,obstacleRevision:1,
   terrain:Array.from({length:height},()=>Array.from({length:width},()=> 'grass')),
-  obstacles:new Map(),battlefield:{protectedCells:new Uint8Array(width*height)}};
+  obstacles:new Map(),battlefield:{clearing:{x:width/2,y:height/2,rx:width*.30,ry:height*.30},
+   paths:[{kind:'main',points:[{x:10,y:20},{x:width-10,y:20}]}],
+   protectedCells:new Uint8Array(width*height)}};
 }
-test('isometric atlas uses the original deterministic 5x2 phase',()=>{
+test('atlas variant positions are 5x2, six rows cover every material',()=>{
  const values=[];
  for(let y=0;y<2;y++)for(let x=0;x<5;x++)values.push(terrainVariant(x,y));
- assert.deepEqual(values,[0,1,2,3,4,5,6,7,8,9]);
- assert.equal(terrainVariant(5,2),0);
+ assert.deepEqual(values,[0,1,2,3,4,5,6,7,8,9]);assert.equal(terrainVariant(5,2),0);
+ const encoded=readFileSync(fileURLToPath(new URL('../assets/world/terrain/ashenfront-atlas.webp.b64',import.meta.url)),'utf8');
+ const data=Buffer.from(encoded.trim(),'base64');
+ assert.equal(data.toString('ascii',0,4),'RIFF');
+ assert.equal(data.toString('ascii',8,12),'WEBP');
+ assert.equal(data.toString('ascii',12,16),'VP8L');
+ const size=data.readUInt32LE(21);
+ assert.equal((size&16383)+1,1440);
+ assert.equal(((size>>>14)&16383)+1,642);
 });
-test('visual material mapping never changes blocked or path metadata',()=>{
- const b=board();b.terrain[5][6]='forest';b.terrain[5][7]='forest';b.terrain[6][7]='road';
+test('all six visual materials are assigned without changing tactical cells',()=>{
+ const b=board();
+ b.terrain[5][6]='forest';b.terrain[5][7]='forest';b.terrain[6][7]='road';
  b.obstacles.set(5*b.width+6,{blocked:true,visual:'rock'});
  b.obstacles.set(5*b.width+7,{blocked:true});
- const before=JSON.stringify([...b.obstacles]);
- assert.equal(terrainMaterial(b,6,5),'rock');
- assert.equal(terrainMaterial(b,7,5),'pond');
- assert.equal(terrainMaterial(b,7,6),'road');
- assert.equal(terrainMaterial(b,-1,0),'void');
- assert.equal(JSON.stringify([...b.obstacles]),before);
+ b.terrain[9][9]='soil';
+ const before=JSON.stringify(b.terrain),obstacles=JSON.stringify([...b.obstacles]);
+ assert.equal(terrainMaterial(b,6,5),'rock');assert.equal(terrainMaterial(b,7,5),'marsh');
+ assert.equal(terrainMaterial(b,7,6),'road');assert.equal(terrainMaterial(b,-1,0),'void');
+ const counts=terrainMaterialCounts(b);
+ for(const material of ['grass','soil','road','marsh','rock','scorched'])assert.ok(counts[material]>0,material);
+ assert.equal(JSON.stringify(b.terrain),before);
+ assert.equal(JSON.stringify([...b.obstacles]),obstacles);
 });
-test('all tile centers within camera viewport are enumerated once',()=>{
- const b=board();
- for(const scale of [.12,.2,.5,1.2])for(const [x,y] of [[0,0],[150,-80],[-360,-470]]){
-  const camera={x,y,scale},width=900,height=630;
-  const tiles=visibleTerrainTiles(b,camera,width,height);
-  const chosen=new Set(tiles.map(p=>p.x+','+p.y));
-  assert.equal(chosen.size,tiles.length);
+test('all visible tile centers are enumerated exactly once across min/max zoom',()=>{
+ const b=board(30,24),width=900,height=630;
+ for(const scale of [.07,.1,.11,.12,.18,.3,.5,1.2])for(const [x,y] of [[0,0],[150,-80],[-360,-470]]){
+  const tiles=visibleTerrainTiles(b,{x,y,scale},width,height);
+  const chosen=new Set(tiles.map(p=>p.x+','+p.y));assert.equal(chosen.size,tiles.length);
   for(let ty=0;ty<b.height;ty++)for(let tx=0;tx<b.width;tx++){
    const px=x+(tx-ty)*72*scale,py=y+(tx+ty)*42*scale;
    if(px>=0&&px<=width&&py>=0&&py<=height)
@@ -38,10 +50,32 @@ test('all tile centers within camera viewport are enumerated once',()=>{
   }
  }
 });
-test('static visual decorations are deterministic and respect reserved paths',()=>{
- const b=board(80,70),first=terrainDecorations(b),second=terrainDecorations(b);
- assert.equal(first,second);
+test('decorations are visual-only, deterministic, and reused',()=>{
+ const b=board(),before=JSON.stringify(b.terrain);
+ const first=terrainDecorations(b);
+ assert.equal(first,terrainDecorations(b));
  assert.ok(first.every(p=>p.x>=0&&p.x<b.width&&p.y>=0&&p.y<b.height));
  assert.ok(first.every(p=>p.index>=0&&p.index<9));
- assert.equal(b.terrainRevision,1);
+ assert.equal(JSON.stringify(b.terrain),before);
+});
+test('zoom 0.07 retains sprites; camera pan reuses painted viewport cache',()=>{
+ const priorDocument=globalThis.document,priorFetch=globalThis.fetch,priorImage=globalThis.Image;
+ const draws={count:0};
+ const ctx=()=>({setTransform(){},clearRect(){},fillRect(){},translate(){},scale(){},save(){},restore(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clip(){},drawImage(){draws.count++}});
+ try{
+  globalThis.document={createElement:()=>({width:0,height:0,getContext:ctx})};
+  globalThis.fetch=async()=>({ok:false,status:404});
+  globalThis.Image=class {};
+  const renderer=new BattlefieldTerrainRenderer();
+  renderer.kind='new';renderer.atlas={};renderer.surface={};renderer.version++;
+  const boardInstance=board(30,24),screen=ctx(),camera={x:0,y:0,scale:.07};
+  renderer.draw(screen,boardInstance,camera,900,630,1,false);
+  const drawn=draws.count;
+  assert.ok(drawn>10,'image sprites should be drawn at minimum zoom');
+  assert.equal(renderer.rebuilds,1);
+  renderer.draw(screen,boardInstance,{...camera,x:60,y:50},900,630,1,false);
+  assert.equal(renderer.rebuilds,1);
+  renderer.draw(screen,boardInstance,{...camera,x:200},900,630,1,false);
+  assert.equal(renderer.rebuilds,2);
+ }finally{globalThis.document=priorDocument;globalThis.fetch=priorFetch;globalThis.Image=priorImage;}
 });
