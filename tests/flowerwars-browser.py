@@ -15,6 +15,8 @@ try:
    page.goto('http://127.0.0.1:8000/',wait_until='domcontentloaded',timeout=15000)
    page.wait_for_function('window.__ashenFlower && window.__ashenFlower.match',timeout=15000)
    assert page.evaluate('__ashenFlower.match.phase')=='preparation'
+   page.wait_for_timeout(250)
+   assert not errors, 'preparation canvas error: '+repr(errors)
    assert page.evaluate('__ashenFlower.match.counts.A')==0
    page.locator('#auto-deploy').click(timeout=10000)
    assert page.evaluate('__ashenFlower.match.counts.A')==40
