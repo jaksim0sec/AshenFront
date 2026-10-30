@@ -21,12 +21,13 @@ const seed=Number(params.get('seed'))||1977;
 let armySize=ASHEN_ARMY_CHOICES.includes(Number(params.get('army')))?Number(params.get('army')):40;
 let {board,match}=createAshenMatch({seed,count:armySize}),selected=new Set(),mode=null,hover=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
 let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1;
+let lastRosterRevision=-1,lastRosterAlive=-1;
 const renderSamples=[];let renderedFrames=0,visibleTroops=0;
 let miniGround=null,miniArea=null,miniQueries=0;
 const camera={x:0,y:0,scale:.40},pointers=new Map(),colors={A:'#a7c6dd',B:'#d39283'};
 const living=s=>s.memberIds.map(id=>board.unit(id)).filter(u=>u?.health.current>0);
 const squads=()=>[...squadsFor(board).values()].filter(s=>s.team==='A'&&living(s).length);
-const selectedIds=()=>[...selected].filter(id=>squadsFor(board).has(id));
+const selectedIds=()=>[...selected].filter(id=>{const squad=squadsFor(board).get(id);return squad&&living(squad).length>0;});
 function notice(s){$('battle-notice').textContent=s;$('status').textContent=s;}
 function resize(){const r=canvas.getBoundingClientRect();drawDpr=Math.min(low?1:2,devicePixelRatio||1);canvas.width=Math.round(r.width*drawDpr);canvas.height=Math.round(r.height*drawDpr);}
 function focus(x,y){const p=project(x,y);camera.x=canvas.clientWidth/2-p.x*camera.scale;camera.y=canvas.clientHeight/2-p.y*camera.scale;}
@@ -85,8 +86,9 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   hover
  },camera.scale);
  // Culling BEFORE sorting avoids sorting hundreds of unseen 2.5D sprites.
- const troops=[];
+ const troops=[],squadIndex=squadsFor(board);
  for(const u of board.units){
+  if(u.hasMoved&&!u._movementRecorded&&u.squadId){const s=squadIndex.get(u.squadId);if(s){s.hasMoved=true;u._movementRecorded=true;}}
   if(u.health.current<=0&&u.state!=='death')continue;
   const p=project(u.visualX,u.visualY),sx=camera.x+p.x*camera.scale,sy=camera.y+p.y*camera.scale;
   if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
@@ -95,30 +97,33 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
  troops.sort((a,b)=>a.visualX+a.visualY-b.visualX-b.visualY||a.id-b.id);
  visibleTroops=troops.length;
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
- const squadIndex=squadsFor(board),shotStamp=renderedFrames+1;
+ const shotStamp=renderedFrames+1;
  for(const u of troops){const p=project(u.visualX,u.visualY);
   ctx.save();ctx.translate(p.x,p.y);
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
   const s=squadIndex.get(u.squadId),rank=s?.leaderId===u.id?(match.squadIds[u.team][0]===u.squadId?'captain':'sergeant'):'private';
-  const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':match.phase!=='preparation'&&(u.hasMoved||u.hasEngaged)?'guard':'idle';
-  const shot=state==='shoot',orientation=shot?firingOrientation(board,u):null;
+  const shot=u.state==='attack',orientation=shot?firingOrientation(board,u):null;
   const facing=orientation?.facing??u.facing,rawAim=shot?orientation.aim:0;
-  // Smooth view-only stance changes; simulation and authoritative attack timing stay untouched.
-  const view=u._visualStance??(u._visualStance={blend:0,walk:state==='walk'?1:0,crouch:0,aim:rawAim,time:board.time});
-  const delta=Math.max(0,Math.min(.1,board.time-view.time));view.time=board.time;
-  const fighting=shot||state==='hit'||(u.hitPulseUntil??-1)>board.time;
-  const targetBlend=shot?1:state==='guard'?.63:0;
-  view.blend+=(targetBlend-view.blend)*(1-Math.exp(-delta/.11));
-  view.walk+=((state==='walk'?1:0)-view.walk)*(1-Math.exp(-delta/.12));
-  // No timers: fighting raises the guard and subsequent rendered frames relax it.
+  const view=u._visualStance??(u._visualStance={blend:0,walk:u.state==='walk'?1:0,crouch:0,aim:rawAim,time:board.time});
+  const delta=Math.max(0,board.time-view.time);view.time=board.time;
+  const fighting=shot||u.state==='hit'||(u.hitPulseUntil??-1)>board.time;
+  // A squad that has ever actually moved stays in mild guard. Unmoved squads
+  // return to attention after the recent fighting posture has eased away.
+  const guarding=match.phase!=='preparation'&&(!!s?.hasMoved||fighting||view.crouch>.24);
+  const state=u.state==='walk'?'walk':shot?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':guarding?'guard':'idle';
+  const targetBlend=shot?1:state==='guard'?.25:0;
+  const smooth=Math.min(1,delta*9);
+  view.blend+=(targetBlend-view.blend)*smooth;
+  view.walk+=((state==='walk'?1:0)-view.walk)*smooth;
+  // Only actual fighting raises the stance; no intervals or elapsed-time checks.
   const braceTarget=fighting?1:state==='guard'?.16:0;
-  view.crouch+=(braceTarget-view.crouch)*(1-Math.exp(-delta/(fighting?.10:.55)));
+  view.crouch+=(braceTarget-view.crouch)*Math.min(1,delta*(fighting?10:2.4));
   const difference=Math.atan2(Math.sin(rawAim-view.aim),Math.cos(rawAim-view.aim));
-  view.aim+=difference*Math.min(1,delta/.13);
+  view.aim+=difference*Math.min(1,delta*8);
   const hitReaction=Math.max(0,Math.min(1,((u.hitPulseUntil??-1)-board.time)/.16));
   const pose=distant&&state!=='death'
-   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0,crouchBlend:shot||state==='hit'?1:state==='guard'?.16:0}
+   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.25:0,walkBlend:0,crouchBlend:shot||state==='hit'?1:state==='guard'?.16:0}
    :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,facing,aim:view.aim,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:view.blend,walkBlend:view.walk,crouchBlend:view.crouch,hitReaction};
   const muzzle=shot?(u._shotMuzzle??(u._shotMuzzle={})):null;
   if(muzzle)muzzle.valid=false;
@@ -189,7 +194,7 @@ function roster(){
    const head=document.createElement('div');head.className='platoon-controls';
    const pick=document.createElement('button');pick.className='platoon-title';
    pick.innerHTML=icon('platoon')+'<span>A · '+(platoonId+1)+'소대</span>';
-   pick.onclick=()=>{selected=new Set(all.slice(platoonId*2,platoonId*2+2).map(s=>s.id));roster();hud();};
+   pick.onclick=()=>{selected=new Set(all.slice(platoonId*2,platoonId*2+2).filter(s=>living(s).length).map(s=>s.id));roster();hud();};
    const fold=document.createElement('button');fold.className='platoon-fold';fold.innerHTML=icon('chevron');
    fold.setAttribute('aria-label',(platoonId+1)+'소대 접기');fold.setAttribute('aria-expanded','true');
    const row=document.createElement('div');row.className='platoon-squads';
@@ -299,7 +304,7 @@ function bind(){
 }
 function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  if(!paused&&dt){board.update(Math.min(dt,.05));match.update(dt);if(t-lastOrders>=50){updateSquadOrders(board);lastOrders=t;}}
- if(t-lastPaint>=33){const begin=performance.now();paint();const ms=performance.now()-begin;if(renderSamples.length>=90)renderSamples.shift();renderSamples.push(ms);renderedFrames++;lastPaint=t;}if(t-lastUI>=250){hud();lastUI=t;}if(t-lastRoster>=800){roster();lastRoster=t;}if(t-lastMini>=500){if(document.body.classList.contains('map-open'))paintMini();lastMini=t;}
+ if(t-lastPaint>=33){const begin=performance.now();paint();const ms=performance.now()-begin;if(renderSamples.length>=90)renderSamples.shift();renderSamples.push(ms);renderedFrames++;lastPaint=t;}if(t-lastUI>=250){hud();lastUI=t;}if(t-lastRoster>=800||match.statusRevision!==lastRosterRevision||board.teamAlive.A!==lastRosterAlive){roster();lastRoster=t;lastRosterRevision=match.statusRevision;lastRosterAlive=board.teamAlive.A;}if(t-lastMini>=500){if(document.body.classList.contains('map-open'))paintMini();lastMini=t;}
  requestAnimationFrame(frame);
 }
 bind();resize();fit();switchMode('deploy');hud();roster();requestAnimationFrame(frame);

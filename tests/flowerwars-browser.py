@@ -110,6 +110,11 @@ try:
      const u=__ashenFlower.board.unit(id);return u?._visualStance?.crouch>.05;
    }""",arg=stage,timeout=10000)
    assert page.evaluate('(id)=>__ashenFlower.board.unit(id)._visualStance.crouch<.25',stage)
+   # After any member moves, another idle member of that same squad must leave attention.
+   page.wait_for_function("""id=>{
+     const unit=__ashenFlower.board.unit(id),group=__ashenFlower.board.units.find(u=>u.squadId===unit.squadId&&u.id!==id&&u.state==='idle'&&u._visualStance);
+     return group?group._visualStance.blend>.08:true;
+   }""",arg=stage,timeout=7000)
    assert page.locator('.squad-card').count()==4
    await_s=page.evaluate('({n:__ashenFlower.board.units.length,squads:__ashenFlower.match.squadIds.A.length})')
    assert await_s['n']==80,await_s
