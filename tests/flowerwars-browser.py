@@ -82,6 +82,26 @@ try:
    page.screenshot(path=str(out/f'battle-{width}.png'))
    reports[-1].update({'player':40,'enemy':40,'squads':4,'pageErrors':errors})
    context.close()
+  # Full-size renderer stress: 35 squads each, 700 live soldiers.
+  stress=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=1,has_touch=True)
+  stage=stress.new_page();stage_errors=[]
+  stage.on('pageerror',lambda e:stage_errors.append(str(e)))
+  stage.goto('http://127.0.0.1:8000/?army=350',wait_until='domcontentloaded',timeout=20000)
+  stage.wait_for_function('window.__ashenFlower && __ashenFlower.armySize===350',timeout=15000)
+  assert stage.locator('#army-size').input_value()=='350'
+  stage.locator('#auto-deploy').click(timeout=30000)
+  stage.wait_for_function('__ashenFlower.match.counts.A===350',timeout=30000)
+  assert stage.locator('.squad-card').count()==35
+  stage.locator('#start-battle').click(timeout=30000)
+  stage.wait_for_function('__ashenFlower.match.counts.B===350 && __ashenFlower.match.phase==="battle"',timeout=30000)
+  stage.wait_for_timeout(2500)
+  stress_metrics=stage.evaluate('__ashenFlower.renderStats')
+  assert stress_metrics['frames']>5,stress_metrics
+  assert not stage_errors,stage_errors
+  assert stage.evaluate('__ashenFlower.board.units.length')==700
+  stage.screenshot(path=str(out/'battle-700-mobile.png'))
+  reports.append({'viewport':[390,844],'army':700,'perf':stress_metrics,'pageErrors':stage_errors})
+  stress.close()
   browser.close()
  print(json.dumps(reports,ensure_ascii=False))
 finally:
