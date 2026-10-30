@@ -76,6 +76,7 @@ try:
    page.wait_for_timeout(1150)
    metrics=page.evaluate('__ashenFlower.renderStats')
    assert metrics['frames']>2,metrics
+   assert metrics['spriteCache']['cachedFrames']>4,'small armies should animate rather than use only static distant sprites'
    assert metrics['terrainRebuilds']>0,metrics
    reports.append({'viewport':[width,height],'perf':metrics})
    assert not errors,errors

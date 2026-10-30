@@ -81,7 +81,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   hover
  },camera.scale);
  const troops=board.units.filter(u=>u.health.current>0||u.state==='death').sort((a,b)=>a.visualX+a.visualY-b.visualX-b.visualY||a.id-b.id);
- const distant=low||camera.scale<.38||board.units.length>280&&camera.scale<.48;
+ const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
  for(const u of troops){const p=project(u.visualX,u.visualY),sx=camera.x+p.x*camera.scale,sy=camera.y+p.y*camera.scale;if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
   ctx.save();ctx.translate(p.x,p.y);
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
