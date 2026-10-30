@@ -266,10 +266,10 @@ function roster(){
    const pick=document.createElement('button');pick.className='platoon-title';
    pick.innerHTML=icon('platoon')+'<span>A · '+(platoonId+1)+'소대</span>';
    pick.onclick=()=>{selected=new Set(all.slice(platoonId*2,platoonId*2+2).filter(s=>living(s).length).map(s=>s.id));roster();hud();};
-   const fold=document.createElement('button');fold.className='platoon-fold';fold.innerHTML=icon('chevron');
+   const fold=document.createElement('button');fold.className='platoon-fold';fold.innerHTML=icon('disclosure');
    fold.setAttribute('aria-label',(platoonId+1)+'소대 접기');fold.setAttribute('aria-expanded','true');
-   const row=document.createElement('div');row.className='platoon-squads';
-   fold.onclick=()=>{const collapsed=row.hidden=!row.hidden;fold.setAttribute('aria-expanded',String(!collapsed));};
+   const row=document.createElement('div');row.className='platoon-squads';row.id='platoon-squads-'+platoonId;fold.setAttribute('aria-controls',row.id);
+   fold.onclick=()=>{const collapsed=row.hidden=!row.hidden;fold.setAttribute('aria-expanded',String(!collapsed));fold.setAttribute('aria-label',(platoonId+1)+'소대 '+(collapsed?'펼치기':'접기'));};
    head.append(pick,fold);section.append(head,row);host.append(section);
   }
   const row=section.querySelector('.platoon-squads');
