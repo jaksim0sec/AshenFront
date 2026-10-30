@@ -23,7 +23,7 @@ export function infantryBlueprint(){
 
 export function createAshenMatch({seed=1977,count=ASHEN_ARMY_SIZE}={}){
  const normalized=Math.max(SOLDIERS_PER_SQUAD,Math.min(ASHEN_ARMY_LIMIT,Math.floor((Number(count)||ASHEN_ARMY_SIZE)/SOLDIERS_PER_SQUAD)*SOLDIERS_PER_SQUAD));
- const board=new Board();
+ const board=new Board(undefined,undefined,{spacing:true});
  const match=new FlagMatch(board,{
   seed,count:normalized,blueprints:[infantryBlueprint()],aiImplementation:'legacy',
   makeCharacter:()=>null,
