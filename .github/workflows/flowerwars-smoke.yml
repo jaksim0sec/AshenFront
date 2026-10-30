@@ -1,0 +1,16 @@
+name: FlowerWars Transplant Smoke
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify FlowerWars match and infantry deployment
+        run: node --test tests/flowerwars-port.test.mjs
