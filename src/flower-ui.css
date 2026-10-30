@@ -377,18 +377,25 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
  body[data-engine=flower] .deployment-types svg{width:27px;height:23px}
  body[data-engine=flower] .deployment-types small{font-size:8px}
  body[data-engine=flower] #roster-panel{
-  height:calc(100px + env(safe-area-inset-bottom));
-  max-height:none;padding:5px 6px max(4px,env(safe-area-inset-bottom));gap:6px
+  /* 20px platoon heading + 4px gap + 65px card + visible top/bottom inset. */
+  height:calc(112px + env(safe-area-inset-bottom));
+  max-height:none;padding:7px 6px calc(5px + env(safe-area-inset-bottom));gap:6px
  }
  body[data-engine=flower] #roster-shortcuts{width:48px;padding-top:16px}
  body[data-engine=flower] #multi-select{width:45px;min-width:45px;height:57px;min-height:57px}
- body[data-engine=flower] #squad-tabs{gap:8px}
+ body[data-engine=flower] #squad-tabs{
+  gap:8px;padding-block:3px 3px;min-height:0;scroll-padding-inline:6px
+ }
  body[data-engine=flower] #squad-tabs .platoon-controls{height:20px}
  body[data-engine=flower] #squad-tabs .platoon-title{min-height:20px;height:20px;font-size:9px;padding:1px 7px}
  body[data-engine=flower] #squad-tabs .platoon-fold{min-height:20px;height:20px;width:20px;min-width:20px}
  body[data-engine=flower] #squad-tabs .squad-card{
   grid-template-columns:51px minmax(0,1fr);gap:4px;
-  width:159px;min-width:159px;max-width:159px;height:65px;min-height:65px;padding:2px 5px 2px 0;
+  /* Fit two squads and the multi-select tool on a typical phone without clipping. */
+  width:clamp(120px,calc((100vw - 80px)/2),159px);
+  min-width:clamp(120px,calc((100vw - 80px)/2),159px);
+  max-width:clamp(120px,calc((100vw - 80px)/2),159px);
+  height:65px;min-height:65px;padding:2px 5px 2px 0;
  }
  body[data-engine=flower] #squad-tabs .squad-portrait{width:52px;height:63px}
  body[data-engine=flower] #squad-tabs .commander-photo{width:66px;height:67px}
@@ -396,7 +403,7 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
  body[data-engine=flower] #squad-tabs .squad-kind{font-size:10px}
  body[data-engine=flower] #squad-tabs .squad-card-status{font-size:8px}
  body[data-engine=flower] #command-dock{
-  left:50%;right:auto;bottom:calc(102px + env(safe-area-inset-bottom));
+  left:50%;right:auto;bottom:calc(114px + env(safe-area-inset-bottom));
   transform:translateX(-50%);width:calc(100vw - 18px);max-width:410px
  }
  body[data-engine=flower] .command-selection-row{margin-bottom:4px;gap:4px}
@@ -413,7 +420,7 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
  body[data-engine=flower] #primary-orders button svg{width:43px;height:43px;padding:10px}
  body[data-engine=flower] #primary-orders button>span{font-size:9px}
  body[data-engine=flower] #formation-panel{
-  left:50%;right:auto;bottom:calc(210px + env(safe-area-inset-bottom));
+  left:50%;right:auto;bottom:calc(222px + env(safe-area-inset-bottom));
   transform:translate(-50%,9px);
   width:calc(100vw - 18px);max-width:410px;max-height:55dvh;padding:8px
  }
@@ -433,9 +440,9 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
 @media(max-height:620px) and (max-width:700px){
  body[data-engine=flower] #formation-panel{max-height:calc(100dvh - 235px);overflow-y:auto}
  body[data-engine=flower] #primary-orders button{min-height:59px}
- body[data-engine=flower] #roster-panel{height:calc(89px + env(safe-area-inset-bottom))}
- body[data-engine=flower] #command-dock{bottom:calc(91px + env(safe-area-inset-bottom))}
- body[data-engine=flower] #formation-panel{bottom:calc(190px + env(safe-area-inset-bottom))}
+ body[data-engine=flower] #roster-panel{height:calc(108px + env(safe-area-inset-bottom));padding-top:6px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}
+ body[data-engine=flower] #command-dock{bottom:calc(110px + env(safe-area-inset-bottom))}
+ body[data-engine=flower] #formation-panel{bottom:calc(209px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){
  body[data-engine=flower] #match-hud,
