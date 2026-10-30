@@ -1,5 +1,13 @@
 # FlowerWars original-engine playable transplant
 
+## Offline PWA
+On HTTPS or localhost, the game installs an offline-ready PWA automatically. Once its complete ~6 MB runtime release is precached, both the default battle and soldier workshop can reopen without network. The service worker always pins files from one release together, using a content-based version hash calculated at server startup. During rolling deployments, mismatched asset requests return HTTP 409 and the incomplete new worker fails installation while the existing offline version remains usable.
+
+Online sessions discover updates through native service worker checks on page load, network reconnect, tab return and every five minutes while visible. Updates are downloaded fully into a separate cache and **never force-refresh an active battle**. When the user chooses '업데이트 적용', the waiting worker activates and the current tab reloads. Old release caches are deleted after activation; sprite and terrain Canvas caches are unaffected. Browser storage eviction or manual site-data deletion can still remove offline availability.
+
+PWA verification: `node --test tests/pwa.test.mjs`. Install/offline/reconnect behavior should also be tested in real Android Chrome before release.
+
+
 ## Battlefield terrain artwork
 
 The active FlowerWars-based battlefield uses the original AI-generated AshenFront 60-texture atlas at `assets/world/terrain/ashenfront-atlas.webp.b64` (1440x642, six rows of ten 144x107 RGBA WebP tiles). The rows are grass, soil, road, marsh, rock, and scorched ground. Rendering uses deterministic 5x2 variants, pre-bakes transparent top surfaces without interior block sidewalls, and shows full block sidewalls only at exposed world edges. Natural terrain transitions, sparse static scenery, and lowered-detail zoom remain render-only.
