@@ -575,3 +575,12 @@ body[data-engine=flower] #battle-notice.is-visible{opacity:1;transform:translate
  body[data-engine=flower] .command-selection-row .squad-line>span{font-size:9px}
  body[data-engine=flower] .match-details .match-actions #resume-deployment{font-size:10px}
 }
+
+
+/* Keep the secondary map command exclusive to mobile tool drawer. */
+#mobile-map-toggle{display:none}
+@media(max-width:700px){
+ body[data-engine=flower][data-phase=preparation][data-play-mode=deploy] .match-details .match-actions{
+  grid-template-columns:minmax(0,1fr) 42px 42px
+ }
+}
