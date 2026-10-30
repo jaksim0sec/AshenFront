@@ -91,16 +91,17 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':match.phase==='battle'?'guard':'idle';
   const shot=state==='shoot',rawAim=u.attackVector?Math.atan2(u.attackVector.y,Math.max(.1,Math.abs(u.attackVector.x))):0;
   // Smooth view-only stance changes; simulation and authoritative attack timing stay untouched.
-  const view=u._visualStance??(u._visualStance={blend:0,aim:rawAim,time:board.time});
+  const view=u._visualStance??(u._visualStance={blend:0,walk:state==='walk'?1:0,aim:rawAim,time:board.time});
   const delta=Math.max(0,Math.min(.1,board.time-view.time));view.time=board.time;
   const targetBlend=shot?1:state==='guard'?.63:0;
   view.blend+=(targetBlend-view.blend)*(1-Math.exp(-delta/.11));
+  view.walk+=((state==='walk'?1:0)-view.walk)*(1-Math.exp(-delta/.12));
   const difference=Math.atan2(Math.sin(rawAim-view.aim),Math.cos(rawAim-view.aim));
   view.aim+=difference*Math.min(1,delta/.13);
   const hitReaction=Math.max(0,Math.min(1,((u.hitPulseUntil??-1)-board.time)/.16));
   const pose=distant&&state!=='death'
-   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing:u.facing,phase:0,aim:Math.round(rawAim*4)/4,shootBlend:shot?1:state==='guard'?.63:0}
-   :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,aim:view.aim,shootBlend:view.blend,hitReaction};
+   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing:u.facing,phase:0,aim:Math.round(rawAim*4)/4,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0}
+   :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,aim:view.aim,shootBlend:view.blend,walkBlend:view.walk,hitReaction};
   if(!soldiers.draw(ctx,u.team,rank,{...pose,pixelDensity:camera.scale*drawDpr*.285*1.8},distant)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
   ctx.restore();
  }

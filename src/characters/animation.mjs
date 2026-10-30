@@ -33,10 +33,11 @@ function weaponMatrix(p,x,y,angle){
  // The supplied character art faces left; the SVG rifle points right.
  return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(-p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));
 }
-export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,shootBlend=state==='shoot'?1:0,hitReaction=0}={}){
+export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,walkBlend=(state==='walk'||moving)?1:0,shootBlend=state==='shoot'?1:0,hitReaction=0}={}){
  shootBlend=clamp(shootBlend);
+ walkBlend=clamp(walkBlend);
  const guarding=state==='guard';
- const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||(moving&&state!=='death'),wave=walk?Math.sin((gaitTime??time)*10+phase):0,breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=walk?-Math.abs(wave)*3:breath*(guarding?.65:1.1)+weight;
+ const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=walkBlend>.001,wave=Math.sin((gaitTime??time)*10+phase)*walkBlend,breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=-Math.abs(wave)*3+(1-walkBlend)*(breath*(guarding?.65:1.1)+weight);
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
  const dying=state==='death',impactKick=dying?triangle(time,0,.065,.24):0,buckle=dying?triangle(time,.12,.36,.82):0,slump=dying?smooth((time-.18)/.55):0;
  const hit=(state==='hit'?(1-smooth(time/.4)):clamp(hitReaction)) * Math.sin(time*30)*5,death=state==='death'?clamp((time-.14)/.62):0;
@@ -44,16 +45,16 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  // A single connected silhouette loses balance, falls, hits the ground and settles.
  const impact=Math.max(0,time-.76),fallAngle=state==='death'?impactKick*.08+smooth(death)*1.48-(impact>0?Math.sin(impact*19)*Math.exp(-impact*12)*.045:0):0;
  let root=multiply(scale(facing<0?1:-1,1),multiply(translate(hit+impactKick*10+smooth(death)*24,0),rotate(fallAngle)));
- const upperAngle=dying?impactKick*.12+buckle*.18:walk?wave*.015:guarding?Math.sin(time*1.4+phase)*.009:recoil*.025;
+ const upperAngle=dying?impactKick*.12+buckle*.18:wave*.015+(1-walkBlend)*(guarding?Math.sin(time*1.4+phase)*.009:recoil*.025);
  const upper=dying?multiply(translate(parts.body.x,parts.body.y),multiply(rotate(upperAngle),translate(-parts.body.x,-parts.body.y))):multiply(translate(recoil*5,bob+recoil*1.2),rotate(upperAngle));
  const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035+(guarding?Math.sin(time*.8+phase)*.012:0)+(dying?-impactKick*.2+buckle*.13:0)),translate(-parts.head.x,-parts.head.y))));
- const gun=parts.rifle,restCarry=dying?aim+(1.1-aim)*slump:-.9+(walk?wave*.025:0),readyAim=aim+(guarding?Math.sin(time*1.9+phase)*.013:0),carry=lerp(restCarry,readyAim,shootBlend),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
+ const gun=parts.rifle,restCarry=dying?aim+(1.1-aim)*slump:-.9+wave*.025,readyAim=aim+(guarding?Math.sin(time*1.9+phase)*.013:0),carry=lerp(restCarry,readyAim,shootBlend),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
  let gunAngle=-lerp(desiredAngle,clamp(desiredAngle,-Math.PI/2,Math.PI/2),shootBlend)-upperAngle;
  // In the native left-facing portrait, the left arm supports the fore-end;
  // the right arm operates the trigger and bolt near the stock.
  const grips={left:[(gun.supportX??105/160)*gun.w,(gun.supportY??19/40)*gun.h],right:[(gun.gripX??55/160)*gun.w-bolt*9/160*gun.w,(gun.gripY??23/40)*gun.h-bolt*17/40*gun.h]};
  // Keep the edited firing position fixed: no circle-branch flips or aim-dependent gun jumps.
- const position={x:gun.x+recoil*4+(dying?slump*8:0),y:gun.y+(dying?slump*16:0)+lerp(walk?10:8,0,shootBlend)};
+ const position={x:gun.x+recoil*4+(dying?slump*8:0),y:gun.y+(dying?slump*16:0)+lerp(8+2*walkBlend,0,shootBlend)};
  if(state==='shoot'&&target&&Number.isFinite(target.x)&&Number.isFinite(target.y)){
   const local=transformPoint(inverse(multiply(root,upper)),target.x,target.y),dx=local.x-position.x,dy=local.y-position.y,distance=Math.hypot(dx,dy);
   // Aim the actual barrel ray, including its offset from the editable rifle pivot.
@@ -65,7 +66,7 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  const add=(key,m,clip=null,suffix='')=>{const p=parts[key];if(p.visible)draws.push({key:key+suffix,part:key,asset:p.asset,matrix:multiply(root,m),w:p.w,h:p.h,clip});};
  const firing=state==='shoot';
  for(const side of ['left','right']){const key=side==='left'?'armLeft':'armRight',p=parts[key];
-  const rest=multiply(upper,matrix(p,p.x,p.y,p.rotation+(walk?(side==='left'?-1:1)*wave*.10:0)));
+  const rest=multiply(upper,matrix(p,p.x,p.y,p.rotation+(side==='left'?-1:1)*wave*.10));
   const gripped=multiply(upper,rigidArm(p,localHands[side]));
   let arm=shootBlend>=1?gripped:shootBlend<=0?rest:mixRigid(rest,gripped,shootBlend);
   if(dying){const from=rigidArm(p,localHands[side]),start=transformPoint(from,p.pivotX*p.w,p.pivotY*p.h),release=smooth(time/.2),a=Math.atan2(from[1],from[0]),flail=side==='left'?impactKick*.65+buckle*.9+slump*.35:-impactKick*.45-buckle*.65-slump*.25,desired=p.rotation+flail,delta=Math.atan2(Math.sin(desired-a),Math.cos(desired-a));arm=multiply(upper,matrix(p,start.x+(p.x-start.x)*release,start.y+(p.y-start.y)*release,a+delta*release));}
@@ -77,7 +78,7 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
   if(key.startsWith('sleeve')){const left=key==='sleeveLeft',arm=parts[left?'armLeft':'armRight'],base=attachments[left?'left':'right'].matrix;
    // Keep the archive's canvas placement at rest; inherit only the animated arm delta.
    const local=multiply(inverse(matrix(arm)),matrix(p));add(key,multiply(base,local));continue;}
-  if(key.startsWith('leg')){const stride=dying?(key==='legLeft'?-.35:.45)*smooth((time-.12)/.35):(key==='legLeft'?1:-1)*wave*.28;add(key,matrix(p,p.x,p.y+(walk?Math.max(0,-wave*(key==='legLeft'?1:-1))*5:0),p.rotation+stride));continue;}
+  if(key.startsWith('leg')){const stride=dying?(key==='legLeft'?-.35:.45)*smooth((time-.12)/.35):(key==='legLeft'?1:-1)*wave*.28;add(key,matrix(p,p.x,p.y+Math.max(0,-wave*(key==='legLeft'?1:-1))*5,p.rotation+stride));continue;}
   if(key==='head'||key==='hat'){add(key,multiply(head,matrix(p)));continue;}
   add(key,multiply(upper,matrix(p)));
  }

@@ -40,3 +40,15 @@ test('nearby soldier frames use at least 24-30fps like original archer, distant 
  for(let i=0;i<30;i++)low.push(sampleAnimation({state:'guard',time:i/30,phase:0},true).time);
  assert(new Set(low).size<=8,'large distant armies should retain low-cost LOD');
 });
+
+test('walk-to-guard gradually settles leg, body and arm movement without a pose pop',()=>{
+ const time=.31;
+ const transforms=(state,blend)=>poseCharacter(profile,{state,time,walkBlend:blend,shootBlend:.3,aim:0,phase:0});
+ const walk=transforms('walk',1),almost=transforms('guard',.99),settled=transforms('guard',0);
+ for(const name of ['legLeft','legRight','body','armLeft','armRight']){
+  const a=matrix(walk,name),b=matrix(almost,name);
+  assert(distance(a,b)<1.5,name+' teleported when walk ended');
+  assert(angleDiff(angle(a),angle(b))<.055,name+' abruptly changed rotation');
+ }
+ assert(distance(matrix(walk,'legLeft'),matrix(settled,'legLeft'))>.05,'stride should ease down, not freeze');
+});
