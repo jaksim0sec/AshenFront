@@ -24,6 +24,18 @@ try:
    assert page.locator('.squad-card .squad-kind').count()==4
    assert page.locator('.squad-card .squad-activity').count()==4
    assert page.locator('.squad-card .commander-photo').count()==4
+   card=page.locator('.squad-card').first
+   metrics=card.evaluate("""el=>({
+    width:el.getBoundingClientRect().width,
+    height:el.getBoundingClientRect().height,
+    color:getComputedStyle(el).color,
+    background:getComputedStyle(el).backgroundImage,
+    portrait:el.querySelector('.commander-photo').getBoundingClientRect().width
+   })""")
+   assert metrics['width']<=205 and metrics['height']<=90,metrics
+   assert metrics['portrait']<metrics['width']*.55,metrics
+   assert 'linear-gradient' in metrics['background'],metrics
+   assert page.locator('#army-size').input_value()=='40'
    assert all('소총보병' in text for text in page.locator('.squad-kind').all_text_contents())
    page.evaluate("window.__rosterCardNode=document.querySelector('.squad-card')")
    page.wait_for_timeout(950)

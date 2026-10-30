@@ -27,7 +27,7 @@
   <button id="toggle-map" class="floating-tool" aria-label="전술 지도 열기">지도</button>
 
   <section id="deployment-tools" class="is-deploying" aria-label="예비 병력 배치">
-    <div class="deployment-head"><div><strong id="deployment-reserve">예비 병력</strong><span>진형 선택 → 아군 진영 터치</span></div><button id="auto-deploy">자동 배치</button><button id="deployment-toggle" aria-pressed="true">지휘 모드</button></div>
+    <div class="deployment-head"><div><strong id="deployment-reserve">예비 병력</strong><span>진형 선택 → 아군 진영 터치</span></div><label class="army-size-label" for="army-size">진영당 <select id="army-size" aria-label="진영당 병력 수"><option value="40">40명</option><option value="100">100명</option><option value="200">200명</option><option value="350">350명</option></select></label><button id="auto-deploy">자동 배치</button><button id="deployment-toggle" aria-pressed="true">지휘 모드</button></div>
     <div id="deployment-types" class="deployment-types" role="group" aria-label="배치 진형">
       <button data-deploy-type="line" aria-pressed="true"><svg viewBox="0 0 32 24" aria-hidden="true"><path d="M4 8h3v3H4zm7 0h3v3h-3zm7 0h3v3h-3zm7 0h3v3h-3zM4 15h3v3H4zm7 0h3v3h-3zm7 0h3v3h-3zm7 0h3v3h-3z"/></svg><strong>횡대</strong><small>넓은 전열</small></button>
       <button data-deploy-type="column" aria-pressed="false"><svg viewBox="0 0 32 24" aria-hidden="true"><path d="M11 2h3v3h-3zm7 0h3v3h-3zM11 9h3v3h-3zm7 0h3v3h-3zm-7 7h3v3h-3zm7 0h3v3h-3z"/></svg><strong>종대</strong><small>좁은 돌파</small></button>

@@ -3,6 +3,8 @@ import {FlagMatch} from './flag-match.mjs';
 
 const SOLDIERS_PER_SQUAD=10;
 export const ASHEN_ARMY_SIZE=40;
+export const ASHEN_ARMY_LIMIT=350;
+export const ASHEN_ARMY_CHOICES=Object.freeze([40,100,200,350]);
 export const RIFLE_STATS=Object.freeze({
  maxHealth:100,damage:18,attackPeriod:1.35,range:9,
  rangeShape:'king',preferredRange:6,lineOfSight:true,searchInterval:.3
@@ -20,9 +22,10 @@ export function infantryBlueprint(){
 }
 
 export function createAshenMatch({seed=1977,count=ASHEN_ARMY_SIZE}={}){
+ const normalized=Math.max(SOLDIERS_PER_SQUAD,Math.min(ASHEN_ARMY_LIMIT,Math.floor((Number(count)||ASHEN_ARMY_SIZE)/SOLDIERS_PER_SQUAD)*SOLDIERS_PER_SQUAD));
  const board=new Board();
  const match=new FlagMatch(board,{
-  seed,count,blueprints:[infantryBlueprint()],aiImplementation:'legacy',
+  seed,count:normalized,blueprints:[infantryBlueprint()],aiImplementation:'legacy',
   makeCharacter:()=>null,
   optionsFor:()=>({stats:{...RIFLE_STATS},movement:{...RIFLE_MOVEMENT},
    battle:null,unitType:'ashen-rifleman',capabilities:[]})

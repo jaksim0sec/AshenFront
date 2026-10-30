@@ -73,7 +73,7 @@ export class Board {
     this.match=null;this.battlefield=null;
     this.terrainRevision=(this.terrainRevision||0)+1;
     this.decisionEpoch=0;
-    this.units = []; this.byId=new Map(); this.cells=new Map(); this.reservations=new Map();
+    this.units = []; this.byId=new Map(); this.cells=new Map(); this.reservations=new Map();this.teamAlive={A:0,B:0};
     this.flows={east:0,west:0,south:0,north:0};
     this.obstacles=new Map();this.obstacleRevision=0;this.navClock=0;this.navigation=new Navigation(this);
     this.spatial=new SpatialIndex(this.width,this.height);
@@ -96,6 +96,7 @@ export class Board {
   setAutoCombat(enabled=true){
     const alive=this.units.filter(u=>u.health.current>0),counts={A:0,B:0};for(const u of alive)if(u.team in counts)counts[u.team]++;
     for(const u of alive){if(enabled&&!u.team){u.team=counts.A<=counts.B?'A':'B';counts[u.team]++;u.combat.shape='king';}u.combat.auto=!!enabled;if(!enabled&&u.waitReason==='combat')u.waitReason=null;u.combat.targetId=null;u.combat.nextSearchAt=0;}
+    this.teamAlive={...counts};
     return alive.length;
   }
   setTerrain(x,y,type) {
@@ -129,7 +130,7 @@ export class Board {
     if(u.state==='attack'){u.strike=null;u.impacted=false;u.elapsed=0;u.state=u.step?'walk':'idle';}
   }
   spawn(x, y, character = null, options={}) {
-    if(this.match&&(!options.team||this.units.filter(u=>u.team===options.team&&u.health.current>0).length>=this.match.limit))return null;
+    if(this.match&&(!options.team||(this.teamAlive[options.team]??0)>=this.match.limit))return null;
     if (!this.inside(x, y) || this.navigation.blocked(y*this.width+x) || this.occupied(x, y)) return null;
     const battle=options.battle||Object.values(character?.equipment||{}).find(a=>a?.battle)?.battle;
     if(battle)options={...options,stats:{...options.stats,damage:(options.stats?.damage||25)*(battle.damageMultiplier||1),attackPeriod:battle.attackPeriod||options.stats?.attackPeriod},movement:{...options.movement,stepTime:(options.movement?.stepTime||.425)/(battle.speedMultiplier||1)}};
@@ -142,6 +143,7 @@ export class Board {
     if(battle)Object.assign(u.combat,{movingPoise:!!battle.movingPoise,charge:!!battle.charge,visionRange:battle.visionRange||0,activeDuration:battle.activeDuration,impactTime:battle.impactTime});
     if(battle?.charge){u.combat.chargeSteps=0;u.combat.chargeDistance=battle.chargeDistance??4;u.combat.chargeDamageMultiplier=battle.chargeDamageMultiplier??3;}
     this.units.push(u);this.byId.set(u.id,u);this.cells.set(y*this.width+x,u.id);this.spatial.add(u);
+    if(u.team in this.teamAlive)this.teamAlive[u.team]++;
     return u;
   }
 
@@ -224,7 +226,7 @@ export class Board {
       u.elapsed=0;u.state=u.health.current<=0?'death':'hit';u.strike=null;
     }
     u.deathDirection=direction;
-    if(u.health.current<=0){this.navigation.touch(u.x,u.y);if(u.step)this.navigation.touch(u.step.x,u.step.y);this.cells.delete(u.y*this.width+u.x);if(u.step)this.reservations.delete(u.step.y*this.width+u.step.x);u.step=null;this.spatial.remove(u);}
+    if(u.health.current<=0){if(u.team in this.teamAlive)this.teamAlive[u.team]=Math.max(0,this.teamAlive[u.team]-1);this.navigation.touch(u.x,u.y);if(u.step)this.navigation.touch(u.step.x,u.step.y);this.cells.delete(u.y*this.width+u.x);if(u.step)this.reservations.delete(u.step.y*this.width+u.step.x);u.step=null;this.spatial.remove(u);}
     return true;
   }
   update(dt) {
