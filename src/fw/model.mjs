@@ -33,10 +33,10 @@ export function project(x, y) {
   return { x: (x - y) * HALF_W, y: (x + y) * HALF_H };
 }
 
-// Prevent a passenger visually swapping behind the resident halfway through.
+// Isometric sprite order follows the projected foot, including during allied passage.
+// Never force a passing soldier in front of a physically lower-depth resident.
 export function soldierRenderDepth(u){
- const depth=u.visualX+u.visualY;
- return u.step?.via?Math.max(depth,u.step.via.x+u.step.via.y+.3):depth;
+ return u.visualX+u.visualY;
 }
 
 export function unproject(x, y) {

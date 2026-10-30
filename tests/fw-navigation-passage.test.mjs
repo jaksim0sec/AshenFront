@@ -107,13 +107,27 @@ test('a killed passenger releases both the via and the lateral clearance buffer'
  b.damage(passer.id,200);
  assert.equal(b.passage.size,0);
 });
-test('passenger depth stays above its stationary occupant when passing on negative side',()=>{
+test('a passer has no forced depth privilege while crossing an upper lane',()=>{
  const b=new Board(16,12),owner=soldier(b,3,4);soldier(b,3,5);
  const passer=soldier(b,2,4);
  b.move(passer.id,6,4,{direct:true});
+ assert.deepEqual(passer.step.buffer,{x:3,y:3});
  b.navigation.schedule=()=>{};
- for(let i=0;i<8;i++){
+ for(let i=0;i<7;i++){
   b.advance(.1);
-  if(passer.step)assert.ok(soldierRenderDepth(passer)>soldierRenderDepth(owner),'no painter-order flicker during passage');
+  const footDepth=passer.visualX+passer.visualY;
+  assert.equal(soldierRenderDepth(passer),footDepth,'render depth must equal projected feet');
+  const residentDepth=soldierRenderDepth(owner);
+  if(footDepth<residentDepth)assert.ok(soldierRenderDepth(passer)<residentDepth,'upper passer rendered in front');
+  if(footDepth>residentDepth)assert.ok(soldierRenderDepth(passer)>residentDepth,'lower passer rendered behind');
  }
+});
+test('a passer on the lower lane naturally renders in front, without any special priority',()=>{
+ const b=new Board(16,12),owner=soldier(b,3,4),passer=soldier(b,2,4);
+ b.move(passer.id,6,4,{direct:true});
+ assert.deepEqual(passer.step.buffer,{x:3,y:5});
+ b.navigation.schedule=()=>{};
+ b.advance(passer.step.duration/2);
+ assert.ok(passer.visualX+passer.visualY>owner.visualX+owner.visualY,'passer did not reach lower lane');
+ assert.ok(soldierRenderDepth(passer)>soldierRenderDepth(owner),'lower passer must draw later');
 });
