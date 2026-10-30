@@ -584,3 +584,225 @@ body[data-engine=flower] #battle-notice.is-visible{opacity:1;transform:translate
   grid-template-columns:minmax(0,1fr) 42px 42px
  }
 }
+
+
+/* AshenFront tactical UI v2: three distinct surfaces, one neutral palette.
+   Existing game and unit-rendering code is deliberately unaffected. */
+body[data-engine=flower]{
+ --ui-base:#222a2e;--ui-raise:#2b3439;--ui-ink:#f1f3f1;
+ --ui-muted:#bbc6c8;--ui-border:#8c9ca17a;--ui-active:#d5e1e2;
+ --ui-shadow:0 9px 24px #0d12155c;
+}
+body[data-engine=flower] #command-dock{
+ background:none!important;border:0!important;box-shadow:none!important;
+ backdrop-filter:none!important
+}
+body[data-engine=flower] #command-dock .command-selection-row{
+ display:flex;align-items:center;justify-content:space-between;gap:5px;
+ min-height:42px;margin:0 0 5px;padding:0;background:none;
+ border:0;box-shadow:none;backdrop-filter:none
+}
+body[data-engine=flower] #command-dock .squad-line{
+ flex:0 1 auto;min-width:0;min-height:38px;
+ display:flex;align-items:center;gap:7px;padding:7px 11px;
+ color:var(--ui-ink);border:1px solid var(--ui-border);
+ background:#222a2eea;border-radius:18px;box-shadow:var(--ui-shadow)
+}
+body[data-engine=flower] #command-dock .squad-line strong{
+ font-size:12px;line-height:19px;font-weight:750;
+ max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis
+}
+body[data-engine=flower] #command-dock .squad-line>span{
+ font-size:10px;line-height:19px;color:var(--ui-muted);margin:0;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+body[data-engine=flower] #command-dock .selection-tools{
+ flex:none;display:flex;align-items:center;gap:5px
+}
+body[data-engine=flower] #command-dock .selection-tools button{
+ display:flex;align-items:center;justify-content:center;gap:4px;
+ min-width:46px;min-height:40px;height:40px;
+ padding:5px 7px;border:1px solid var(--ui-border);
+ border-radius:12px;background:#222a2eed;color:var(--ui-ink);
+ font-size:10px;font-weight:650;box-shadow:var(--ui-shadow)
+}
+body[data-engine=flower] #command-dock .selection-tools button .ui-icon{
+ width:17px;height:17px;flex:none
+}
+body[data-engine=flower] #command-dock .selection-tools button[aria-expanded=true]{
+ background:#50626a;border-color:var(--ui-active)
+}
+body[data-engine=flower] #command-dock .selection-tools #clear-selection{
+ min-width:37px;width:37px;padding:0;font-size:23px;font-weight:400
+}
+body[data-engine=flower] #command-dock .commands{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:4px;margin-top:4px
+}
+body[data-engine=flower] #command-dock .commands button{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ min-height:68px;padding:0;gap:4px;background:transparent!important;
+ border:none;border-radius:0;color:var(--ui-ink)
+}
+body[data-engine=flower] #command-dock .commands button .ui-icon{
+ display:block;box-sizing:border-box;width:46px;height:46px;padding:11px;
+ background:var(--ui-base);border:1px solid var(--ui-border);border-radius:50%;
+ color:var(--ui-ink);box-shadow:var(--ui-shadow)
+}
+body[data-engine=flower] #command-dock .commands button.active .ui-icon{
+ background:#587078;border-color:var(--ui-active);color:#fff
+}
+body[data-engine=flower] #command-dock .commands button>span{
+ font-size:10px;font-weight:700;color:var(--ui-ink)
+}
+body[data-engine=flower] .tactical-popover{
+ position:fixed;z-index:9;bottom:210px;right:22px;left:auto;
+ width:340px;max-width:calc(100vw - 24px);padding:13px;
+ background:#232c30f5;border:1px solid var(--ui-border);
+ border-radius:18px;box-shadow:0 14px 40px #080b0ec2;
+ backdrop-filter:blur(15px)
+}
+body[data-engine=flower] .tactical-popover[hidden]{display:none!important}
+body[data-engine=flower] .tactical-popover-head{
+ display:flex;align-items:center;gap:8px;margin:0 0 12px;
+ color:var(--ui-ink)
+}
+body[data-engine=flower] .tactical-popover-head strong{
+ flex:none;font-size:13px;letter-spacing:.01em
+}
+body[data-engine=flower] #formation-current{
+ flex:1;text-align:right;font-size:10px;color:var(--ui-muted)
+}
+body[data-engine=flower] .tactical-popover-head button{
+ margin-left:auto;display:grid;place-items:center;
+ min-width:32px;min-height:32px;width:32px;height:32px;padding:0;
+ border:0;background:#3a484e80;border-radius:10px;font-size:21px
+}
+body[data-engine=flower] #squad-panel .selection-actions{
+ position:static!important;display:grid!important;
+ grid-template-columns:1fr;gap:5px;margin:0;padding:0;
+ border:none;box-shadow:none;background:none
+}
+body[data-engine=flower] #squad-panel .selection-actions button{
+ display:flex;align-items:center;gap:11px;width:100%;
+ min-height:44px;padding:8px 12px;text-align:left;
+ font-size:12px;font-weight:650;color:var(--ui-ink);
+ border:1px solid #83949b45;border-radius:10px;
+ background:#34414783
+}
+body[data-engine=flower] #squad-panel .selection-actions button .ui-icon{
+ width:19px;height:19px;color:#d1dfe1;flex:none
+}
+body[data-engine=flower] #squad-panel #multi-select[aria-pressed=true]{
+ border-color:var(--ui-active);background:#536b75
+}
+body[data-engine=flower] #formation-controls{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:5px;margin:0
+}
+body[data-engine=flower] #formation-controls button{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:7px;min-width:0;min-height:77px;padding:7px 2px;
+ color:var(--ui-ink);border:1px solid #84939966;
+ border-radius:11px;background:#3441478f
+}
+body[data-engine=flower] #formation-controls button .ui-icon{
+ width:30px;height:30px;color:#d8e3e4
+}
+body[data-engine=flower] #formation-controls button span{font-size:10px;font-weight:700}
+body[data-engine=flower] #formation-controls button.active{
+ background:#526a75;border-color:#dde8e9;box-shadow:inset 0 0 0 1px #dde8e972
+}
+/* The illustrated commander cards use the same neutral surfaces as the HUD.
+   Country colors remain in flags and uniforms, not every interactive panel. */
+body[data-engine=flower] #roster-panel{
+ background:linear-gradient(0deg,#1f292adf 0%,#2732389e 75%,#27323800 100%)
+}
+body[data-engine=flower] #squad-tabs .platoon-title{
+ background:#2b363add;border-color:#89979e75;color:var(--ui-ink)
+}
+body[data-engine=flower] #squad-tabs .platoon-fold{
+ background:#2b363add;border-color:#89979e75;color:var(--ui-ink)
+}
+body[data-engine=flower] #squad-tabs .squad-card{
+ background:linear-gradient(110deg,#344046ed,#263135d9);
+ border:1px solid var(--ui-border);color:var(--ui-ink)
+}
+body[data-engine=flower] #squad-tabs .squad-card.is-selected{
+ background:linear-gradient(110deg,#52676fee,#36474ddf);
+ border:2px solid #dde7e8;
+ box-shadow:0 0 0 1px #dde8e950,0 4px 15px #0a101073
+}
+body[data-engine=flower] #squad-tabs .squad-card-body,
+body[data-engine=flower] #squad-tabs .squad-card-title{color:#f1f3f1}
+body[data-engine=flower] #squad-tabs .squad-kind,
+body[data-engine=flower] #squad-tabs .squad-card-status{color:#c9d5d7}
+body[data-engine=flower] #squad-tabs .commander-badge{
+ color:#243136;background:#ccdadbe9;border-color:#cad9d9
+}
+body[data-engine=flower] #squad-tabs .squad-activity{
+ background:#aabcc3c9;color:#263339
+}
+body[data-engine=flower] #battle-notice{background:#222a2eed;border-color:var(--ui-border)}
+body[data-engine=flower] #game-tools{
+ background:#232c30f6;border-color:var(--ui-border);
+ box-shadow:var(--ui-shadow)
+}
+@media(max-width:700px){
+ body[data-engine=flower] #command-dock{
+  left:50%;right:auto;bottom:calc(94px + env(safe-area-inset-bottom));
+  width:min(390px,calc(100vw - 16px));max-width:calc(100vw - 16px);
+  transform:translateX(-50%)
+ }
+ body[data-engine=flower] #command-dock .command-selection-row{
+  min-height:38px;margin-bottom:4px;padding:0
+ }
+ body[data-engine=flower] #command-dock .squad-line{max-width:54%;padding:7px 9px;gap:6px}
+ body[data-engine=flower] #command-dock .squad-line strong{
+  max-width:140px;min-width:0;font-size:11px
+ }
+ body[data-engine=flower] #command-dock .squad-line>span{
+  min-width:0;max-width:52px;font-size:9px
+ }
+ body[data-engine=flower] #command-dock .selection-tools{gap:3px}
+ body[data-engine=flower] #command-dock .selection-tools button{
+  min-width:44px;height:40px;padding:5px 6px;font-size:10px
+ }
+ body[data-engine=flower] #command-dock .selection-tools #clear-selection{min-width:34px;width:34px}
+ body[data-engine=flower] #command-dock .selection-tools button .ui-icon{
+  width:15px;height:15px
+ }
+ body[data-engine=flower] #command-dock .commands button{min-height:68px}
+ body[data-engine=flower] #command-dock .commands button .ui-icon{width:44px;height:44px;padding:10px}
+ body[data-engine=flower] .tactical-popover{
+  left:50%;right:auto;transform:translateX(-50%);
+  bottom:calc(202px + env(safe-area-inset-bottom));
+  width:min(386px,calc(100vw - 20px));max-width:calc(100vw - 20px);
+  padding:11px
+ }
+ body[data-engine=flower] #formation-controls button{min-height:73px;padding:6px 1px}
+ body[data-engine=flower] #formation-controls button .ui-icon{width:26px;height:26px}
+ body[data-engine=flower] #formation-controls button span{font-size:9px}
+ body[data-engine=flower] #squad-panel .selection-actions button{min-height:44px}
+ body[data-engine=flower] #command-dock .command-help{display:none}
+ body[data-engine=flower][data-command-mode=move] #command-dock .command-help,
+ body[data-engine=flower][data-command-mode=attack] #command-dock .command-help,
+ body[data-engine=flower][data-command-mode=flank] #command-dock .command-help{
+  display:flex;position:absolute;bottom:calc(100% + 5px);left:0;right:0;
+  gap:5px;align-items:center;justify-content:center;
+  background:#263438df;padding:4px 7px;border-radius:11px
+ }
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types button{
+  background:#2b373bd9;border:1px solid var(--ui-border);
+  color:var(--ui-ink)
+ }
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types button[aria-pressed=true]{
+  background:#536a74;border-color:#d6e3e6
+ }
+}
+@media(max-width:360px){
+ body[data-engine=flower] #command-dock .squad-line{max-width:46%}
+ body[data-engine=flower] #command-dock .selection-tools button{font-size:0;min-width:39px}
+ body[data-engine=flower] #command-dock .selection-tools button .ui-icon{width:18px;height:18px}
+ body[data-engine=flower] #command-dock .selection-tools #clear-selection{font-size:20px}
+}

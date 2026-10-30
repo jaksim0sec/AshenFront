@@ -53,7 +53,27 @@ function switchMode(m){
  $('deployment-toggle').textContent=m==='deploy'?'지휘 모드':'배치 모드';
  $('resume-deployment').hidden=!(match.phase==='preparation'&&m==='control');
 }
-function choose(id,more=false){if(!more)selected.clear();if(id){if(more&&selected.has(id))selected.delete(id);else selected.add(id);}document.body.dataset.selected=String(selected.size>0);if(selected.size&&playMode==='deploy')switchMode('control');roster();hud();}
+function closeTacticalPanels(){
+ $('squad-panel').hidden=true;
+ $('formation-panel').hidden=true;
+ $('orders-toggle').setAttribute('aria-expanded','false');
+ $('formation-toggle').setAttribute('aria-expanded','false');
+}
+function showTacticalPanel(name){
+ const panel=$(name),opening=panel.hidden;
+ closeTacticalPanels();
+ if(!opening)return;
+ setHudExpanded(false);
+ $('game-tools').hidden=true;
+ $('tools-toggle').setAttribute('aria-expanded','false');
+ document.body.classList.remove('map-open');
+ $('mobile-map-toggle').setAttribute('aria-expanded','false');
+ $('mobile-map-toggle').textContent='국지 지도 열기';
+ panel.hidden=false;
+ $(name==='squad-panel'?'orders-toggle':'formation-toggle').setAttribute('aria-expanded','true');
+}
+
+function choose(id,more=false){if(!more)selected.clear();if(id){if(more&&selected.has(id))selected.delete(id);else selected.add(id);}document.body.dataset.selected=String(selected.size>0);if(!selected.size)closeTacticalPanels();if(selected.size&&playMode==='deploy')switchMode('control');roster();hud();}
 let feedbackTimer=null;
 function showCommandFeedback(target,action){
  const p=target?.unitId?board.unit(target.unitId):target;
@@ -75,8 +95,8 @@ function command(action,target=null){
 function setCommand(m){mode=m;document.body.dataset.commandMode=m||'none';hover=null;for(const name of ['move','attack','flank'])$(name).classList.toggle('active',name===m);notice(m==='attack'?'공격할 적을 터치하세요':m==='flank'?'우회 위치를 터치하세요':m==='move'?'이동 위치를 터치하세요':'분대를 선택해 명령하세요');}
 function deploy(p){const s=match.deploy('A','infantry',p);if(!s){notice('배치 불가 · 진영의 빈 공간을 선택하세요');return;}if(deployFormation!=='line')configureSquad(board,s.id,{formation:deployFormation});notice('제'+match.squadIds.A.length+'분대 배치 · 예비 '+match.reserve.A+'명');if(!match.reserve.A)switchMode('control');roster();hud();}
 function autoDeploy(){const r=autoDeployPlayer(match);notice(r.complete?'배치 완료':'배치할 공간이 부족합니다');if(r.complete)switchMode('control');roster();hud();return r.complete;}
-function start(){if(match.phase!=='preparation')return;setHudExpanded(false);if(!autoDeploy())return;match.start();if(match.phase!=='battle'){notice('전투 시작 실패');return;}switchMode('control');document.body.dataset.phase='battle';if(!selected.size&&squads().length)selected.add(squads()[0].id);notice('전투 시작 · 개나리워즈 원본 지휘 체계 가동');roster();hud();}
-function restart(){setHudExpanded(false);document.body.classList.remove('map-open');$('game-tools').hidden=true;({board,match}=createAshenMatch({seed,count:armySize}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();notice('아군 진영에 병력을 배치하세요');roster();hud();}
+function start(){if(match.phase!=='preparation')return;closeTacticalPanels();setHudExpanded(false);if(!autoDeploy())return;match.start();if(match.phase!=='battle'){notice('전투 시작 실패');return;}switchMode('control');document.body.dataset.phase='battle';if(!selected.size&&squads().length)selected.add(squads()[0].id);notice('전투 시작 · 개나리워즈 원본 지휘 체계 가동');roster();hud();}
+function restart(){closeTacticalPanels();setHudExpanded(false);document.body.classList.remove('map-open');$('game-tools').hidden=true;({board,match}=createAshenMatch({seed,count:armySize}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();notice('아군 진영에 병력을 배치하세요');roster();hud();}
 function locate(px,py){const r=unproject((px-camera.x)/camera.scale,(py-camera.y)/camera.scale),x=Math.round(r.x),y=Math.round(r.y);return board.inside(x,y)?{x,y}:null;}
 function hit(px,py){let closest=null,d=25;for(const u of board.units){if(u.health.current<=0)continue;const p=project(u.visualX,u.visualY),dist=Math.hypot(px-camera.x-p.x*camera.scale,py-camera.y-p.y*camera.scale+25*camera.scale);if(dist<d){d=dist;closest=u;}}return closest;}
 function tap(px,py,shift=false){const p=locate(px,py);if(!p)return;if(playMode==='deploy'&&match.phase==='preparation'){deploy(p);return;}const u=hit(px,py);
@@ -280,33 +300,40 @@ function hud(){
  $('start-battle').hidden=match.phase!=='preparation';$('match-charge').hidden=match.phase!=='battle';$('auto-deploy').hidden=match.phase!=='preparation'||match.reserve.A===0;$('deployment-toggle').hidden=match.phase!=='preparation';
  const ids=selectedIds(),s=squadsFor(board).get(ids[0]);$('squad-name').textContent=ids.length>1?ids.length+'개 분대 선택':s?'제'+(s.matchIndex+1)+'분대 · '+living(s).length+'명':'분대 지휘';
  $('squad-info').textContent=s?phaseName(s):'';$('objective').textContent='적 지휘소 점령 또는 적군 전멸';
+ const formationLabels={line:'횡대',column:'종대',dense:'밀집',spread:'산개',square:'방진'};
+ const formationsSelected=ids.map(id=>squadsFor(board).get(id)?.formation||'line');
+ const formation=formationsSelected.length&&formationsSelected.every(x=>x===formationsSelected[0])?formationsSelected[0]:null;
+ $('formation-current').textContent=formation?(formationLabels[formation]||'기본 진형'):'혼합 진형';
+ for(const button of $('formation-controls').children){
+  const active=!!formation&&button.dataset.formation===formation;
+  button.classList.toggle('active',active);
+  button.setAttribute('aria-pressed',String(active));
+ }
  if(match.phase==='finished'&&$('result').hidden){roster();$('result').hidden=false;$('result').querySelector('h1').textContent=match.winner==='draw'?'무승부':match.winner==='A'?'아르켄 승리':'벨리안 승리';$('result').querySelector('p').textContent=match.finishReason==='annihilation'?'병력 전멸':'지휘소 함락';}
 }
 function bind(){
- const hud=$('match-hud'),tools=$('game-tools'),formationPanel=$('formation-panel');
+ const hud=$('match-hud'),tools=$('game-tools');
+ const squadPanel=$('squad-panel'),formationPanel=$('formation-panel');
  const dismissedWorldPointers=new Set();
  const setMapOpen=open=>{
   document.body.classList.toggle('map-open',open);
   $('mobile-map-toggle').setAttribute('aria-expanded',String(open));
   $('mobile-map-toggle').textContent=open?'국지 지도 닫기':'국지 지도 열기';
-  if(open)paintMini();
+  if(open){closeTacticalPanels();tools.hidden=true;setHudExpanded(false);paintMini();}
  };
- $('hud-toggle').onclick=()=>{tools.hidden=true;setHudExpanded(!hud.classList.contains('is-open'));};
+ $('hud-toggle').onclick=()=>{
+  const opening=!hud.classList.contains('is-open');
+  closeTacticalPanels();tools.hidden=true;setMapOpen(false);setHudExpanded(opening);
+ };
+ // Outside-tap dismissals never create a hidden world command or troop deployment.
  document.addEventListener('pointerdown',event=>{
-  const hitCanvas=event.target===canvas;
+  const target=event.target,hitCanvas=target===canvas;
   let dismissed=false;
-  if(hud.classList.contains('is-open')&&!hud.contains(event.target)){
-   setHudExpanded(false);dismissed=true;
-  }
-  if(!tools.hidden&&!tools.contains(event.target)&&!$('tools-toggle').contains(event.target)){
-   tools.hidden=true;dismissed=true;
-  }
-  if(document.body.classList.contains('map-open')&&!mini.contains(event.target)&&!$('toggle-map').contains(event.target)&&!$('mobile-map-toggle').contains(event.target)){
-   setMapOpen(false);dismissed=true;
-  }
-  if(!formationPanel.hidden&&!formationPanel.contains(event.target)&&!$('formation-toggle').contains(event.target)){
-   formationPanel.hidden=true;$('formation-toggle').setAttribute('aria-expanded','false');dismissed=true;
-  }
+  if(hud.classList.contains('is-open')&&!hud.contains(target)){setHudExpanded(false);dismissed=true;}
+  if(!tools.hidden&&!tools.contains(target)&&!$('tools-toggle').contains(target)){tools.hidden=true;dismissed=true;}
+  if(document.body.classList.contains('map-open')&&!mini.contains(target)&&!$('toggle-map').contains(target)&&!$('mobile-map-toggle').contains(target)){setMapOpen(false);dismissed=true;}
+  if(!squadPanel.hidden&&!squadPanel.contains(target)&&!$('orders-toggle').contains(target)){closeTacticalPanels();dismissed=true;}
+  if(!formationPanel.hidden&&!formationPanel.contains(target)&&!$('formation-toggle').contains(target)){closeTacticalPanels();dismissed=true;}
   if(dismissed&&hitCanvas)dismissedWorldPointers.add(event.pointerId);
  },true);
  if(matchMedia('(hover:hover) and (pointer:fine)').matches){
@@ -328,22 +355,26 @@ function bind(){
  $('command-all').onclick=()=>{selected=new Set(squads().map(s=>s.id));command('advance',{x:match.flags.B.x,y:match.flags.B.y});roster();};
  $('match-charge').onclick=()=>$('command-all').click();
  for(const [id,name] of [['move','advance'],['attack','focus'],['flank','flank'],['hold','hold'],['rally','rally']])$(id).innerHTML=icon(name)+'<span>'+$(id).textContent+'</span>';
+ $('orders-toggle').innerHTML=icon('platoon')+'<span>부대</span>';
+ $('formation-toggle').innerHTML=icon('line')+'<span>진형</span>';
+ $('multi-select').innerHTML=icon('plus')+'<span>추가 선택</span>';
+ $('selection-platoon').innerHTML=icon('platoon')+'<span>소대 선택</span>';
+ $('selection-locate').innerHTML=icon('fit')+'<span>부대 보기</span>';
  const formations={line:'횡대',column:'종대',dense:'밀집',spread:'산개',square:'방진'};
- for(const [name,label]of Object.entries(formations)){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{for(const id of selectedIds())configureSquad(board,id,{formation:name});$('formation-panel').hidden=true;};$('formation-controls').append(b);}
- $('formation-toggle').onclick=()=>{
-  const panel=$('formation-panel');panel.hidden=!panel.hidden;
-  $('formation-toggle').setAttribute('aria-expanded',String(!panel.hidden));
-  if(!panel.hidden){$('command-dock').classList.remove('is-expanded');$('orders-toggle').setAttribute('aria-expanded','false');}
- };
- $('cancel').onclick=()=>setCommand(null);$('orders-toggle').onclick=()=>{
-  const dock=$('command-dock'),expanded=dock.classList.toggle('is-expanded');
-  $('orders-toggle').setAttribute('aria-expanded',String(expanded));
-  if(expanded){formationPanel.hidden=true;$('formation-toggle').setAttribute('aria-expanded','false');}
- };
- if(matchMedia('(max-width:700px)').matches){
-  $('command-dock').classList.remove('is-expanded');
-  $('orders-toggle').setAttribute('aria-expanded','false');
+ for(const [name,label]of Object.entries(formations)){
+  const b=document.createElement('button');b.type='button';b.dataset.formation=name;
+  b.innerHTML=icon(name)+'<span>'+label+'</span>';b.setAttribute('aria-pressed','false');
+  b.onclick=()=>{
+   for(const id of selectedIds())configureSquad(board,id,{formation:name});
+   closeTacticalPanels();hud();roster();
+  };
+  $('formation-controls').append(b);
  }
+ $('formation-toggle').onclick=()=>showTacticalPanel('formation-panel');
+ $('orders-toggle').onclick=()=>showTacticalPanel('squad-panel');
+ $('squad-panel-close').onclick=closeTacticalPanels;
+ $('formation-close').onclick=closeTacticalPanels;
+ $('cancel').onclick=()=>setCommand(null);
  $('multi-select').onclick=()=>{additive=!additive;$('multi-select').setAttribute('aria-pressed',String(additive));};
  $('clear-selection').onclick=()=>choose(null);$('select-all').onclick=()=>{selected=new Set(squads().map(s=>s.id));roster();hud();};
  $('select-squad').onclick=()=>document.body.classList.toggle('roster-open');
@@ -354,14 +385,10 @@ function bind(){
  $('focus-objective').onclick=()=>focus(match.flags.B.x,match.flags.B.y);$('focus-squad').onclick=()=>$('selection-locate').click();
  $('home-view').onclick=()=>focus(match.flags.A.x,match.flags.A.y);$('enemy-view').onclick=()=>focus(match.flags.B.x,match.flags.B.y);
  $('toggle-map').onclick=()=>setMapOpen(!document.body.classList.contains('map-open'));
- $('mobile-map-toggle').onclick=()=>{
-  setMapOpen(!document.body.classList.contains('map-open'));
-  tools.hidden=true;
- };
+ $('mobile-map-toggle').onclick=()=>setMapOpen(!document.body.classList.contains('map-open'));
  $('tools-toggle').onclick=()=>{
   const opening=tools.hidden;
-  setHudExpanded(false);
-  if(opening)setMapOpen(false);
+  closeTacticalPanels();setHudExpanded(false);setMapOpen(false);
   tools.hidden=!opening;
   $('tools-toggle').setAttribute('aria-expanded',String(opening));
  };
@@ -384,7 +411,7 @@ function bind(){
  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
  canvas.addEventListener('pointerleave',()=>{hover=null;});
  mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect();const area=miniArea||minimapRegion(board,camera,canvas.clientWidth,canvas.clientHeight);const target=minimapWorldPoint(area,e.clientX-r.left,e.clientY-r.top,r.width,r.height);focus(Math.max(0,Math.min(board.width-1,target.x)),Math.max(0,Math.min(board.height-1,target.y)));paintMini();});
- addEventListener('resize',()=>{resize();if(!matchMedia('(max-width:700px)').matches)setHudExpanded(false);});document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const key=e.key.toLowerCase();if(key==='m')setCommand('move');if(key==='a')setCommand('attack');if(key==='h')$('hold').click();if(key==='escape'){setCommand(null);setHudExpanded(false);tools.hidden=true;setMapOpen(false);formationPanel.hidden=true;}if(key===' '){e.preventDefault();$('pause').click();}});
+ addEventListener('resize',()=>{resize();if(!matchMedia('(max-width:700px)').matches)setHudExpanded(false);});document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const key=e.key.toLowerCase();if(key==='m')setCommand('move');if(key==='a')setCommand('attack');if(key==='h')$('hold').click();if(key==='escape'){setCommand(null);setHudExpanded(false);tools.hidden=true;setMapOpen(false);closeTacticalPanels();}if(key===' '){e.preventDefault();$('pause').click();}});
 }
 function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  if(!paused&&dt){board.update(Math.min(dt,.05));match.update(dt);if(t-lastOrders>=50){updateSquadOrders(board);lastOrders=t;}}
