@@ -242,7 +242,7 @@ function runOrder(board,s,replace=false){
    if(!p||u.command?.type==='move'&&u.command.x===p.x&&u.command.y===p.y)continue;
    if(u.state==='attack'&&u.strike)continue;
    if(!replace&&u.command?.type!=='move'&&(u.state!=='idle'||u.step))continue;
-   board.move(u.id,p.x,p.y,{replace:replace||u.command?.type==='move',direct:true,squadRoute:o.marchRoute});
+   board.move(u.id,p.x,p.y,{replace:replace||u.command?.type==='move',direct:true,squadRoute:o.marchRoute,engage:!['move','retreat'].includes(o.type)});
  }});
  for(const u of units)u.combat.formationLocked=true;
  if(!o.waypoints.length)o.phase=arrived===units.length?(['fortify','firing-line'].includes(o.type)?'holding':'arrived'):'moving';

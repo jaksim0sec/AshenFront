@@ -184,7 +184,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
   troops.push(u);
  }
- troops.sort((a,b)=>a.visualX+a.visualY-b.visualX-b.visualY||a.id-b.id);
+ troops.sort((a,b)=>a.visualX+a.visualY+(a.step?.via ? .3 : 0)-b.visualX-b.visualY-(b.step?.via ? .3 : 0)||a.id-b.id);
  visibleTroops=troops.length;
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
  const shotStamp=renderedFrames+1;

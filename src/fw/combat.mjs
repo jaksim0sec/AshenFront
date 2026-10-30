@@ -62,6 +62,7 @@ function *localCandidates(board,actor) {
     const x=actor.x+dx,y=actor.y+dy;if(!board.inside(x,y))continue;
     const cell=y*board.width+x;board.combatStats.probes+=2;
     yield board.cells.get(cell);yield board.reservations.get(cell);
+    if(board.passage.size){board.combatStats.probes++;yield board.passage.get(cell);}
   }
 }
 export function findLocalEnemy(board,actor) {
@@ -91,7 +92,7 @@ function nextSearch(board,actor) {
 export function tryAutoAttack(board,actor) {
   // A selected target is an explicit pursuit order, not a suggestion that
   // opportunistic local auto-fire may indefinitely override.
-  if(actor.healing||actor.command?.type==='attack')return false;
+  if(actor.healing||actor.command?.type==='attack'||actor.command?.engage===false)return false;
   if(!actor.combat.auto||!actor.team||actor.step)return false;
   let target=board.unit(actor.combat.targetId);
   if(!validEnemy(board,actor,target)) {

@@ -14,7 +14,7 @@ export class Navigation {
     this.board=board; this.fields=new Map();this.routeCache=new Map();this.routeCells=0; this.pending=null; this.cursor=0;
     this.staticEdges=new Int32Array(board.width*board.height*4);this.staticEdgeVersions=new Uint32Array(board.width*board.height);
     this.remaining=SEARCH_BUDGET;this.cooperations=new Set();this.occupancyVersions=new Uint32Array(board.width*board.height);this.congestion=new Map();
-    this.stats={fieldBuilds:0,cacheHits:0,detours:0,expansions:0,lastExpansions:0,cooperativeSteps:0,cooperativeRequests:0,cooperativeFailures:0,sharedBuilds:0,sharedHits:0,staticBuilds:0,quietHits:0,staticCacheHits:0};
+    this.stats={fieldBuilds:0,cacheHits:0,detours:0,expansions:0,lastExpansions:0,cooperativeSteps:0,cooperativeRequests:0,cooperativeFailures:0,sharedBuilds:0,sharedHits:0,staticBuilds:0,quietHits:0,staticCacheHits:0,passages:0};
   }
   invalidate(){this.fields.clear();this.routeCache.clear();this.routeCells=0;this.pending=null;}
   index(x,y){return y*this.board.width+x;}
@@ -283,6 +283,47 @@ export class Navigation {
     this.stats.sharedHits++;
     return [...local.prefix,...trunk.slice(local.entry+1),...local.suffix];
   }
+  // Static terrain is immutable during a step; only the nearby two cells need admission.
+  canPass(u,via,exit){
+    const b=this.board;
+    if(!u.team||!via||!exit||u.step||!b.inside(via.x,via.y)||!b.inside(exit.x,exit.y))return false;
+    if(Math.abs(via.x-u.x)+Math.abs(via.y-u.y)!==1||Math.abs(exit.x-via.x)+Math.abs(exit.y-via.y)!==1)return false;
+    if(exit.x===u.x&&exit.y===u.y)return false;
+    const middle=this.index(via.x,via.y),last=this.index(exit.x,exit.y);
+    if(this.blocked(middle)||b.passage.has(middle)||!this.free(last,u))return false;
+    const owner=b.unit(b.cells.get(middle)??b.reservations.get(middle));
+    return !!owner&&owner.id!==u.id&&owner.health.current>0&&owner.team===u.team;
+  }
+  requestPass(u,via,exit){
+    if(!this.canPass(u,via,exit))return false;
+    const b=this.board,command=u.command,courtesy=u.courtesy;
+    let from={x:u.x,y:u.y};
+    for(const to of [via,exit]){
+      const decision=b.movementPolicy?.beforeStep?.({board:b,unit:u,from,to,obstacle:b.obstacles.get(this.index(to.x,to.y))})||'move';
+      if(decision==='cancel'){b.cancelCommand(u);return false;}
+      if(decision!=='move'){this.wait(u,'condition');return false;}
+      from=to;
+    }
+    if(b.unit(u.id)!==u||u.health.current<=0||u.step||u.command!==command||courtesy&&u.courtesy!==courtesy)return false;
+    this.offer(u,exit,via);return true;
+  }
+  directStep(u,x,y){
+    const start=this.index(u.x,u.y),distance=Math.abs(x-u.x)+Math.abs(y-u.y);
+    let free=null,pass=null;
+    for(const cell of this.neighbors(start,u)){
+      if(cell<0||this.blocked(cell))continue;
+      const p=this.coords(cell),remaining=Math.abs(x-p.x)+Math.abs(y-p.y);
+      if(remaining>=distance)continue;
+      const exit={x:p.x+(p.x-u.x),y:p.y+(p.y-u.y)};
+      if(this.free(cell,u)){free={p,exit};break;}
+      if(!pass&&this.canPass(u,p,exit))pass={p,exit};
+    }
+    if(free){
+      const hint=this.board.inside(free.exit.x,free.exit.y)&&Math.abs(x-free.exit.x)+Math.abs(y-free.exit.y)<distance?free.exit:null;
+      return !!this.requestStep(u,free.p,hint);
+    }
+    return pass?this.requestPass(u,pass.p,pass.exit):false;
+  }
   plan(u) {
     const b=this.board;
     if(u.step||!['idle','walk'].includes(u.state))return;
@@ -291,7 +332,7 @@ export class Navigation {
     if(b.unit(u.id)!==u||u.health.current<=0||u.step||!['idle','walk'].includes(u.state))return;
     // Engage first. A preferred rifle distance must never cause a retreat
     // while a valid enemy can be fired upon.
-    if(b.tryAutoAttack(u)){if(u.courtesy)this.cancelCooperation(u);return;}
+    if(u.command?.engage!==false&&b.tryAutoAttack(u)){if(u.courtesy)this.cancelCooperation(u);return;}
     if(this.keepDistance(u))return;
     if(u.courtesy&&this.serviceCooperation(u))return;
     if(this.returnCourtesy(u))return;
@@ -308,6 +349,8 @@ export class Navigation {
     if(b.time<(u.retryAt||0))return;
     const start=this.index(u.x,u.y),routeKey=`${x},${y},${b.obstacleRevision}`;
     if(u.guideKey!==routeKey) {
+      // Immediate O(1) progress; fall back to cached/static routing at hard blockers.
+      if((command.direct||command.type==='attack')&&this.directStep(u,x,y))return;
       if(command.direct&&b.obstacles.size){
         let route=this.sharedSquadGuide(u,x,y,routeKey);
         if(route===undefined)route=this.staticRoute(u,x,y,routeKey);
@@ -355,6 +398,10 @@ export class Navigation {
       if(this.free(u.guide[0],u))next=desired;
       else blocker=b.at(desired.x,desired.y)||b.unit(b.reservations.get(u.guide[0]));
     }
+    if(!next&&blocker?.team===u.team&&u.guide.length>1){
+      const exit=this.coords(u.guide[1]);
+      if(this.requestPass(u,desired,exit))return;
+    }
     const candidates=this.neighbors(start,u);
     if(!next) {
       const waited=b.time-(u.waitSince??b.time);
@@ -401,7 +448,7 @@ export class Navigation {
     }
     this.requestStep(u,next);
   }
-  requestStep(u,next){
+  requestStep(u,next,exitHint=null){
     const b=this.board,command=u.command,courtesy=u.courtesy,fromX=u.x,fromY=u.y;
     if(Math.abs(next.x-u.x)+Math.abs(next.y-u.y)!==1)return;
     const decision=b.movementPolicy?.beforeStep?.({board:b,unit:u,from:{x:u.x,y:u.y},to:{...next},obstacle:b.obstacles.get(this.index(next.x,next.y))})||'move';
@@ -410,7 +457,7 @@ export class Navigation {
     if(decision!=='move'){this.wait(u,'condition');return;}
     // Hooks may change the board; validate once more before reserving.
     if(!this.free(this.index(next.x,next.y),u)){this.wait(u,'traffic');return;}
-    this.offer(u,next);return true;
+    this.offer(u,next,null,exitHint);return true;
   }
   returnCourtesy(u){
     const home=u.courtesyReturn,b=this.board;if(!home||u.command)return false;
@@ -555,9 +602,10 @@ export class Navigation {
     if(!best)return false;
     if(!this.requestStep(u,best))return false;u.combat.spacingAt=b.time+.6;return true;
   }
-  offer(u,next){
-    if(this.collecting){this.intents.set(u.id,{u,next,command:u.command,courtesy:u.courtesy});return;}
-    this.board.beginStep(u,next);u.waitReason=null;u.waitSince=null;u.retryAt=0;
+  offer(u,next,via=null,exitHint=null){
+    if(this.collecting){this.intents.set(u.id,{u,next,via,exitHint,command:u.command,courtesy:u.courtesy});return;}
+    if(via)this.board.beginPass(u,via,next);else this.board.beginStep(u,next);
+    u.waitReason=null;u.waitSince=null;u.retryAt=0;
   }
   waitingAge(u){
     const now=this.board.time,inherited=u.courtesy?.chain.root.waitSince;
@@ -565,22 +613,46 @@ export class Navigation {
   }
   startCollection(){this.collecting=true;this.intents=new Map();}
   commit(){
-    const b=this.board,winners=new Map();this.collecting=false;
+    const b=this.board,winners=new Map(),passes=[],denied=new Map();
+    this.collecting=false;
+    const valid=({u,command,courtesy})=>b.unit(u.id)===u&&u.health.current>0&&u.command===command&&(!courtesy||u.courtesy===courtesy)&&!u.step&&['idle','walk'].includes(u.state);
+    const outranks=(a,c)=>{
+      if(!c)return true;
+      const age=this.waitingAge(a.u),oldAge=this.waitingAge(c.u);
+      return age>oldAge||age===oldAge&&mix(a.u.priorityKey^b.decisionEpoch)>mix(c.u.priorityKey^b.decisionEpoch);
+    };
     for(const intent of this.intents.values()){
-      const {u,next}=intent;
-      if(b.unit(u.id)!==u||u.health.current<=0||u.command!==intent.command||intent.courtesy&&u.courtesy!==intent.courtesy||u.step||!['idle','walk'].includes(u.state))continue;
-      const key=this.index(next.x,next.y),old=winners.get(key);
-      const age=this.waitingAge(u),oldAge=old?this.waitingAge(old.u):-1;
-      const rank=mix(u.priorityKey^b.decisionEpoch),oldRank=old?mix(old.u.priorityKey^b.decisionEpoch):0;
-      if(!old||age>oldAge||age===oldAge&&rank>oldRank)winners.set(key,intent);
+      if(!valid(intent)||intent.via)continue;
+      const key=this.index(intent.next.x,intent.next.y);
+      if(outranks(intent,winners.get(key)))winners.set(key,intent);
     }
     for(const intent of this.intents.values()){
-      const {u,next,command}=intent;
-      if(b.unit(u.id)!==u||u.health.current<=0||u.command!==command||intent.courtesy&&u.courtesy!==intent.courtesy||u.step||!['idle','walk'].includes(u.state))continue;
-      if(winners.get(this.index(next.x,next.y))!==intent||!this.free(this.index(next.x,next.y),u)){
-        u.route.unshift(next);this.wait(u,'traffic',.12);continue;
+      if(!valid(intent))continue;
+      if(intent.via){passes.push(intent);denied.set(intent.u.id,intent);continue;}
+      const {u,next}=intent,key=this.index(next.x,next.y);
+      if(winners.get(key)===intent&&this.free(key,u)){
+        b.beginStep(u,next);u.waitReason=null;u.waitSince=null;u.retryAt=0;continue;
       }
-      b.beginStep(u,next);u.waitReason=null;u.waitSince=null;u.retryAt=0;
+      const exit=intent.exitHint||(u.guide?.[0]===key&&u.guide.length>1?this.coords(u.guide[1]):null);
+      if(exit)passes.push({...intent,via:next,next:exit});
+      denied.set(u.id,intent);
+    }
+    const passWinners=new Map();
+    for(const intent of passes){
+      if(!valid(intent)||!this.canPass(intent.u,intent.via,intent.next))continue;
+      const key=this.index(intent.via.x,intent.via.y);
+      if(outranks(intent,passWinners.get(key)))passWinners.set(key,intent);
+    }
+    for(const intent of passWinners.values()){
+      const {u,via,next}=intent;
+      if(!this.canPass(u,via,next))continue;
+      b.beginPass(u,via,next);denied.delete(u.id);this.stats.passages++;
+      u.waitReason=null;u.waitSince=null;u.retryAt=0;
+    }
+    for(const intent of denied.values()){
+      const {u,next}=intent;if(!valid(intent))continue;
+      if(!intent.via)u.route.unshift(next);
+      this.wait(u,'traffic',.12);
     }
     this.intents.clear();
   }

@@ -15,6 +15,7 @@ export class SpatialIndex {
   move(actor) {
     const keys=new Set([this.key(actor.x,actor.y)]);
     if(actor.step)keys.add(this.key(actor.step.x,actor.step.y));
+    if(actor.step?.via)keys.add(this.key(actor.step.via.x,actor.step.via.y));
     keys.delete(null);
     const previous=this.memberships.get(actor.id)||new Set();
     for(const key of previous)if(!keys.has(key)) {

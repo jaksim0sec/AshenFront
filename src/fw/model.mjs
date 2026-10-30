@@ -73,7 +73,7 @@ export class Board {
     this.match=null;this.battlefield=null;
     this.terrainRevision=(this.terrainRevision||0)+1;
     this.decisionEpoch=0;
-    this.units = []; this.byId=new Map(); this.cells=new Map(); this.reservations=new Map();this.teamAlive={A:0,B:0};
+    this.units = []; this.byId=new Map(); this.cells=new Map(); this.reservations=new Map();this.passage=new Map();this.teamAlive={A:0,B:0};
     this.flows={east:0,west:0,south:0,north:0};
     this.obstacles=new Map();this.obstacleRevision=0;this.navClock=0;this.navigation=new Navigation(this);
     this.spatial=new SpatialIndex(this.width,this.height);
@@ -89,8 +89,8 @@ export class Board {
     const oldWidth=this.width,terrain=this.terrain,obstacles=this.obstacles;
     this.width=width;this.height=height;this.terrain=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>terrain[y]?.[x]||'grass'));
     this.obstacles=new Map();for(const[n,info]of obstacles){const p={x:n%oldWidth,y:Math.floor(n/oldWidth)};if(inside(p))this.obstacles.set(p.y*width+p.x,info);}
-    this.cells=new Map();this.reservations=new Map();this.spatial=new SpatialIndex(width,height);this.navigation=new Navigation(this);this.navClock=0;
-    for(const u of this.units){u.guide=[];u.detourPotential=null;u.guideKey=null;u.route=[];if(u.health.current<=0)continue;this.cells.set(u.y*width+u.x,u.id);if(u.step)this.reservations.set(u.step.y*width+u.step.x,u.id);this.spatial.add(u);this.navigation.touch(u.x,u.y);}
+    this.cells=new Map();this.reservations=new Map();this.passage=new Map();this.spatial=new SpatialIndex(width,height);this.navigation=new Navigation(this);this.navClock=0;
+    for(const u of this.units){u.guide=[];u.detourPotential=null;u.guideKey=null;u.route=[];if(u.health.current<=0)continue;this.cells.set(u.y*width+u.x,u.id);if(u.step)this.reservations.set(u.step.y*width+u.step.x,u.id);if(u.step?.via)this.passage.set(u.step.via.y*width+u.step.via.x,u.id);this.spatial.add(u);this.navigation.touch(u.x,u.y);}
     this.terrainRevision++;this.obstacleRevision++;return true;
   }
   setAutoCombat(enabled=true){
@@ -115,7 +115,8 @@ export class Board {
   get busy() { return this.units.some(u => u.state !== 'idle' && u.state !== 'death'); }
   occupied(x,y,except=null) {
     const index=y*this.width+x;
-    return [this.cells.get(index),this.reservations.get(index)].some(id=>id!=null&&id!==except);
+    const owner=this.cells.get(index),reserved=this.reservations.get(index),passing=this.passage.get(index);
+    return owner!=null&&owner!==except||reserved!=null&&reserved!==except||passing!=null&&passing!==except;
   }
   setObstacle(x,y,info=null) {
     if(!this.inside(x,y)||info?.blocked!==false&&info&&this.occupied(x,y))return false;
@@ -152,7 +153,7 @@ export class Board {
     if(!outer)nav.startCollection();
     try{return callback();}finally{if(!outer)nav.commit();}
   }
-  move(id,x,y,{replace=false,direct=false,plannedPath=null,squadRoute=null}={}) {
+  move(id,x,y,{replace=false,direct=false,plannedPath=null,squadRoute=null,engage=true}={}) {
     const u=this.unit(id);
     if(this.match?.phase==='finished'||this.match?.phase==='preparation'&&u&&!this.match.inTerritory(u.team,{x,y}))return false;
     if(!u||u.structure||u.health.current<=0||!replace&&(u.state!=='idle'||u.step)||!this.inside(x,y)||this.navigation.blocked(y*this.width+x)||u.x===x&&u.y===y&&!u.step)return false;
@@ -166,7 +167,7 @@ export class Board {
     const field=direct?null:this.navigation.field(x,y);
     if(field?.complete&&field.at(u.y*this.width+u.x)<0)return false;
     if(replace)this.interrupt(u);else this.cancelCommand(u);const flow=Math.abs(x-u.x)>=Math.abs(y-u.y)?(x>u.x?'east':'west'):(y>u.y?'south':'north');
-    u.lastMoveGoal={x,y};u.command={type:'move',x,y,flow,direct};u.squadRoute=squadRoute;this.flows[flow]++;
+    u.lastMoveGoal={x,y};u.command={type:'move',x,y,flow,direct,engage};u.squadRoute=squadRoute;this.flows[flow]++;
     if(plannedPath){u.guide=[...plannedPath];u.guideKey=`${x},${y},${this.obstacleRevision}`;}
     this.navigation.plan(u);return true;
   }
@@ -183,6 +184,15 @@ export class Board {
     u.facing=project(next.x-u.x,next.y-u.y).x>=0?1:-1;
   }
 
+  beginPass(u,via,exit){
+    // Transit never overwrites the occupied cell; its exit is reserved atomically.
+    const duration=2*Math.max(u.movement.stepTime,u.marchStepTime||0)*terrainStepMultiplier(this,u,exit);
+    u.hasMoved=true;u.state='walk';u.elapsed=0;
+    u.step={x:exit.x,y:exit.y,via:{x:via.x,y:via.y},elapsed:0,duration};u.path=[via,exit];
+    this.passage.set(via.y*this.width+via.x,u.id);this.reservations.set(exit.y*this.width+exit.x,u.id);
+    this.spatial.move(u);this.navigation.touch(u.x,u.y);this.navigation.touch(via.x,via.y);this.navigation.touch(exit.x,exit.y);
+    u.facing=project(via.x-u.x,via.y-u.y).x>=0?1:-1;
+  }
   inAttackRange(u,target,physical=true){return inAttackRange(u,target,physical);}
   tryAutoAttack(u){return tryAutoAttack(this,u);}
   beginAttack(u,targetId=u.target,automatic=false) {
@@ -248,7 +258,7 @@ export class Board {
       u.elapsed=0;u.state='death';u.strike=null;u.impacted=false;
     }
     u.deathDirection=direction;
-    if(u.health.current<=0){if(u.team in this.teamAlive)this.teamAlive[u.team]=Math.max(0,this.teamAlive[u.team]-1);this.navigation.touch(u.x,u.y);if(u.step)this.navigation.touch(u.step.x,u.step.y);this.cells.delete(u.y*this.width+u.x);if(u.step)this.reservations.delete(u.step.y*this.width+u.step.x);u.step=null;this.spatial.remove(u);}
+    if(u.health.current<=0){if(u.team in this.teamAlive)this.teamAlive[u.team]=Math.max(0,this.teamAlive[u.team]-1);this.navigation.touch(u.x,u.y);if(u.step)this.navigation.touch(u.step.x,u.step.y);this.cells.delete(u.y*this.width+u.x);if(u.step)this.reservations.delete(u.step.y*this.width+u.step.x);if(u.step?.via&&this.passage.get(u.step.via.y*this.width+u.step.via.x)===u.id){this.passage.delete(u.step.via.y*this.width+u.step.via.x);this.navigation.touch(u.step.via.x,u.step.via.y);}u.step=null;this.spatial.remove(u);}
     return true;
   }
   update(dt) {
@@ -268,6 +278,7 @@ export class Board {
       if(p.elapsed+1e-9>=p.duration) {
         this.navigation.touch(u.x,u.y);this.navigation.touch(p.x,p.y);
         this.cells.delete(u.y*this.width+u.x);this.reservations.delete(p.y*this.width+p.x);
+        if(p.via&&this.passage.get(p.via.y*this.width+p.via.x)===u.id){this.passage.delete(p.via.y*this.width+p.via.x);this.navigation.touch(p.via.x,p.via.y);}
         u.x=p.x;u.y=p.y;u.visualX=u.x;u.visualY=u.y;this.cells.set(u.y*this.width+u.x,u.id);
         u.step=null;u.path=[];this.spatial.move(u);
         if(u.combat.charge)u.combat.chargeSteps=Math.min(u.combat.chargeDistance,u.combat.chargeSteps+1);
@@ -275,7 +286,13 @@ export class Board {
         this.movementPolicy?.onArrive?.({board:this,unit:u,at:{x:u.x,y:u.y}});
         if(u.command?.type==='move'&&u.x===u.command.x&&u.y===u.command.y){this.cancelCommand(u);if(u.state==='walk')u.state='idle';}
       } else {
-        const t=p.elapsed/p.duration;u.visualX=u.x+(p.x-u.x)*t;u.visualY=u.y+(p.y-u.y)*t;
+        const t=p.elapsed/p.duration;
+        if(p.via){
+          const first=t<.5,phase=first?t*2:(t-.5)*2,from=first?u:p.via,to=first?p.via:p;
+          const sideways=.22*(1-Math.abs(2*t-1)),dx=p.via.x-u.x,dy=p.via.y-u.y;
+          u.visualX=from.x+(to.x-from.x)*phase-dy*sideways;
+          u.visualY=from.y+(to.y-from.y)*phase+dx*sideways;
+        }else{u.visualX=u.x+(p.x-u.x)*t;u.visualY=u.y+(p.y-u.y)*t;}
       }
     }
     // Commit same-slice strikes before applying damage: neither actor order nor
