@@ -38,12 +38,9 @@ try:
     dock:document.querySelector('#command-dock').getBoundingClientRect().toJSON(),
     viewport:{width:innerWidth,height:innerHeight}
    })""")
-   if width>700:
-    assert positions['roster']['x']>width*.7,positions
-    assert abs(positions['dock']['x']+positions['dock']['width']/2-width/2)<35,positions
-   else:
-    assert positions['roster']['y']>height*.72,positions
-    assert positions['dock']['y']+positions['dock']['height']<=positions['roster']['y']+12,positions
+   assert positions['roster']['y']>height*.72,positions
+   assert positions['roster']['width']>width*.9,positions
+   assert positions['dock']['y']+positions['dock']['height']<=positions['roster']['y']+12,positions
    page.wait_for_timeout(1150)
    metrics=page.evaluate('__ashenFlower.renderStats')
    assert metrics['frames']>2,metrics
