@@ -79,3 +79,27 @@ test('zoom 0.07 retains sprites; camera pan reuses painted viewport cache',()=>{
   assert.equal(renderer.rebuilds,2);
  }finally{globalThis.document=priorDocument;globalThis.fetch=priorFetch;globalThis.Image=priorImage;}
 });
+
+test('terrain viewport LRU reuses return pans, settles zoom, and expires stale pages',()=>{
+ const oldDocument=globalThis.document,oldFetch=globalThis.fetch,oldImage=globalThis.Image;
+ const ctx=()=>({setTransform(){},clearRect(){},fillRect(){},translate(){},scale(){},save(){},restore(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clip(){},drawImage(){}});
+ try{
+  globalThis.document={createElement:()=>({width:0,height:0,getContext:ctx})};
+  globalThis.fetch=async()=>({ok:false});globalThis.Image=class{};
+  const renderer=new BattlefieldTerrainRenderer(),b=board(80,70),screen=ctx(),cam={x:0,y:0,scale:.3};
+  renderer.kind='new';renderer.atlas={};renderer.surface={};renderer.version++;
+  renderer.draw(screen,b,cam,390,844,1,false,1000);
+  renderer.draw(screen,b,{...cam,x:450},390,844,1,false,1100);
+  assert.equal(renderer.rebuilds,2);
+  renderer.draw(screen,b,cam,390,844,1,false,1200);
+  assert.equal(renderer.rebuilds,2);assert.ok(renderer.cacheHits>=1);
+  renderer.draw(screen,b,{...cam,scale:.32},390,844,1,false,1300);
+  assert.equal(renderer.rebuilds,2);assert.ok(renderer.zoomReuses>=1);
+  renderer.draw(screen,b,{...cam,scale:.32},390,844,1,false,1500);
+  assert.equal(renderer.rebuilds,3);
+  b.terrainRevision++;renderer.draw(screen,b,cam,390,844,1,false,1600);
+  assert.equal(renderer.rebuilds,4);
+  renderer.draw(screen,b,cam,390,844,1,false,23000);
+  assert.equal(renderer.rebuilds,5);assert.ok(renderer.evictions>=1);
+ }finally{globalThis.document=oldDocument;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
+});

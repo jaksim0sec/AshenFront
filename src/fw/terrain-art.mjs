@@ -154,9 +154,12 @@ function seams(ctx,board,tiles,map){
   ctx.strokeStyle=water?'#424c48b0':'#a2947e65';ctx.lineWidth=water?3:1.4;ctx.stroke();
  }
 }
+const PAGE_LIMIT=6,BYTE_LIMIT=40*1024*1024,IDLE_TTL=20000,ZOOM_SETTLE=120;
 export class BattlefieldTerrainRenderer{
  constructor(){
-  this.atlas=null;this.surface=null;this.kind='pending';this.decorations=null;this.version=0;this.cache=null;this.rebuilds=0;this.failures=[];
+  this.atlas=null;this.surface=null;this.kind='pending';this.decorations=null;this.version=0;
+  this.cache=null;this.pages=[];this.baseKey=null;this.cacheBytes=0;this.rebuilds=0;
+  this.cacheHits=0;this.zoomReuses=0;this.evictions=0;this.lastScale=null;this.zoomChangedAt=0;this.lastPrune=0;this.failures=[];
   const next=imageFromBase64('../../assets/world/terrain/ashenfront-atlas.webp.b64').then(img=>{
    if(img.naturalWidth!==1440||img.naturalHeight!==642)throw Error('Expected a 1440x642 AshenFront atlas');
    this.surface=surfaceOnly(img);this.atlas=img;this.kind='new';this.version++;
@@ -171,12 +174,47 @@ export class BattlefieldTerrainRenderer{
   }).catch(e=>{this.failures.push(e.message);});
   this.ready=Promise.allSettled([next,decor]);
  }
- draw(ctx,board,camera,width,height,drawDpr=1,low=false){
-  const density=Math.min(drawDpr,low||camera.scale<.12?1:1.5),old=this.cache;
-  const key=[board,board.terrainRevision,board.obstacleRevision,board.battlefield,this.version,camera.scale,width,height,density,low];
-  const rebuild=!old||!sameRevision(old.key,key)||Math.abs(camera.x-old.camera.x)>PAD||Math.abs(camera.y-old.camera.y)>PAD;
-  if(rebuild){
-   const canvas=old?.canvas||document.createElement('canvas'),cw=Math.ceil((width+PAD*2)*density),ch=Math.ceil((height+PAD*2)*density);
+ draw(ctx,board,camera,width,height,drawDpr=1,low=false,now=performance.now()){
+  const density=Math.min(drawDpr,low||camera.scale<.12?1:1.5);
+  const baseKey=[board,board.terrainRevision,board.obstacleRevision,board.battlefield,this.version,width,height,density,low];
+  if(!sameRevision(this.baseKey,baseKey)){
+   this.pages=[];this.cache=null;this.cacheBytes=0;this.baseKey=baseKey;this.lastScale=null;this.lastPrune=now;
+  }
+  if(this.lastScale!==camera.scale){this.lastScale=camera.scale;this.zoomChangedAt=now;}
+  // LRU is oldest first: expiration only checks its front once per second.
+  if(now-this.lastPrune>=1000){
+   this.lastPrune=now;
+   while(this.pages.length&&now-this.pages[0].lastUsed>IDLE_TTL){
+    this.cacheBytes-=this.pages.shift().bytes;this.evictions++;
+   }
+  }
+  const place=item=>{
+   const ratio=camera.scale/item.scale;
+   const x=camera.x-(item.camera.x+PAD)*ratio,y=camera.y-(item.camera.y+PAD)*ratio;
+   return {x,y,width:item.canvas.width/item.density*ratio,height:item.canvas.height/item.density*ratio};
+  };
+  const covers=p=>p.x<=0&&p.y<=0&&p.x+p.width>=width&&p.y+p.height>=height;
+  let page=null,position=null;
+  for(let i=this.pages.length-1;i>=0;i--){
+   const item=this.pages[i],p=place(item);
+   if(Math.abs(item.scale-camera.scale)<1e-7&&covers(p)){page=item;position=p;break;}
+  }
+  // Reproject a completely covering old page during live zoom. On idle,
+  // rebuild at exact resolution; never show uncovered background.
+  if(!page&&now-this.zoomChangedAt<ZOOM_SETTLE){
+   for(let i=this.pages.length-1;i>=0;i--){
+    const item=this.pages[i],p=place(item);
+    if(covers(p)){page=item;position=p;this.zoomReuses++;break;}
+   }
+  }
+  if(!page){
+   const cw=Math.ceil((width+PAD*2)*density),ch=Math.ceil((height+PAD*2)*density),bytes=cw*ch*4;
+   let canvas=null;
+   while(this.pages.length&&(this.pages.length>=PAGE_LIMIT||this.cacheBytes+bytes>BYTE_LIMIT)){
+    const removed=this.pages.shift();this.cacheBytes-=removed.bytes;this.evictions++;
+    if(!canvas)canvas=removed.canvas;
+   }
+   canvas??=document.createElement('canvas');
    if(canvas.width!==cw)canvas.width=cw;if(canvas.height!==ch)canvas.height=ch;
    const t=canvas.getContext('2d');t.setTransform(density,0,0,density,0,0);
    t.clearRect(0,0,width+PAD*2,height+PAD*2);t.fillStyle=COLORS.void;t.fillRect(0,0,width+PAD*2,height+PAD*2);
@@ -210,9 +248,15 @@ export class BattlefieldTerrainRenderer{
      t.drawImage(this.decorations,item.index%3*340,Math.floor(item.index/3)*270,340,270,p.x-item.width/2,p.y-h,item.width,h);
     }
    }
-   this.cache={canvas,key,camera:{...camera},tiles:tiles.length};this.rebuilds++;
+   page={canvas,camera:{...camera},scale:camera.scale,density,bytes,tiles:tiles.length,lastUsed:now};
+   this.pages.push(page);this.cacheBytes+=bytes;this.rebuilds++;position=place(page);
+  }else{
+   this.cacheHits++;
+   const i=this.pages.indexOf(page);
+   if(i!==this.pages.length-1){this.pages.splice(i,1);this.pages.push(page);}
+   page.lastUsed=now;
   }
-  const base=this.cache;
-  ctx.drawImage(base.canvas,camera.x-base.camera.x-PAD,camera.y-base.camera.y-PAD,base.canvas.width/density,base.canvas.height/density);
+  this.cache=page;
+  ctx.drawImage(page.canvas,position.x,position.y,position.width,position.height);
  }
 }
