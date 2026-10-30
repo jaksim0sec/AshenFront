@@ -196,7 +196,7 @@ export class Board {
     if(u.combat.charge){u.strike.damageMultiplier=u.combat.chargeSteps>=u.combat.chargeDistance?u.combat.chargeDamageMultiplier:1;u.combat.chargeSteps=0;}
     if(flagBuff)u.strike.damageMultiplier=(u.strike.damageMultiplier??1)*1.1;
     u.combat.nextAttackAt=this.time+period;
-    u.state='attack';u.elapsed=0;u.impacted=false;u.waitReason=null;this.combatStats.attacks++;return true;
+    u.state='attack';u.hasEngaged=true;u.elapsed=0;u.impacted=false;u.waitReason=null;this.combatStats.attacks++;return true;
   }
 
   heal(id,amount) {
@@ -206,7 +206,7 @@ export class Board {
   damage(id,amount,direction=1,attackerId=null) {
     const u=this.unit(id);if(!u||u.health.current<=0||!Number.isFinite(amount)||amount<=0)return false;
     if(u.structure==='flag')return this.match?.damageFlag(u.team,amount)||false;
-    u.health.current=Math.max(0,u.health.current-amount);u.hits++;
+    u.health.current=Math.max(0,u.health.current-amount);u.hits++;u.hasEngaged=true;
     // Poise protects locomotion, never health or a lethal hit.
     if(u.health.current>0&&u.combat.movingPoise&&u.step)return true;
     const attacker=this.unit(attackerId);

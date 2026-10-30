@@ -52,3 +52,56 @@ test('walk-to-guard gradually settles leg, body and arm movement without a pose 
  }
  assert(distance(matrix(walk,'legLeft'),matrix(settled,'legLeft'))>.05,'stride should ease down, not freeze');
 });
+
+
+test('combat-experienced wait braces at the hips without distorting the supplied parts',()=>{
+ const profiles=createCatalog().profiles;
+ for(const name of ['arken:private','arken:captain','velian:private','velian:captain']){
+  const p=profiles[name],params={state:'guard',time:.7,facing:1,shootBlend:.63,walkBlend:0};
+  const stand=poseCharacter(p,{...params,crouchBlend:0});
+  const crouch=poseCharacter(p,{...params,crouchBlend:1});
+  const center=(pose,key)=>{
+   const d=pose.draws.find(x=>x.part===key);
+   return {x:d.matrix[0]*d.w*.5+d.matrix[2]*d.h*.5+d.matrix[4],
+           y:d.matrix[1]*d.w*.5+d.matrix[3]*d.h*.5+d.matrix[5]};
+  };
+  const hatA=center(stand,'hat'),hatB=center(crouch,'hat');
+  assert(hatB.x>hatA.x+4,name+': guard must lean forward in screen-right facing');
+  assert(hatB.y>hatA.y+1&&hatB.y<hatA.y+25,name+': lower posture without collapsing head');
+  const foot=(pose,key)=>{
+   const d=pose.draws.find(x=>x.part===key),part=p.parts[key];
+   const x=part.w*.5,y=part.h*.9;
+   return {x:d.matrix[0]*x+d.matrix[2]*y+d.matrix[4],y:d.matrix[1]*x+d.matrix[3]*y+d.matrix[5]};
+  };
+  const width=pose=>Math.abs(foot(pose,'legLeft').x-foot(pose,'legRight').x);
+  assert(width(crouch)>width(stand)+4,name+': legs should widen through native hip pivots');
+  for(const part of ['head','hat','body','legLeft','legRight','armLeft','armRight','rifle']){
+   const get=pose=>pose.draws.find(d=>d.part===part).matrix;
+   const determinant=m=>m[0]*m[3]-m[1]*m[2];
+   assert(Math.abs(Math.abs(determinant(get(stand)))-Math.abs(determinant(get(crouch))))<1e-8,name+': must not warp '+part);
+  }
+  let previous=stand;
+  for(let i=1;i<=16;i++){
+   const next=poseCharacter(p,{...params,crouchBlend:i/16});
+   for(const part of ['head','hat','body','legLeft','legRight','armLeft','armRight','rifle']){
+    const a=previous.draws.find(d=>d.part===part).matrix,b=next.draws.find(d=>d.part===part).matrix;
+    assert(angleDiff(angle(a),angle(b))<.12,name+': snapped rotation '+part);
+    assert(distance(a,b)<5,name+': teleported '+part);
+   }
+   previous=next;
+  }
+ }
+});
+
+test('a soldier remembers combat after a shot or incoming damage',async()=>{
+ const {Board}=await import('../src/fw/model.mjs');
+ const board=new Board(24,16);
+ const a=board.spawn(6,6,null,{team:'A',stats:{range:8,rangeShape:'king',lineOfSight:false}});
+ const b=board.spawn(9,6,null,{team:'B',stats:{range:8,rangeShape:'king',lineOfSight:false}});
+ assert(!a.hasEngaged&&!b.hasEngaged,'fresh troops must not start crouched');
+ assert(board.beginAttack(a,b.id));
+ assert.equal(a.hasEngaged,true,'firing records experience');
+ assert(!b.hasEngaged);
+ assert(board.damage(b.id,1,1,a.id));
+ assert.equal(b.hasEngaged,true,'a wounded troop remembers engagement');
+});

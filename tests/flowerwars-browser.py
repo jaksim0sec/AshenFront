@@ -83,6 +83,15 @@ try:
    assert page.evaluate("document.querySelectorAll('#faction-ribbon img').length")==2
    assert page.evaluate("Array.from(document.querySelectorAll('#faction-ribbon img')).every(img=>img.complete && img.naturalWidth>0)")
    assert page.evaluate('__ashenFlower.match.counts.B')==40
+   # Experienced units adopt the braced resting pose without a new game phase.
+   stage=page.evaluate("""()=>{
+     const u=__ashenFlower.board.units.find(u=>u.team==='A' && u.state==='idle');
+     if(!u)return null;u.hasEngaged=true;return u.id;
+   }""")
+   if stage is not None:
+    page.wait_for_function("""id=>{
+      const u=__ashenFlower.board.unit(id);return u?._visualStance?.crouch>.45;
+    }""",arg=stage,timeout=10000)
    assert page.locator('.squad-card').count()==4
    await_s=page.evaluate('({n:__ashenFlower.board.units.length,squads:__ashenFlower.match.squadIds.A.length})')
    assert await_s['n']==80,await_s
