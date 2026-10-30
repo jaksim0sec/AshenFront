@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createAshenMatch,autoDeployPlayer} from '../src/fw/ashen-setup.mjs';
 import {BATTLEFIELD_WIDTH,BATTLEFIELD_HEIGHT} from '../src/fw/battlefield-terrain.mjs';
 import {orderSquads,updateSquadOrders} from '../src/fw/squad-orders.mjs';
-import {squadsFor} from '../src/fw/unit-groups.mjs';
+import {squadsFor,platoonSquadIds} from '../src/fw/unit-groups.mjs';
 import {drawCommandOverlay} from '../src/fw/command-overlay.mjs';
 
 test('FlowerWars original match handles two-army deployment and starts battle',()=>{
@@ -81,4 +81,17 @@ test('annihilation ends combat on the last real casualty with an exact survivor 
  assert.equal(match.winner,'B');
  assert.equal(match.finishReason,'annihilation');
  assert.ok(match.flags.A.health.current>0,'the HQ must remain standing');
+});
+
+// Header selection must include squads deployed after the button was created.
+test('platoon selection uses live squads after incremental deployment',()=>{
+ const {board,match}=createAshenMatch({seed:1977,count:40});
+ const first=match.deploy('A','infantry',{x:Math.floor(board.width*.14),y:Math.floor(board.height/2)});
+ assert(first,'first squad deployment succeeds');
+ assert.deepEqual(platoonSquadIds(board,0),[first.id]);
+ assert(autoDeployPlayer(match).complete,'remaining squads deploy');
+ assert.deepEqual(platoonSquadIds(board,0),match.squadIds.A.slice(0,2));
+ assert.deepEqual(platoonSquadIds(board,1),match.squadIds.A.slice(2,4));
+ assert.deepEqual(platoonSquadIds(board,2),[]);
+ assert.deepEqual(platoonSquadIds(board,0,'B'),[]);
 });

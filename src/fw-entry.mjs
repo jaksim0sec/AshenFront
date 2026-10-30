@@ -1,7 +1,7 @@
 import {createAshenMatch,autoDeployPlayer,ASHEN_ARMY_CHOICES} from './fw/ashen-setup.mjs';
 import {project,unproject} from './fw/model.mjs';
 import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS} from './fw/squad-orders.mjs';
-import {squadsFor} from './fw/unit-groups.mjs';
+import {squadsFor,platoonSquadIds} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
 import {drawSquadPortrait} from './characters/portrait.mjs';
 import {firingOrientation} from './fw/shot-geometry.mjs';
@@ -284,7 +284,8 @@ function roster(){
    const head=document.createElement('div');head.className='platoon-controls';
    const pick=document.createElement('button');pick.className='platoon-title';
    pick.innerHTML=icon('platoon')+'<span>A · '+(platoonId+1)+'소대</span>';
-   pick.onclick=()=>{selected=new Set(all.slice(platoonId*2,platoonId*2+2).filter(s=>living(s).length).map(s=>s.id));roster();hud();};
+   pick.setAttribute('aria-label','제'+(platoonId+1)+'소대 전체 선택');
+   pick.onclick=()=>{selected=new Set(platoonSquadIds(board,platoonId));roster();hud();};
    const fold=document.createElement('button');fold.className='platoon-fold';fold.innerHTML=icon('disclosure');
    fold.setAttribute('aria-label',(platoonId+1)+'소대 접기');fold.setAttribute('aria-expanded','true');
    const row=document.createElement('div');row.className='platoon-squads';row.id='platoon-squads-'+platoonId;fold.setAttribute('aria-controls',row.id);
@@ -292,6 +293,8 @@ function roster(){
    head.append(pick,fold);section.append(head,row);host.append(section);
   }
   const row=section.querySelector('.platoon-squads');
+  const platoonMembers=platoonSquadIds(board,platoonId);
+  section.querySelector('.platoon-title').setAttribute('aria-pressed',String(platoonMembers.length>0&&platoonMembers.every(id=>selected.has(id))));
   for(const s of all.slice(i,i+2)){
    let node=rosterCards.get(s.id);
    if(!node){
@@ -427,7 +430,7 @@ function bind(){
  $('clear-selection').onclick=()=>choose(null);$('select-all').onclick=()=>{selected=new Set(squads().map(s=>s.id));roster();hud();};
  $('select-squad').onclick=()=>document.body.classList.toggle('roster-open');
  $('close-roster').onclick=()=>document.body.classList.remove('roster-open');
- $('selection-platoon').onclick=()=>{const ss=squads(),n=ss.findIndex(s=>selected.has(s.id));if(n>=0){selected=new Set(ss.slice(Math.floor(n/2)*2,Math.floor(n/2)*2+2).map(s=>s.id));roster();}};
+ $('selection-platoon').onclick=()=>{const first=squads().find(s=>selected.has(s.id));if(first){selected=new Set(platoonSquadIds(board,Math.floor(first.matchIndex/2)));roster();hud();}};
  $('selection-locate').onclick=()=>{const members=selectedIds().flatMap(id=>living(squadsFor(board).get(id)));if(members.length)focus(members.reduce((s,u)=>s+u.x,0)/members.length,members.reduce((s,u)=>s+u.y,0)/members.length);};
  $('zoom-in').onclick=()=>zoom(1.2);$('zoom-out').onclick=()=>zoom(1/1.2);$('fit-view').onclick=fit;
  $('focus-objective').onclick=()=>focus(match.flags.B.x,match.flags.B.y);$('focus-squad').onclick=()=>$('selection-locate').click();

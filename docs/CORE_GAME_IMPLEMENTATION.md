@@ -5,6 +5,7 @@
 > Reference project: https://github.com/jaksim0sec/FlowerWars-MINI
 > This document is an implementation contract, not proof of completed development. Numbers are starting hypotheses requiring playtesting.
 > No changes to FlowerWars-MINI. No new branch required. Do not silently expand scope.
+> **Current UI design contract:** [UI_DESIGN_STANDARD.md](UI_DESIGN_STANDARD.md). Its live FlowerWars HUD/menu palette and behavior rules supersede the historical gray P0 mockups in this design-only specification.
 
 ## 0. Goal, non-goals, priority
 

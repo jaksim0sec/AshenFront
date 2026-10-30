@@ -612,3 +612,47 @@ body[data-engine=flower][data-play-mode=control][data-selected=true] #command-do
   transition:none!important;animation:none!important;scroll-behavior:auto!important;
  }
 }
+
+/* Unified top navigation / command visual contract.
+   Same palette as the bottom command controls; squad-card artwork is exempt. */
+body[data-engine=flower]{
+ --af-command-raised:#705a3ee8;
+ --af-command-hover:#806a4deb;
+}
+body[data-engine=flower] :is(#match-hud,#tools-toggle,#game-tools,#toggle-map,#battle-notice){
+ background:var(--af-command-bg);
+ color:var(--af-command-ink);
+ border-color:var(--af-command-edge);
+ box-shadow:0 6px 24px #261b104d;
+}
+body[data-engine=flower] .faction-team img{border-color:var(--af-command-edge)}
+body[data-engine=flower] .faction-versus,
+body[data-engine=flower] #hud-compact-force,
+body[data-engine=flower] #game-tools .low-mode{color:var(--af-command-muted)}
+body[data-engine=flower] :is(.match-actions button,#game-tools button,#mobile-map-toggle){
+ background:var(--af-command-raised);
+ border:1px solid var(--af-command-edge);
+ color:var(--af-command-ink);
+}
+body[data-engine=flower] :is(#start-battle,#match-charge,#tools-toggle[aria-expanded=true],#game-tools button[aria-pressed=true]){
+ background:var(--af-command-selected);
+ border-color:var(--af-command-selected-edge);
+ color:var(--af-command-deep);
+}
+body[data-engine=flower] #resume-deployment{background:var(--af-command-raised)}
+body[data-engine=flower] #soldier-workshop{
+ color:var(--af-command-ink);border-top-color:var(--af-command-edge);
+}
+body[data-engine=flower] #game-tools .low-mode input{accent-color:var(--af-command-selected)}
+body[data-engine=flower] #squad-tabs .platoon-title[aria-pressed=true]{
+ background:var(--af-command-raised);
+ border-color:var(--af-command-selected-edge);
+}
+@media(hover:hover) and (pointer:fine){
+ body[data-engine=flower] :is(#hud-toggle,.match-actions button,#tools-toggle,#game-tools button,#toggle-map):not(:disabled):hover{
+  background:var(--af-command-hover);border-color:var(--af-command-selected-edge)
+ }
+ body[data-engine=flower] :is(#start-battle,#match-charge,#tools-toggle[aria-expanded=true],#game-tools button[aria-pressed=true]):not(:disabled):hover{
+  background:var(--af-command-selected);color:var(--af-command-deep)
+ }
+}

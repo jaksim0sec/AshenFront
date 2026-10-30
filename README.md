@@ -1,5 +1,7 @@
 # FlowerWars original-engine playable transplant
 
+**Mandatory live UI standard:** [docs/UI_DESIGN_STANDARD.md](docs/UI_DESIGN_STANDARD.md). New game menus share the existing warm brown/gold command palette; preserve the approved squad cards.
+
 ## Offline PWA
 On HTTPS or localhost, the game installs an offline-ready PWA automatically. Once its complete ~6 MB runtime release is precached, both the default battle and soldier workshop can reopen without network. The service worker always pins files from one release together, using a content-based version hash calculated at server startup. During rolling deployments, mismatched asset requests return HTTP 409 and the incomplete new worker fails installation while the existing offline version remains usable.
 

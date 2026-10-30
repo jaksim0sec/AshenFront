@@ -3,6 +3,15 @@ function registry(board){let r=registries.get(board);if(!r||r.epoch!==board.byId
 export function groupsFor(board){return registry(board).groups;}
 export function squadsFor(board){return registry(board).squads;}
 export function squadOf(board,unit){return unit?.squadId?squadsFor(board).get(unit.squadId):null;}
+// The UI groups two consecutive match squads per platoon. Read current
+// membership on each click, because headers can predate later deployments.
+export function platoonSquadIds(board,index,team='A'){
+ if(!Number.isInteger(index)||index<0)return [];
+ return [...squadsFor(board).values()]
+  .filter(s=>s.team===team&&Number.isInteger(s.matchIndex)&&Math.floor(s.matchIndex/2)===index
+   &&s.memberIds.some(id=>board.unit(id)?.health.current>0))
+  .sort((a,b)=>a.matchIndex-b.matchIndex).map(s=>s.id);
+}
 
 /** Plain JSON template, independent of board/camera/character instances. */
 const types={
