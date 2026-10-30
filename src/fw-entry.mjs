@@ -57,22 +57,26 @@ function switchMode(m){
 function setPanelOpen(panel,open){
  const state=String(!!open);
  if(panel.dataset.open===state)return;
+ // Never animate an initially hidden surface out: that flashes unused menus.
+ if(!open&&panel.hidden){panel.dataset.open='false';return;}
  panel._panelAnimation?.cancel();
  panel._panelAnimation=null;
  panel.dataset.open=state;
  panel.hidden=false;
  panel.inert=!open;
  panel.style.pointerEvents=open?'':'none';
+ let animation=null;
  const finish=()=>{
   if(panel.dataset.open==='false'){
    panel.hidden=true;panel.inert=false;panel.style.pointerEvents='';
   }
   panel._panelAnimation=null;
+  animation?.cancel(); // Release completed fill-mode animations instead of stacking them.
  };
  if(typeof panel.animate!=='function'||matchMedia('(prefers-reduced-motion: reduce)').matches){
   finish();
  }else{
-  const animation=panel.animate(open?
+  animation=panel.animate(open?
    [{opacity:0,scale:.96},{opacity:1,scale:1}]:
    [{opacity:1,scale:1},{opacity:0,scale:.97}],{
    duration:open?175:130,easing:open?'cubic-bezier(.2,.8,.25,1)':'ease-in',fill:'both'
