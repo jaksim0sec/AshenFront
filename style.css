@@ -132,3 +132,18 @@ body[data-engine=flower][data-play-mode=control] #deployment-tools{left:12px;top
  body[data-engine=flower] #tools-toggle{right:8px;top:8px}
  body[data-engine=flower][data-play-mode=control] #deployment-tools{left:8px;top:86px}
 }
+
+/* A map toggle is a compact floating control, never a stretched layout item. */
+body[data-engine=flower] #toggle-map,
+body[data-engine=legacy] #toggle-map {
+ box-sizing:border-box;
+ display:inline-flex;align-items:center;justify-content:center;
+ position:fixed;left:auto;top:auto;
+ flex:none;flex-grow:0;flex-shrink:0;align-self:auto;
+ width:44px;min-width:44px;max-width:44px;
+ height:44px;min-height:44px;max-height:44px;
+ padding:0;margin:0;white-space:nowrap;line-height:1;
+ border-radius:13px;
+}
+/* The preparation HUD must not stretch the tactical map toggle. */
+body[data-engine=flower][data-play-mode=deploy] #toggle-map{top:auto}
