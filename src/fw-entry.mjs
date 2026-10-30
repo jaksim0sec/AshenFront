@@ -32,7 +32,7 @@ function notice(s){$('battle-notice').textContent=s;$('status').textContent=s;}
 function resize(){const r=canvas.getBoundingClientRect();drawDpr=Math.min(low?1:2,devicePixelRatio||1);canvas.width=Math.round(r.width*drawDpr);canvas.height=Math.round(r.height*drawDpr);}
 function focus(x,y){const p=project(x,y);camera.x=canvas.clientWidth/2-p.x*camera.scale;camera.y=canvas.clientHeight/2-p.y*camera.scale;}
 function fit(){camera.scale=innerWidth<650?.40:.48;focus(board.width*.34,board.height*.5);}
-function zoom(ratio,x=canvas.clientWidth/2,y=canvas.clientHeight/2){const scale=Math.min(2.4,Math.max(.32,camera.scale*ratio)),r=scale/camera.scale;camera.x=x-(x-camera.x)*r;camera.y=y-(y-camera.y)*r;camera.scale=scale;}
+function zoom(ratio,x=canvas.clientWidth/2,y=canvas.clientHeight/2){const scale=Math.min(2.4,Math.max(.27,camera.scale*ratio)),r=scale/camera.scale;camera.x=x-(x-camera.x)*r;camera.y=y-(y-camera.y)*r;camera.scale=scale;}
 function switchMode(m){playMode=m;document.body.dataset.playMode=m;$('deployment-toggle').textContent=m==='deploy'?'지휘 모드':'배치 모드';}
 function choose(id,more=false){if(!more)selected.clear();if(id){if(more&&selected.has(id))selected.delete(id);else selected.add(id);}document.body.dataset.selected=String(selected.size>0);if(selected.size&&playMode==='deploy')switchMode('control');roster();hud();}
 let feedbackTimer=null;
