@@ -4,8 +4,8 @@ import {createAshenMatch,autoDeployPlayer,RIFLE_STATS,RIFLE_MOVEMENT,preferredRa
 import {inAttackRange} from '../src/fw/combat.mjs';
 
 test('rifle tuning reduces movement speed and caps individual firing range at seven cells',()=>{
- assert.equal(RIFLE_STATS.maxHealth,85);
- assert.equal(RIFLE_MOVEMENT.stepTime,.50);
+ assert.equal(RIFLE_STATS.maxHealth,32);
+ assert.equal(RIFLE_MOVEMENT.stepTime,.70);
  assert.equal(RIFLE_STATS.range,7);
  assert.equal(RIFLE_STATS.damage,18);
 });
@@ -18,13 +18,13 @@ test('individual maximum firing ranges are 5, 6 or 7, deterministic across both 
  assert.equal(board.units.length,80);
  const totals=new Map([[5,0],[6,0],[7,0]]);
  for(const u of board.units){
-  assert.equal(u.health.max,85);
-  assert.equal(u.health.current,85);
+  assert.equal(u.health.max,32);
+  assert.equal(u.health.current,32);
   assert.equal(u.movement.stepTime,.50);
   const distance=u.combat.range;
   assert(totals.has(distance),'unsupported maximum firing range: '+distance);
   assert.equal(distance,preferredRangeForSoldier(seed,u.id));
-  assert.equal(u.combat.preferredRange,distance);
+  assert.equal(u.combat.preferredRange,3);
   const target={visualX:u.visualX+distance,visualY:u.visualY};
   assert(inAttackRange(u,target),'target exactly at personal maximum must be in range');
   target.visualX+=.01;
@@ -43,6 +43,6 @@ test('350 per side use the same individual stats without changing the 700-unit c
  assert(autoDeployPlayer(match).complete);
  assert(match.start());
  assert.equal(board.units.length,700);
- assert(board.units.every(u=>u.health.max===85 && u.movement.stepTime===.50));
+ assert(board.units.every(u=>u.health.max===32 && u.movement.stepTime===.70));
  assert(board.units.every(u=>[5,6,7].includes(u.combat.range) && u.combat.preferredRange===u.combat.range));
 });

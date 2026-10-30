@@ -197,23 +197,24 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   const facing=orientation?.facing??u.facing,rawAim=shot?orientation.aim:0;
   const view=u._visualStance??(u._visualStance={blend:0,walk:u.state==='walk'?1:0,crouch:0,aim:rawAim,time:board.time});
   const delta=Math.max(0,board.time-view.time);view.time=board.time;
-  const fighting=shot||u.state==='hit'||(u.hitPulseUntil??-1)>board.time;
-  // A squad that has ever actually moved stays in mild guard. Unmoved squads
-  // return to attention after the recent fighting posture has eased away.
-  const guarding=match.phase!=='preparation'&&(!!s?.hasMoved||fighting||view.crouch>.24);
-  const state=u.state==='walk'?'walk':shot?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':guarding?'guard':'idle';
-  const targetBlend=shot?1:state==='guard'?.25:0;
+  const hitNow=(u.hitPulseUntil??-1)>board.time;
+  const fighting=shot||u.state==='hit'||hitNow||(u.alertUntil??-1)>board.time;
+  // Keep the lightly guarded pose anatomically at rest. Partial rifle-grip
+  // interpolation pulls authored shoulder sprites off their body sockets.
+  const guarding=match.phase!=='preparation'&&(!!s?.hasMoved||!!u.hasEngaged||fighting||view.crouch>.24);
+  const state=u.state==='death'?'death':u.state==='walk'?'walk':shot?'shoot':hitNow?'hit':guarding?'guard':'idle';
+  const targetBlend=shot?1:0;
   const smooth=Math.min(1,delta*9);
   view.blend+=(targetBlend-view.blend)*smooth;
   view.walk+=((state==='walk'?1:0)-view.walk)*smooth;
   // Only actual fighting raises the stance; no intervals or elapsed-time checks.
-  const braceTarget=fighting?1:state==='guard'?.16:0;
+  const braceTarget=fighting?1:state==='guard'?.10:0;
   view.crouch+=(braceTarget-view.crouch)*Math.min(1,delta*(fighting?10:2.4));
   const difference=Math.atan2(Math.sin(rawAim-view.aim),Math.cos(rawAim-view.aim));
   view.aim+=difference*Math.min(1,delta*8);
   const hitReaction=Math.max(0,Math.min(1,((u.hitPulseUntil??-1)-board.time)/.16));
   const pose=distant&&state!=='death'
-   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.25:0,walkBlend:0,crouchBlend:shot||state==='hit'?1:state==='guard'?.16:0}
+   ?{state:shot?'shoot':state==='guard'?'guard':hitNow?'hit':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:0,walkBlend:0,crouchBlend:fighting?1:state==='guard'?.10:0,hitReaction:hitNow?1:0}
    :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,facing,aim:view.aim,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:view.blend,walkBlend:view.walk,crouchBlend:view.crouch,hitReaction};
   const muzzle=shot?(u._shotMuzzle??(u._shotMuzzle={})):null;
   if(muzzle)muzzle.valid=false;

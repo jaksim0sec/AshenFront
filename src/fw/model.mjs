@@ -2,7 +2,7 @@ import {SpatialIndex} from './spatial-index.mjs';
 import {terrainStepMultiplier} from './battlefield-terrain.mjs';
 import {healingOptions} from './healing.mjs';
 import {mix,movementOptions} from './decision.mjs';
-import {combatOptions,inAttackRange,tryAutoAttack,hasLineOfSight,BASE_ATTACK_DURATION} from './combat.mjs';
+import {combatOptions,inAttackRange,tryAutoAttack,hasLineOfSight,shotHitChance,BASE_ATTACK_DURATION} from './combat.mjs';
 import {Navigation,NAV_INTERVAL} from './navigation.mjs';
 import {createHealth,advanceHealth,DEATH_DURATION} from './characters/vitality.mjs';
 export const HALF_W = 72;
@@ -195,7 +195,14 @@ export class Board {
     // in on a moving target, and the shot survives target removal.
     u.attackVector=project(target.x-u.visualX,target.y-u.visualY);
     const flagBuff=nearOwnFlag(this,u),scholarBuff=nearAlliedScholar(this,u),period=u.combat.period/((flagBuff?1.2:1)*(scholarBuff?1.1:1));
-    u.strike={target:targetId,aimX:target.x,aimY:target.y,automatic,duration:u.combat.activeDuration||period,impactTime:u.combat.impactTime??period*IMPACT_TIME/BASE_ATTACK_DURATION};
+    const distance=u.combat.shape==='king'
+      ?Math.max(Math.abs(target.x-u.visualX),Math.abs(target.y-u.visualY))
+      :Math.abs(target.x-u.visualX)+Math.abs(target.y-u.visualY);
+    // Resolve dispersion once, at trigger pull, using deterministic shot keys
+    // (not frame count or global Math.random). Damage still resolves at impact.
+    const shotNumber=(u.combat.shotCount=(u.combat.shotCount||0)+1);
+    const roll=mix(this.seed^mix(u.priorityKey??u.id)^Math.imul(shotNumber,0x9e3779b9))/0x100000000;
+    u.strike={target:targetId,aimX:target.x,aimY:target.y,hit:roll<shotHitChance(u.combat,distance),automatic,duration:u.combat.activeDuration||period,impactTime:u.combat.impactTime??period*IMPACT_TIME/BASE_ATTACK_DURATION};
     if(u.combat.charge){u.strike.damageMultiplier=u.combat.chargeSteps>=u.combat.chargeDistance?u.combat.chargeDamageMultiplier:1;u.combat.chargeSteps=0;}
     if(flagBuff)u.strike.damageMultiplier=(u.strike.damageMultiplier??1)*1.1;
     u.combat.nextAttackAt=this.time+period;
@@ -213,12 +220,16 @@ export class Board {
     // Poise protects locomotion, never health or a lethal hit.
     if(u.health.current>0&&u.combat.movingPoise&&u.step)return true;
     const attacker=this.unit(attackerId);
-    if(u.health.current>0&&u.combat.auto&&u.command?.type!=='attack'&&!u.healing&&u.formationRole!=='banner'&&attacker?.team&&u.team&&attacker.team!==u.team&&Math.max(Math.abs(attacker.x-u.x),Math.abs(attacker.y-u.y))<=6){
-      const previous=u.combat.retaliation;
-      const retained=previous?.targetId===attacker.id;
-      u.combat.retaliation={targetId:attacker.id,until:this.time+2.5,
-        x:retained?previous.x:u.x,y:retained?previous.y:u.y,
-        approach:retained?previous.approach:Math.sign(attacker.x-u.x)||Math.sign((this.width-1)/2-u.x)||this.navigationOrientation};
+    const threatened=attacker?.health.current>0&&attacker.team&&u.team&&attacker.team!==u.team;
+    if(threatened){
+      // Even a held formation must visibly face the source of incoming fire.
+      u.facing=project(attacker.visualX-u.visualX,attacker.visualY-u.visualY).x>=0?1:-1;
+      u.alertUntil=this.time+.65;
+    }
+    if(u.health.current>0&&u.combat.auto&&u.command?.type!=='attack'&&!u.healing&&
+        threatened&&Math.max(Math.abs(attacker.x-u.x),Math.abs(attacker.y-u.y))<=12){
+      u.combat.retaliation={targetId:attacker.id,until:this.time+5,x:u.x,y:u.y,
+        approach:Math.sign(attacker.x-u.x)||this.navigationOrientation};
       u.combat.targetId=attacker.id;u.combat.nextSearchAt=0;u.retryAt=0;
     }
     if(u.courtesy||u.remoteCourtesy)this.navigation.cancelCooperation(u);
@@ -228,7 +239,7 @@ export class Board {
     // The hit reaction is visual only. Death still interrupts everything.
     if(u.health.current>0){
       u.lastHitAt=this.time;
-      u.hitPulseUntil=this.time+.16;
+      u.hitPulseUntil=this.time+.30;
     }else if(!committed){
       if(!resume)this.cancelCommand(u);
       u.elapsed=0;u.state='death';u.strike=null;
@@ -287,17 +298,22 @@ export class Board {
             // The round reaches its original tile, not a target's new location.
             // Departed/dead enemies leave a miss; another enemy on the tile can
             // be struck, but allies never receive accidental friendly fire.
-            if(victim?.health.current>0&&victim.team&&victim.team!==u.team&&
-                Math.abs(victim.visualX-x)<.5&&Math.abs(victim.visualY-y)<.5&&
+            const stationaryFlag=target?.structure==='flag'&&target.health.current>0&&target.x===x&&target.y===y?target:null;
+            const struck=victim?.health.current>0?victim:stationaryFlag;
+            if(strike.hit!==false&&struck?.health.current>0&&struck.team&&struck.team!==u.team&&
+                (!victim||(Math.abs(victim.visualX-x)<.5&&Math.abs(victim.visualY-y)<.5))&&
                 inAttackRange(u,tile)&&(!u.combat.lineOfSight||hasLineOfSight(this,u,tile))) {
-              impacts.push({target:victim,attackerId:u.id,damage:u.damage*(strike.damageMultiplier??1),direction:project(x-u.visualX,y-u.visualY).x>=0?1:-1});
+              impacts.push({target:struck,attackerId:u.id,damage:u.damage*(strike.damageMultiplier??1),direction:project(x-u.visualX,y-u.visualY).x>=0?1:-1});
             }
           }
         }
         if(u.elapsed+1e-9>=strike.duration){
           u.strike=null;u.elapsed=0;
           if(strike.healing)u.waitReason=null;
-          if(strike.automatic){u.target=null;u.state=u.command?'walk':'idle';}
+          if(strike.automatic){
+            u.target=null;u.state=u.command?'walk':'idle';
+            if(u.command?.type==='move')u.combat.advanceAfterShotUntil=this.time+.55;
+          }
           else {u.state='idle';if(u.command?.type!=='attack')this.cancelCommand(u);else u.waitReason='reload';}
         }
       } else if(u.state==='hit'&&u.elapsed>=(u.combat.retaliation ? .18 : .36)){u.state=u.command?'walk':'idle';u.elapsed=0;}

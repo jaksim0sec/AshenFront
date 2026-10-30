@@ -154,11 +154,11 @@ function runOrder(board,s,replace=false){
    if(board.time>=(o.coverAt||0)){o.cover=protectedLeader?coverPlan(board,s,units,lead):new Map();o.coverAt=board.time+.6;}
    board.batchCommands(()=>{for(const u of units){
      if(u.healing){if(u.command?.type==='attack')board.interrupt(u);continue;}
-     if(protectedLeader&&units.length>1&&u.id===lead?.id){
-       if(o.cover?.has(u.id))moveUnderCover(board,u,o.cover.get(u.id));
-       else if(u.command?.type==='attack')board.cancelCommand(u);
-       continue;
+     if(protectedLeader&&units.length>1&&u.id===lead?.id&&o.cover?.has(u.id)){
+       moveUnderCover(board,u,o.cover.get(u.id));continue;
      }
+     // A rifle-armed commander without a cover assignment must pursue like
+     // the rest of the squad, rather than silently ignoring a focus order.
      if(o.cover?.has(u.id)){moveUnderCover(board,u,o.cover.get(u.id));continue;}
      if(u.command?.type==='attack'&&enemies.some(e=>e.id===u.command.target))continue;
      if(!replace&&(u.state!=='idle'||u.step))continue;

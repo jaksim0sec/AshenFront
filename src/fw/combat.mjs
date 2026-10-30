@@ -1,5 +1,11 @@
 // Combat rules are actor data. No character IDs, camera or rig dependencies.
 export const BASE_ATTACK_DURATION=.65;
+// Rifle accuracy is best at the preferred distance and falls linearly on
+// either side. Other units without a preference keep their original certainty.
+export function shotHitChance(combat,distance){
+  if(combat?.preferredRange==null)return 1;
+  return Math.max(.2,Math.min(.96,.96-.13*Math.abs(distance-combat.preferredRange)));
+}
 const positive=(value,fallback)=>Number.isFinite(value)&&value>0?value:fallback;
 export function combatOptions(options={}) {
   const stats=options.stats||{},range=Math.max(1,Math.floor(positive(stats.range,1)));
@@ -96,7 +102,9 @@ export function tryAutoAttack(board,actor) {
     }
   }
   if(!target){if(actor.waitReason==='combat')actor.waitReason=null;return false;}
-  if(actor.combat.charge&&actor.command?.type==='move'&&board.time+1e-9<actor.combat.nextAttackAt)return false;
+  // A moving squad must get a chance to advance after firing; otherwise
+  // each completed rifle animation immediately starts another one forever.
+  if(actor.command?.type==='move'&&(board.time<(actor.combat.advanceAfterShotUntil||0)||board.time+1e-9<actor.combat.nextAttackAt))return false;
   actor.waitReason='combat';
   if(board.time+1e-9>=actor.combat.nextAttackAt)board.beginAttack(actor,target.id,true);
   return true; // Remain engaged instead of walking through the local enemy.
