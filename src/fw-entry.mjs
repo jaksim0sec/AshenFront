@@ -4,10 +4,12 @@ import {orderSquads,configureSquad,updateSquadOrders} from './fw/squad-orders.mj
 import {squadsFor} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
 import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
+import {BattlefieldTerrainRenderer} from './fw/terrain-art.mjs';
 import {icon} from './fw/ui-icons.mjs';
 import {applyPalette} from './render/palette.mjs';
 applyPalette(document.documentElement);
 const $=id=>document.getElementById(id),canvas=$('battlefield'),ctx=canvas.getContext('2d'),mini=$('overview'),mctx=mini.getContext('2d');
+const terrainArt=new BattlefieldTerrainRenderer();
 const soldiers=new SoldierRenderer();soldiers.ready.catch(e=>alert('군복 이미지 오류: '+e.message));
 const seed=Number(new URLSearchParams(location.search).get('seed'))||1977;
 let {board,match}=createAshenMatch({seed}),selected=new Set(),mode=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
@@ -38,17 +40,7 @@ function tap(px,py,shift=false){const p=locate(px,py);if(!p)return;if(playMode==
  if(mode==='move'){if(command('advance',p))setCommand(null);return;}
  if(u?.team==='B')command('focus',{unitId:u.id});else command('advance',p);
 }
-function tile(x,y,t){const p=project(x,y);ctx.beginPath();ctx.moveTo(p.x,p.y-42);ctx.lineTo(p.x+72,p.y);ctx.lineTo(p.x,p.y+42);ctx.lineTo(p.x-72,p.y);ctx.closePath();
- const c={grass:'#767a75',soil:'#666761',road:'#96938a',forest:'#53666a',void:'#272e31'};
- ctx.fillStyle=c[t]||c.grass;ctx.fill();
- if(t==='void')return;const h=(Math.imul(x+1,92821)^Math.imul(y+3,6577))>>>0;
- if(t==='grass'&&h%7===0){ctx.fillStyle='#bcc2ab24';ctx.beginPath();ctx.ellipse(p.x+(h%21)-10,p.y+((h>>>8)%21)-10,9,3,0,0,Math.PI*2);ctx.fill();}
- if(t==='forest'){ctx.strokeStyle='#acc4c833';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,15,0,Math.PI);ctx.stroke();}
-}
-function bounds(){const w=canvas.clientWidth,h=canvas.clientHeight,points=[[0,0],[w,0],[0,h],[w,h]].map(([x,y])=>unproject((x-camera.x)/camera.scale,(y-camera.y)/camera.scale));
- return {x0:Math.max(0,Math.floor(Math.min(...points.map(p=>p.x))-4)),x1:Math.min(board.width-1,Math.ceil(Math.max(...points.map(p=>p.x))+4)),y0:Math.max(0,Math.floor(Math.min(...points.map(p=>p.y))-4)),y1:Math.min(board.height-1,Math.ceil(Math.max(...points.map(p=>p.y))+4))};}
-function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransform(drawDpr,0,0,drawDpr,0,0);ctx.fillStyle='#272e31';ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(camera.x,camera.y);ctx.scale(camera.scale,camera.scale);
- const b=bounds();for(let sum=b.x0+b.y0;sum<=b.x1+b.y1;sum++)for(let x=Math.max(b.x0,sum-b.y1);x<=Math.min(b.x1,sum-b.y0);x++)tile(x,sum-x,board.terrain[sum-x][x]);
+function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransform(drawDpr,0,0,drawDpr,0,0);ctx.fillStyle='#272e31';ctx.fillRect(0,0,w,h);terrainArt.draw(ctx,board,camera,w,h,drawDpr,low);ctx.save();ctx.translate(camera.x,camera.y);ctx.scale(camera.scale,camera.scale);
  drawHeadquarters(ctx,match.flags,board.time);
  if(playMode==='deploy'&&match.phase==='preparation'){ctx.fillStyle='#adc1d026';for(let y=b.y0;y<=b.y1;y+=3)for(let x=b.x0;x<Math.min(b.x1,board.width/2);x+=3){if(board.navigation.blocked(y*board.width+x))continue;const p=project(x,y);ctx.fillRect(p.x-5,p.y-3,10,6);}}
  for(const id of selected){const s=squadsFor(board).get(id),g=s?.order?.target;if(g?.x===undefined)continue;const members=living(s);if(!members.length)continue;const a=project(members.reduce((v,u)=>v+u.visualX,0)/members.length,members.reduce((v,u)=>v+u.visualY,0)/members.length),p=project(g.x,g.y);ctx.strokeStyle='#d3e8f7aa';ctx.lineWidth=3;ctx.setLineDash([14,10]);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.setLineDash([]);}
