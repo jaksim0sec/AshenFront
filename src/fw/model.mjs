@@ -248,29 +248,30 @@ export class Board {
     this.time+=dt;
     for(const e of this.effects)e.age+=dt;
     this.effects=this.effects.filter(e=>e.age<.55);
-    for(const u of this.units){u.elapsed+=dt;advanceHealth(u.health,dt);}
-    // Steering is a bounded visual subcell correction; logical coordinates,
-    // reservations, squad slots and the authoritative path remain unchanged.
+    // One pass, throttled local separation. Keep the simulation's integer
+    // collision cells authoritative; only foot positions gain subcell spacing.
+    let spacingDue=false;
     if(this.spacingEnabled){
       this.spacingClock+=dt;
-      if(this.spacingClock+1e-9>=NAV_INTERVAL){
-        this.spacingClock%=NAV_INTERVAL;
-        for(const u of this.units){
-          if(u.health.current<=0)continue;
-          const cell=this.navigation.index(u.x,u.y),version=this.navigation.occupancyVersions[cell];
-          if(u.spacingVersion===version){this.spacingStats.skips++;continue;}
-          const offset=separationOffset(this,u);
-          u.steerTargetX=offset.x;u.steerTargetY=offset.y;
+      if(this.spacingClock+1e-9>=.24){this.spacingClock%=.24;spacingDue=true;}
+    }
+    const blend=Math.min(1,dt*10);
+    for(const u of this.units){
+      u.elapsed+=dt;advanceHealth(u.health,dt);
+      if(!this.spacingEnabled||u.health.current<=0)continue;
+      if(spacingDue){
+        const version=this.navigation.occupancyVersions[this.navigation.index(u.x,u.y)];
+        if(u.spacingVersion===version)this.spacingStats.skips++;
+        else {
+          const target=separationOffset(this,u);
+          u.steerTargetX=target.x;u.steerTargetY=target.y;
           u.spacingVersion=version;this.spacingStats.recalculations++;
         }
       }
-      const blend=Math.min(1,dt*10);
-      for(const u of this.units){
-        if(u.health.current<=0)continue;
-        u.steerX=(u.steerX||0)+((u.steerTargetX||0)-(u.steerX||0))*blend;
-        u.steerY=(u.steerY||0)+((u.steerTargetY||0)-(u.steerY||0))*blend;
-        if(!u.step){u.visualX=u.x+u.steerX;u.visualY=u.y+u.steerY;}
-      }
+      const tx=u.steerTargetX||0,ty=u.steerTargetY||0;
+      if((u.steerX||0)!==tx)u.steerX=(u.steerX||0)+(tx-(u.steerX||0))*blend;
+      if((u.steerY||0)!==ty)u.steerY=(u.steerY||0)+(ty-(u.steerY||0))*blend;
+      if(!u.step){u.visualX=u.x+(u.steerX||0);u.visualY=u.y+(u.steerY||0);}
     }
     // Commit all arrivals before reserving departures: order cannot cause swaps.
     for(const u of this.units)if(u.step) {
