@@ -389,9 +389,9 @@ function bind(){
  for(const [id,name] of [['move','advance'],['attack','focus'],['flank','flank'],['hold','hold'],['rally','rally']])$(id).innerHTML=icon(name)+'<span>'+$(id).textContent+'</span>';
  $('orders-toggle').innerHTML=icon('platoon')+'<span>부대</span>';
  $('formation-toggle').innerHTML=icon('line')+'<span>진형</span>';
- $('multi-select').innerHTML=icon('plus')+'<span>추가 선택</span>';
+ $('multi-select').innerHTML=icon('plus')+'<span>복수</span>';
  $('selection-platoon').innerHTML=icon('platoon')+'<span>소대 선택</span>';
- $('selection-locate').innerHTML=icon('fit')+'<span>부대 보기</span>';
+ $('selection-locate').innerHTML=icon('fit')+'<span>위치</span>';
  const formations={line:'횡대',column:'종대',dense:'밀집',spread:'산개',square:'방진'};
  for(const [name,label]of Object.entries(formations)){
   const b=document.createElement('button');b.type='button';b.dataset.formation=name;

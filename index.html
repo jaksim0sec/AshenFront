@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#1d2022">
   <title>AshenFront · 회색 전선</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="src/flower-ui.css">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icons/192.png" type="image/png">
 </head>
@@ -45,6 +46,7 @@
 
   <aside id="roster-panel" aria-label="아군 지휘관">
     <div class="roster-tools"><strong>부대 지휘</strong><button id="select-squad" aria-label="분대 선택">분대</button><button id="close-roster" aria-label="편제 닫기">✕</button></div>
+    <div id="roster-shortcuts" aria-label="분대 선택 도구"><button id="multi-select" type="button" aria-pressed="false" aria-label="복수 선택">복수 선택</button></div>
     <div id="squad-tabs" aria-label="아군 분대"></div>
   </aside>
 
@@ -52,8 +54,9 @@
     <div class="command-selection-row">
       <div class="squad-line"><strong id="squad-name">분대 지휘</strong><span id="squad-info"></span><div class="pressure"><span id="suppression-label">제압 0</span><div><i id="suppression-bar"></i></div></div></div>
       <div class="selection-tools" role="group" aria-label="선택 부대 도구">
+        <button id="selection-locate" type="button" title="선택 분대 위치로 이동">위치</button>
         <button id="formation-toggle" aria-expanded="false" aria-controls="formation-panel" title="진형 변경">진형</button>
-        <button id="orders-toggle" aria-expanded="false" aria-controls="squad-panel" title="부대 관리">부대</button>
+        <button id="orders-toggle" aria-expanded="false" aria-controls="squad-panel" title="부대 관리" hidden>부대</button>
         <button id="clear-selection" aria-label="분대 선택 해제">×</button>
       </div>
     </div>
@@ -64,9 +67,7 @@
   <section id="squad-panel" class="tactical-popover" aria-label="부대 관리" hidden>
     <div class="tactical-popover-head"><strong>부대 관리</strong><button id="squad-panel-close" aria-label="부대 관리 닫기">×</button></div>
     <div id="selection-actions" class="selection-actions">
-      <button id="multi-select" aria-pressed="false">추가 선택</button>
       <button id="selection-platoon">소대 선택</button>
-      <button id="selection-locate">부대 보기</button>
     </div>
   </section>
   <section id="formation-panel" class="tactical-popover" aria-label="선택 부대 진형" hidden>
