@@ -17,6 +17,12 @@ function visualRevision(board){
  return [board.width,board.height,board.seed,board.terrainRevision,board.obstacleRevision,board.terrain,board.obstacles,board.battlefield];
 }
 function sameRevision(a,b){return a?.length===b.length&&a.every((v,i)=>v===b[i]);}
+function unchangedMap(entry,board){
+ const k=entry?.rev;
+ return !!k&&k[0]===board.width&&k[1]===board.height&&k[2]===board.seed&&
+  k[3]===board.terrainRevision&&k[4]===board.obstacleRevision&&
+  k[5]===board.terrain&&k[6]===board.obstacles&&k[7]===board.battlefield;
+}
 function rasterizeRoads(board,index){
  const w=board.width,h=board.height,paths=board.battlefield?.paths||[];
  for(const path of paths){
@@ -36,8 +42,9 @@ function rasterizeRoads(board,index){
  }
 }
 function buildVisualMap(board){
- const rev=visualRevision(board),old=visualMaps.get(board);
- if(old&&sameRevision(old.rev,rev))return old.index;
+ const old=visualMaps.get(board);
+ if(unchangedMap(old,board))return old.index;
+ const rev=visualRevision(board);
  const w=board.width,h=board.height,out=new Uint8Array(w*h),seed=board.seed||0;
  const clearing=board.battlefield?.clearing;
  const centerX=clearing?.x??w*.5,centerY=clearing?.y??h*.5;
@@ -132,12 +139,13 @@ async function imageFromBase64(path){
  if(!data.startsWith('UklG'))throw Error('Invalid WebP terrain asset: '+path);
  const img=new Image();img.src='data:image/webp;base64,'+data;await img.decode();return img;
 }
-function seams(ctx,board,tiles){
+function seams(ctx,board,tiles,map){
+ const w=board.width,h=board.height;
  for(const water of [false,true]){
   ctx.beginPath();
-  for(const {x,y} of tiles){const material=terrainMaterial(board,x,y),p=project(x,y);
+  for(const {x,y} of tiles){const material=NAMES[map[y*w+x]],p=project(x,y);
    for(const [dx,dy,sign] of [[1,0,1],[0,1,-1]]){
-    const other=terrainMaterial(board,x+dx,y+dy);
+    const nx=x+dx,ny=y+dy,other=nx>=w||ny>=h?'void':NAMES[map[ny*w+nx]];
     if(other==='void'||other===material||((material==='marsh'||other==='marsh')!==water))continue;
     ctx.moveTo(p.x+sign*HX,p.y);ctx.lineTo(p.x,p.y+HY);
    }
@@ -182,16 +190,17 @@ export class BattlefieldTerrainRenderer{
     const col=terrainVariant(x,y),row=(newArt?NEW_ROWS:OLD_ROWS)[material],sx=col*TW,sy=row*TH;
     if(newArt){
      // Each source tile has a pre-baked opaque diamond; avoid a path per visible tile.
-     const east=terrainMaterial(board,x+1,y)==='void',south=terrainMaterial(board,x,y+1)==='void';
+     const east=x+1>=board.width||materialIndex[y*board.width+x+1]===0;
+     const south=y+1>=board.height||materialIndex[(y+1)*board.width+x]===0;
      if(east||south)t.drawImage(this.atlas,sx,sy,TW,TH,p.x-HX,p.y-44,TW,TH);
      t.drawImage(this.surface,sx,sy,TW,TH,p.x-HX,p.y-44,TW,TH);
     }else{
      t.drawImage(this.atlas,sx,sy,TW,TH,p.x-HX,p.y-HY,TW,TH);
-     if(terrainMaterial(board,x+1,y)==='void')t.drawImage(this.atlas,sx,(3+row)*TH,TW,TH,p.x-HX,p.y-HY,TW,TH);
-     if(terrainMaterial(board,x,y+1)==='void')t.drawImage(this.atlas,sx,(6+row)*TH,TW,TH,p.x-HX,p.y-HY,TW,TH);
+     if(x+1>=board.width||materialIndex[y*board.width+x+1]===0)t.drawImage(this.atlas,sx,(3+row)*TH,TW,TH,p.x-HX,p.y-HY,TW,TH);
+     if(y+1>=board.height||materialIndex[(y+1)*board.width+x]===0)t.drawImage(this.atlas,sx,(6+row)*TH,TW,TH,p.x-HX,p.y-HY,TW,TH);
     }
    }
-   if(tiles.length&&camera.scale>=.16)seams(t,board,tiles);
+   if(tiles.length&&camera.scale>=.16)seams(t,board,tiles,materialIndex);
    if(tiles.length&&this.decorations&&!low&&camera.scale>=.2){
     const x0=Math.max(0,Math.min(...tiles.map(p=>p.x))-4),x1=Math.max(...tiles.map(p=>p.x))+4;
     const y0=Math.max(0,Math.min(...tiles.map(p=>p.y))-4),y1=Math.max(...tiles.map(p=>p.y))+4;
