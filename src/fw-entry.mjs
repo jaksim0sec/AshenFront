@@ -53,23 +53,51 @@ function switchMode(m){
  $('deployment-toggle').textContent=m==='deploy'?'지휘 모드':'배치 모드';
  $('resume-deployment').hidden=!(match.phase==='preparation'&&m==='control');
 }
+// Shared show/dismiss lifecycle; each type of control remains a separate panel.
+function setPanelOpen(panel,open){
+ const state=String(!!open);
+ if(panel.dataset.open===state)return;
+ panel._panelAnimation?.cancel();
+ panel._panelAnimation=null;
+ panel.dataset.open=state;
+ panel.hidden=false;
+ panel.inert=!open;
+ panel.style.pointerEvents=open?'':'none';
+ const finish=()=>{
+  if(panel.dataset.open==='false'){
+   panel.hidden=true;panel.inert=false;panel.style.pointerEvents='';
+  }
+  panel._panelAnimation=null;
+ };
+ if(typeof panel.animate!=='function'||matchMedia('(prefers-reduced-motion: reduce)').matches){
+  finish();
+ }else{
+  const animation=panel.animate(open?
+   [{opacity:0,scale:.96},{opacity:1,scale:1}]:
+   [{opacity:1,scale:1},{opacity:0,scale:.97}],{
+   duration:open?175:130,easing:open?'cubic-bezier(.2,.8,.25,1)':'ease-in',fill:'both'
+  });
+  panel._panelAnimation=animation;
+  animation.onfinish=finish;
+ }
+ if(panel.id==='game-tools')$('tools-toggle').setAttribute('aria-expanded',state);
+}
 function closeTacticalPanels(){
- $('squad-panel').hidden=true;
- $('formation-panel').hidden=true;
+ setPanelOpen($('squad-panel'),false);
+ setPanelOpen($('formation-panel'),false);
  $('orders-toggle').setAttribute('aria-expanded','false');
  $('formation-toggle').setAttribute('aria-expanded','false');
 }
 function showTacticalPanel(name){
- const panel=$(name),opening=panel.hidden;
+ const panel=$(name),opening=panel.dataset.open!=='true';
  closeTacticalPanels();
  if(!opening)return;
  setHudExpanded(false);
- $('game-tools').hidden=true;
- $('tools-toggle').setAttribute('aria-expanded','false');
+ setPanelOpen($('game-tools'),false);
  document.body.classList.remove('map-open');
  $('mobile-map-toggle').setAttribute('aria-expanded','false');
  $('mobile-map-toggle').textContent='국지 지도 열기';
- panel.hidden=false;
+ setPanelOpen(panel,true);
  $(name==='squad-panel'?'orders-toggle':'formation-toggle').setAttribute('aria-expanded','true');
 }
 
@@ -92,11 +120,11 @@ function command(action,target=null){
  else notice('이동·공격 불가 · 목표를 확인하세요');
  roster();hud();return count>0;
 }
-function setCommand(m){mode=m;document.body.dataset.commandMode=m||'none';hover=null;for(const name of ['move','attack','flank'])$(name).classList.toggle('active',name===m);notice(m==='attack'?'공격할 적을 터치하세요':m==='flank'?'우회 위치를 터치하세요':m==='move'?'이동 위치를 터치하세요':'분대를 선택해 명령하세요');}
+function setCommand(m){if(m)closeTacticalPanels();mode=m;document.body.dataset.commandMode=m||'none';hover=null;for(const name of ['move','attack','flank'])$(name).classList.toggle('active',name===m);notice(m==='attack'?'공격할 적을 터치하세요':m==='flank'?'우회 위치를 터치하세요':m==='move'?'이동 위치를 터치하세요':'분대를 선택해 명령하세요');}
 function deploy(p){const s=match.deploy('A','infantry',p);if(!s){notice('배치 불가 · 진영의 빈 공간을 선택하세요');return;}if(deployFormation!=='line')configureSquad(board,s.id,{formation:deployFormation});notice('제'+match.squadIds.A.length+'분대 배치 · 예비 '+match.reserve.A+'명');if(!match.reserve.A)switchMode('control');roster();hud();}
 function autoDeploy(){const r=autoDeployPlayer(match);notice(r.complete?'배치 완료':'배치할 공간이 부족합니다');if(r.complete)switchMode('control');roster();hud();return r.complete;}
 function start(){if(match.phase!=='preparation')return;closeTacticalPanels();setHudExpanded(false);if(!autoDeploy())return;match.start();if(match.phase!=='battle'){notice('전투 시작 실패');return;}switchMode('control');document.body.dataset.phase='battle';if(!selected.size&&squads().length)selected.add(squads()[0].id);notice('전투 시작 · 개나리워즈 원본 지휘 체계 가동');roster();hud();}
-function restart(){closeTacticalPanels();setHudExpanded(false);document.body.classList.remove('map-open');$('game-tools').hidden=true;({board,match}=createAshenMatch({seed,count:armySize}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();notice('아군 진영에 병력을 배치하세요');roster();hud();}
+function restart(){closeTacticalPanels();setPanelOpen($('game-tools'),false);setHudExpanded(false);document.body.classList.remove('map-open');({board,match}=createAshenMatch({seed,count:armySize}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();notice('아군 진영에 병력을 배치하세요');roster();hud();}
 function locate(px,py){const r=unproject((px-camera.x)/camera.scale,(py-camera.y)/camera.scale),x=Math.round(r.x),y=Math.round(r.y);return board.inside(x,y)?{x,y}:null;}
 function hit(px,py){let closest=null,d=25;for(const u of board.units){if(u.health.current<=0)continue;const p=project(u.visualX,u.visualY),dist=Math.hypot(px-camera.x-p.x*camera.scale,py-camera.y-p.y*camera.scale+25*camera.scale);if(dist<d){d=dist;closest=u;}}return closest;}
 function tap(px,py,shift=false){const p=locate(px,py);if(!p)return;if(playMode==='deploy'&&match.phase==='preparation'){deploy(p);return;}const u=hit(px,py);
@@ -319,21 +347,21 @@ function bind(){
   document.body.classList.toggle('map-open',open);
   $('mobile-map-toggle').setAttribute('aria-expanded',String(open));
   $('mobile-map-toggle').textContent=open?'국지 지도 닫기':'국지 지도 열기';
-  if(open){closeTacticalPanels();tools.hidden=true;setHudExpanded(false);paintMini();}
+  if(open){closeTacticalPanels();setPanelOpen(tools,false);setHudExpanded(false);paintMini();}
  };
  $('hud-toggle').onclick=()=>{
   const opening=!hud.classList.contains('is-open');
-  closeTacticalPanels();tools.hidden=true;setMapOpen(false);setHudExpanded(opening);
+  closeTacticalPanels();setPanelOpen(tools,false);setMapOpen(false);setHudExpanded(opening);
  };
  // Outside-tap dismissals never create a hidden world command or troop deployment.
  document.addEventListener('pointerdown',event=>{
   const target=event.target,hitCanvas=target===canvas;
   let dismissed=false;
   if(hud.classList.contains('is-open')&&!hud.contains(target)){setHudExpanded(false);dismissed=true;}
-  if(!tools.hidden&&!tools.contains(target)&&!$('tools-toggle').contains(target)){tools.hidden=true;dismissed=true;}
+  if(tools.dataset.open==='true'&&!tools.contains(target)&&!$('tools-toggle').contains(target)){setPanelOpen(tools,false);dismissed=true;}
   if(document.body.classList.contains('map-open')&&!mini.contains(target)&&!$('toggle-map').contains(target)&&!$('mobile-map-toggle').contains(target)){setMapOpen(false);dismissed=true;}
-  if(!squadPanel.hidden&&!squadPanel.contains(target)&&!$('orders-toggle').contains(target)){closeTacticalPanels();dismissed=true;}
-  if(!formationPanel.hidden&&!formationPanel.contains(target)&&!$('formation-toggle').contains(target)){closeTacticalPanels();dismissed=true;}
+  if(squadPanel.dataset.open==='true'&&!squadPanel.contains(target)&&!$('orders-toggle').contains(target)){closeTacticalPanels();dismissed=true;}
+  if(formationPanel.dataset.open==='true'&&!formationPanel.contains(target)&&!$('formation-toggle').contains(target)){closeTacticalPanels();dismissed=true;}
   if(dismissed&&hitCanvas)dismissedWorldPointers.add(event.pointerId);
  },true);
  if(matchMedia('(hover:hover) and (pointer:fine)').matches){
@@ -387,10 +415,9 @@ function bind(){
  $('toggle-map').onclick=()=>setMapOpen(!document.body.classList.contains('map-open'));
  $('mobile-map-toggle').onclick=()=>setMapOpen(!document.body.classList.contains('map-open'));
  $('tools-toggle').onclick=()=>{
-  const opening=tools.hidden;
+  const opening=tools.dataset.open!=='true';
   closeTacticalPanels();setHudExpanded(false);setMapOpen(false);
-  tools.hidden=!opening;
-  $('tools-toggle').setAttribute('aria-expanded',String(opening));
+  setPanelOpen(tools,opening);
  };
  $('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ';};
  $('restart').onclick=restart;$('play-again').onclick=restart;
@@ -411,7 +438,7 @@ function bind(){
  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
  canvas.addEventListener('pointerleave',()=>{hover=null;});
  mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect();const area=miniArea||minimapRegion(board,camera,canvas.clientWidth,canvas.clientHeight);const target=minimapWorldPoint(area,e.clientX-r.left,e.clientY-r.top,r.width,r.height);focus(Math.max(0,Math.min(board.width-1,target.x)),Math.max(0,Math.min(board.height-1,target.y)));paintMini();});
- addEventListener('resize',()=>{resize();if(!matchMedia('(max-width:700px)').matches)setHudExpanded(false);});document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const key=e.key.toLowerCase();if(key==='m')setCommand('move');if(key==='a')setCommand('attack');if(key==='h')$('hold').click();if(key==='escape'){setCommand(null);setHudExpanded(false);tools.hidden=true;setMapOpen(false);closeTacticalPanels();}if(key===' '){e.preventDefault();$('pause').click();}});
+ addEventListener('resize',()=>{resize();if(!matchMedia('(max-width:700px)').matches)setHudExpanded(false);});document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const key=e.key.toLowerCase();if(key==='m')setCommand('move');if(key==='a')setCommand('attack');if(key==='h')$('hold').click();if(key==='escape'){setCommand(null);setHudExpanded(false);setPanelOpen(tools,false);setMapOpen(false);closeTacticalPanels();}if(key===' '){e.preventDefault();$('pause').click();}});
 }
 function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  if(!paused&&dt){board.update(Math.min(dt,.05));match.update(dt);if(t-lastOrders>=50){updateSquadOrders(board);lastOrders=t;}}

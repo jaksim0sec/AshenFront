@@ -806,3 +806,40 @@ body[data-engine=flower] #game-tools{
  body[data-engine=flower] #command-dock .selection-tools button .ui-icon{width:18px;height:18px}
  body[data-engine=flower] #command-dock .selection-tools #clear-selection{font-size:20px}
 }
+
+
+/* A single neutral control language across deployment, tactics and utilities.
+   Panels remain semantically separate and animate through the shared JS lifecycle. */
+body[data-engine=flower]{
+ --ui-button:#303b40;--ui-button-hover:#415158;--ui-selected:#50666e;
+ --ui-surface:#232c30;--ui-stroke:#7f90967a;
+}
+body[data-engine=flower] :is(#match-hud,#game-tools,.tactical-popover,.deployment-head){
+ border-color:var(--ui-stroke);color:var(--ui-ink);
+}
+body[data-engine=flower] :is(#game-tools,.tactical-popover,.deployment-head){
+ background:#232c30f5;box-shadow:var(--ui-shadow);
+}
+body[data-engine=flower] :is(#game-tools button,.deployment-head button,.deployment-types button,#formation-controls button,#squad-panel .selection-actions button){
+ background:var(--ui-button);border:1px solid var(--ui-stroke);
+ color:var(--ui-ink);transition:background-color .15s ease,border-color .15s ease;
+}
+body[data-engine=flower] :is(#game-tools button,.deployment-head button,.deployment-types button,#formation-controls button,#squad-panel .selection-actions button):not(:disabled):hover{
+ background:var(--ui-button-hover);
+}
+body[data-engine=flower] :is(.deployment-types button[aria-pressed=true],#formation-controls button.active,#squad-panel #multi-select[aria-pressed=true]){
+ background:var(--ui-selected);border-color:var(--ui-active);
+}
+body[data-engine=flower] .tactical-popover-head button{
+ background:var(--ui-button);border:1px solid var(--ui-stroke)
+}
+body[data-engine=flower] .tactical-popover:focus-within{border-color:var(--ui-active)}
+body[data-engine=flower] .tactical-popover:not([hidden]){transform-origin:bottom center}
+@media(max-width:700px){
+ body[data-engine=flower] #game-tools{transform-origin:top right}
+ body[data-engine=flower] #match-hud{background:#232c30f5;border-color:var(--ui-stroke)}
+ body[data-engine=flower] #command-dock .selection-tools button,
+ body[data-engine=flower] #command-dock .squad-line{
+  background:#232c30ed;border-color:var(--ui-stroke)
+ }
+}
