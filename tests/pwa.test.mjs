@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {Script,createContext} from 'node:vm';
+import {spawnSync} from 'node:child_process';
 import {releaseAssets,pwaRelease} from '../tools/pwa-assets.mjs';
 import {iconPng} from '../tools/pwa-icon.mjs';
 
@@ -96,4 +97,21 @@ test('fully downloaded release serves offline entry and removes old cache on act
  let fetched;
  listeners.get('fetch')({request:{method:'GET',url:'https://game.example/?seed=42'},respondWith:p=>fetched=p});
  const response=await fetched;assert.equal(response.url,'/index.html');assert.equal(network,2);
+});
+
+test('Vercel static build produces installable worker and icon resources',async()=>{
+ const build=spawnSync(process.execPath,['tools/build-pwa.mjs'],{cwd:root,encoding:'utf8',timeout:30000});
+ assert.equal(build.status,0,build.stderr||build.stdout);
+ const dist=join(root,'dist');
+ try{
+  const worker=await readFile(join(dist,'sw.js'),'utf8');
+  assert.ok(!worker.includes('/*RELEASE*/'));
+  assert.match(worker,/const VERSION="[0-9a-f]{20}";/);
+  assert.match(worker,/const ASSETS=\[/);
+  new Script(worker);
+  assert.ok((await readFile(join(dist,'index.html'),'utf8')).includes('manifest.webmanifest'));
+  assert.equal((await readFile(join(dist,'icons/192.png'))).readUInt32BE(16),192);
+  assert.equal((await readFile(join(dist,'icons/512.png'))).readUInt32BE(16),512);
+  assert.ok((await readFile(join(dist,'assets/world/terrain/ashenfront-atlas.webp.b64'))).length>1000);
+ }finally{await rm(dist,{recursive:true,force:true});}
 });

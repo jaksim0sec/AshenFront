@@ -5,7 +5,7 @@ On HTTPS or localhost, the game installs an offline-ready PWA automatically. Onc
 
 Online sessions discover updates through native service worker checks on page load, network reconnect, tab return and every five minutes while visible. Updates are downloaded fully into a separate cache and **never force-refresh an active battle**. When the user chooses '업데이트 적용', the waiting worker activates and the current tab reloads. Old release caches are deleted after activation; sprite and terrain Canvas caches are unaffected. Browser storage eviction or manual site-data deletion can still remove offline availability.
 
-PWA verification: `node --test tests/pwa.test.mjs`. Install/offline/reconnect behavior should also be tested in real Android Chrome before release.
+PWA verification: `node --test tests/pwa.test.mjs`. Vercel runs `node tools/build-pwa.mjs` and serves the generated `dist/` directory containing the same fingerprinted worker and PNG icons. Install/offline/reconnect behavior should also be tested in real Android Chrome before release.
 
 
 ## Battlefield terrain artwork
