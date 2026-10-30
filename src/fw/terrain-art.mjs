@@ -117,6 +117,8 @@ function surfaceOnly(image){
   const x=col*TW,y=row*TH;
   c.save();c.beginPath();c.moveTo(x+72,y+3);c.lineTo(x+144,y+44);
   c.lineTo(x+72,y+86);c.lineTo(x,y+44);c.closePath();c.clip();
+  c.fillStyle=COLORS[['grass','soil','road','marsh','rock','scorched'][row]];
+  c.fillRect(x,y,TW,TH);
   c.drawImage(image,x,y,TW,TH,x,y,TW,TH);c.restore();
  }
  return canvas;
@@ -145,17 +147,19 @@ function seams(ctx,board,tiles){
 export class BattlefieldTerrainRenderer{
  constructor(){
   this.atlas=null;this.surface=null;this.kind='pending';this.decorations=null;this.version=0;this.cache=null;this.rebuilds=0;this.failures=[];
-  const fallback=imageFromBase64('../../assets/world/terrain/atlas.webp.b64').then(img=>{
-   if(this.kind!=='new'){this.atlas=toneOld(img);this.kind='legacy';this.version++;}
-  }).catch(e=>{this.failures.push(e.message);});
   const next=imageFromBase64('../../assets/world/terrain/ashenfront-atlas.webp.b64').then(img=>{
    if(img.naturalWidth!==1440||img.naturalHeight!==642)throw Error('Expected a 1440x642 AshenFront atlas');
    this.surface=surfaceOnly(img);this.atlas=img;this.kind='new';this.version++;
-  }).catch(e=>{this.failures.push(e.message);console.warn(e.message);});
+  }).catch(async e=>{
+   this.failures.push(e.message);console.warn('New terrain unavailable, using original atlas:',e.message);
+   try{const img=await imageFromBase64('../../assets/world/terrain/atlas.webp.b64');
+    this.atlas=toneOld(img);this.kind='legacy';this.version++;
+   }catch(fallbackError){this.failures.push(fallbackError.message);}
+  });
   const decor=imageFromBase64('../../assets/world/terrain/decorations.webp.b64').then(img=>{
    this.decorations=toneOld(img,true);this.version++;
   }).catch(e=>{this.failures.push(e.message);});
-  this.ready=Promise.allSettled([fallback,next,decor]);
+  this.ready=Promise.allSettled([next,decor]);
  }
  draw(ctx,board,camera,width,height,drawDpr=1,low=false){
   const density=Math.min(drawDpr,low||camera.scale<.12?1:1.5),old=this.cache;
@@ -175,8 +179,7 @@ export class BattlefieldTerrainRenderer{
     if(!this.atlas){diamond(t,p.x,p.y,COLORS[material]);continue;}
     const col=terrainVariant(x,y),row=(newArt?NEW_ROWS:OLD_ROWS)[material],sx=col*TW,sy=row*TH;
     if(newArt){
-     // Opaque ground below the cut-out covers fractional-scale seams.
-     diamond(t,p.x,p.y,COLORS[material]);
+     // Each source tile has a pre-baked opaque diamond; avoid a path per visible tile.
      const east=terrainMaterial(board,x+1,y)==='void',south=terrainMaterial(board,x,y+1)==='void';
      if(east||south)t.drawImage(this.atlas,sx,sy,TW,TH,p.x-HX,p.y-44,TW,TH);
      t.drawImage(this.surface,sx,sy,TW,TH,p.x-HX,p.y-44,TW,TH);
