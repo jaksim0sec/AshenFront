@@ -64,3 +64,24 @@ test('a moving blocker clears before a follower spends detour search work',()=>{
  assert.equal(rear.x,7,'follower must eventually make progress');
  assert.equal(board.occupied(7,5),true);
 });
+
+test('formation maintenance is rate limited independently of render ticks',async()=>{
+ const {createAshenMatch,autoDeployPlayer}=await import('../src/fw/ashen-setup.mjs');
+ const {orderSquads,updateSquadOrders}=await import('../src/fw/squad-orders.mjs');
+ const {squadsFor}=await import('../src/fw/unit-groups.mjs');
+ const {board,match}=createAshenMatch({count:40});
+ assert(autoDeployPlayer(match).complete);
+ match.start();
+ const id=match.squadIds.A[0];
+ assert.equal(orderSquads(board,[id],'advance',{x:60,y:64}).accepted.length,1);
+ const squad=squadsFor(board).get(id),order=squad.order;
+ updateSquadOrders(board);
+ assert(order.nextUpdateAt>board.time);
+ const deadline=order.nextUpdateAt;
+ for(let i=0;i<2;i++){
+  board.update(.05);updateSquadOrders(board);
+  assert.equal(order.nextUpdateAt,deadline,'redundant sub-interval update scheduled');
+ }
+ board.update(.05);updateSquadOrders(board);
+ assert(order.nextUpdateAt>deadline,'order must still be refreshed after cadence');
+});

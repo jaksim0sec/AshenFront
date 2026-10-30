@@ -16,5 +16,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - run: node --test tests/shot-direction.test.mjs
       - run: npm test
+      - run: node --test tests/flowerwars-capacity.test.mjs
+
+  baseline-capacity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/shot-direction.test.mjs
       - run: node --test tests/flowerwars-capacity.test.mjs
