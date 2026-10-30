@@ -253,7 +253,7 @@ function hud(){
  $('start-battle').hidden=match.phase!=='preparation';$('match-charge').hidden=match.phase!=='battle';$('auto-deploy').hidden=match.phase!=='preparation'||match.reserve.A===0;$('deployment-toggle').hidden=match.phase!=='preparation';
  const ids=selectedIds(),s=squadsFor(board).get(ids[0]);$('squad-name').textContent=ids.length>1?ids.length+'개 분대 선택':s?'제'+(s.matchIndex+1)+'분대 · '+living(s).length+'명':'분대 지휘';
  $('squad-info').textContent=s?phaseName(s):'';$('objective').textContent='적 지휘소 점령 또는 적군 전멸';
- if(match.phase==='finished'&&$('result').hidden){$('result').hidden=false;$('result').querySelector('h1').textContent=match.winner==='A'?'아르켄 승리':'벨리안 승리';$('result').querySelector('p').textContent=match.finishReason==='annihilation'?'병력 전멸':'지휘소 함락';}
+ if(match.phase==='finished'&&$('result').hidden){roster();$('result').hidden=false;$('result').querySelector('h1').textContent=match.winner==='draw'?'무승부':match.winner==='A'?'아르켄 승리':'벨리안 승리';$('result').querySelector('p').textContent=match.finishReason==='annihilation'?'병력 전멸':'지휘소 함락';}
 }
 function bind(){
  const sizeSelect=$('army-size');sizeSelect.value=String(armySize);
