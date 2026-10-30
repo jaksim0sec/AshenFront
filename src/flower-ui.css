@@ -21,7 +21,7 @@ body[data-engine=flower] .faction-team.arken{color:#c4d7e7}
 body[data-engine=flower] .faction-team.velian{color:#ddbbb2}
 body[data-engine=flower] .faction-versus{color:var(--af-muted)}
 body[data-engine=flower] #match-hud{
- position:fixed;z-index:12;top:max(10px,env(safe-area-inset-top));left:50%;
+ position:fixed;z-index:30;top:max(10px,env(safe-area-inset-top));left:50%;
  transform:translateX(-50%);display:flex;align-items:center;gap:10px;
  width:max-content;max-width:calc(100vw - 100px);
  padding:6px 10px;border:1px solid var(--af-line);border-radius:19px;
@@ -43,45 +43,55 @@ body[data-engine=flower] #resume-deployment{background:#3a474bcf}
 body[data-engine=flower] #pause,body[data-engine=flower] #restart{font-size:18px}
 body[data-engine=flower] #tools-toggle{
  position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;bottom:auto;
- width:45px;height:45px;display:grid;place-items:center;z-index:11;
+ width:45px;height:45px;display:grid;place-items:center;z-index:31;
  border:1px solid var(--af-line);border-radius:16px;background:#222a2df0;
  box-shadow:0 4px 16px #1118
 }
 body[data-engine=flower] #tools-toggle svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8}
 body[data-engine=flower] #toggle-map{position:fixed;right:12px;bottom:134px;left:auto;top:auto;width:46px;height:46px;font-size:9px;z-index:8}
 body[data-engine=flower] #battle-notice{
- position:fixed;top:78px;left:50%;z-index:7;max-width:min(330px,calc(100vw - 24px));
+ position:fixed;top:78px;left:50%;z-index:80;max-width:min(330px,calc(100vw - 24px));
  margin:0;padding:6px 12px;border:1px solid var(--af-line);
  background:#212b2ee8;border-radius:12px;font-size:10px;line-height:1.45;
  color:var(--af-ink);opacity:0;transform:translate(-50%,-7px);
  transition:opacity .2s ease,transform .2s ease;pointer-events:none
 }
 body[data-engine=flower] #battle-notice.is-visible{opacity:1;transform:translate(-50%,0)}
+body[data-engine=flower] #result{z-index:100}
 body[data-engine=flower] #game-tools{
- position:fixed;z-index:13;top:72px;right:12px;left:auto;bottom:auto;
+ position:fixed;z-index:35;top:72px;right:12px;left:auto;bottom:auto;
  width:245px;max-width:calc(100vw - 24px);max-height:70dvh;overflow-y:auto;
  padding:12px;border:1px solid var(--af-line);border-radius:17px;
  background:#293337f7;box-shadow:0 14px 32px #060c11a1;
  /* Entrance and exit are handled by setPanelOpen, not a competing CSS animation. */
 }
 body[data-engine=flower] #mobile-map-toggle{display:none}
-body[data-engine=flower] #game-tools .tools-heading{display:block;font-size:12px;margin-bottom:8px}
-body[data-engine=flower] #view-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+body[data-engine=flower] #game-tools .tools-heading{display:block;font-size:12px;margin-bottom:10px;color:var(--af-command-ink)}
+body[data-engine=flower] #game-tools[hidden]{display:none!important}
 body[data-engine=flower] #game-tools button{font-size:11px;border-radius:10px;background:#39474ad6}
-body[data-engine=flower] #fit-view{width:100%;margin-top:6px}
-body[data-engine=flower] .tool-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:8px}
+/* Retain camera controls for ?legacy=1, hide them only in active Flower mode. */
+body[data-engine=flower] #view-controls{display:none!important}
+body[data-engine=flower] #fit-view{width:100%;margin-top:0}
+body[data-engine=flower] #game-tools .tool-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--af-command-edge)}
 body[data-engine=flower] #soldier-workshop{font-size:11px}
 body[data-engine=flower] #overview-shell{
  position:fixed;right:12px;left:auto;bottom:188px;top:auto;
- width:180px;height:126px;z-index:9
+ width:180px;height:180px;z-index:5;
+ border:1px solid var(--af-command-edge);border-radius:50%;overflow:hidden;
+ background:#2a322fe8;box-shadow:0 6px 22px #0d0b08a3
 }
 body[data-engine=flower] #overview{
  display:block;position:absolute;inset:0;width:100%;height:100%;
- border:1px solid var(--af-line);border-radius:10px;
- background:var(--af-bg);box-shadow:0 6px 22px #070c0faa
+ border:0;border-radius:50%;background:var(--af-bg);touch-action:none
+}
+/* Static rings, no continuous GPU animation or extra draw loop. */
+body[data-engine=flower] #overview-shell::after{
+ content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:50%;
+ background:repeating-radial-gradient(circle,transparent 0 24px,#f4e6c326 25px,transparent 26px 44px);
+ opacity:.32
 }
 body[data-engine=flower] #overview-close{
- position:absolute;right:5px;top:5px;z-index:2;
+ display:none!important;position:absolute;right:5px;top:5px;z-index:2;
  display:grid;place-items:center;width:24px;height:24px;min-width:24px;min-height:24px;
  padding:0;border:1px solid #d6c29a99;border-radius:50%;
  background:#382e23e8;color:#f9edda;font-size:17px;line-height:1
@@ -92,7 +102,7 @@ body[data-engine=flower][data-play-mode=deploy] #formation-panel{display:none!im
 body[data-engine=flower][data-phase=battle] #deployment-tools{display:none!important}
 /* Deployment is one task: choose a formation, select the unit count and place troops. */
 body[data-engine=flower] #deployment-tools{
- position:fixed;z-index:7;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));top:auto;
+ position:fixed;z-index:18;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));top:auto;
  transform:translateX(-50%);width:min(460px,calc(100vw - 24px));max-width:none
 }
 body[data-engine=flower] .deployment-head{
@@ -127,7 +137,7 @@ body[data-engine=flower] .deployment-types button[aria-pressed=true] small{color
 body[data-engine=flower][data-play-mode=control] #deployment-tools{display:none!important}
 /* Lower roster is for selecting troops, not tactical orders. */
 body[data-engine=flower] #roster-panel{
- position:fixed;z-index:6;left:0;right:0;top:auto;bottom:0;
+ position:fixed;z-index:16;left:0;right:0;top:auto;bottom:0;
  width:100%;height:123px;max-height:none;padding:5px 8px 6px;
  display:flex;align-items:stretch;gap:9px;overflow:hidden;pointer-events:auto;
  background:linear-gradient(0deg,#493b2ca8 0%,#5c493375 69%,#67513b00 100%);
@@ -217,17 +227,18 @@ body[data-engine=flower] #squad-tabs .squad-card.is-eliminated .commander-photo{
 body[data-engine=flower] #squad-tabs .squad-card.is-eliminated{opacity:.66;cursor:default}
 /* Selected unit identity / formation / orders each have a separate purpose. */
 body[data-engine=flower] #command-dock{
- position:fixed;z-index:7;left:auto;right:20px;bottom:132px;transform:none;
- width:min(405px,calc(100vw - 24px));max-width:none;
+ position:fixed;z-index:18;left:auto;right:20px;bottom:132px;transform:none;
+ width:min(330px,calc(100vw - 24px));max-width:none;
  padding:0;border:0;background:none;box-shadow:none
 }
 body[data-engine=flower][data-selected=false] #command-dock{display:none!important}
 body[data-engine=flower] .command-selection-row{
- display:flex;align-items:center;gap:5px;min-height:37px;margin:0 0 6px;
+ display:flex;align-items:center;justify-content:center;gap:5px;min-height:37px;margin:0 0 6px;
  padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none
 }
 body[data-engine=flower] .squad-line{
- display:flex;align-items:center;gap:6px;flex:1;min-width:0;min-height:37px;
+ display:flex;align-items:center;gap:6px;flex:0 1 auto;min-width:0;min-height:37px;
+ max-width:calc(100% - 142px);
  padding:5px 10px;color:var(--af-command-ink);background:var(--af-command-bg);border:1px solid var(--af-command-edge);
  border-radius:20px;white-space:nowrap
 }
@@ -236,7 +247,7 @@ body[data-engine=flower] .squad-line strong{
  font-size:11px;line-height:1.25
 }
 body[data-engine=flower] .squad-line>span{
- display:block;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+ display:block;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
  margin:0;font-size:10px;color:var(--af-command-muted);line-height:1.3
 }
 body[data-engine=flower] .command-selection-row .selection-tools{display:flex;align-items:center;gap:5px}
@@ -253,7 +264,7 @@ body[data-engine=flower] #orders-toggle,
 body[data-engine=flower] #selection-actions{display:none!important}
 body[data-engine=flower] #primary-orders{
  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));
- gap:6px;margin:0;padding:0;border:0;background:none
+ gap:2px;margin:0;padding:0;border:0;background:none
 }
 body[data-engine=flower] #primary-orders button{
  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
@@ -282,7 +293,7 @@ body[data-engine=flower][data-command-mode=attack] #command-dock .command-help,
 body[data-engine=flower][data-command-mode=flank] #command-dock .command-help{display:flex}
 body[data-engine=flower] #cancel{min-height:30px;padding:4px 8px;background:var(--af-command-bg);color:var(--af-command-ink);border:1px solid var(--af-command-edge);font-size:10px}
 body[data-engine=flower] #formation-panel{
- position:fixed;z-index:10;left:auto;right:20px;bottom:254px;top:auto;
+ position:fixed;z-index:36;left:auto;right:20px;bottom:254px;top:auto;
  width:min(405px,calc(100vw - 24px));max-width:none;max-height:50dvh;
  padding:10px;border:1px solid var(--af-command-edge);border-radius:16px;
  background:var(--af-command-bg);color:var(--af-command-ink);box-shadow:0 12px 30px #21180e8c;
@@ -379,7 +390,7 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
  }
  body[data-engine=flower] #overview-shell{
   top:calc(max(8px,env(safe-area-inset-top)) + 62px);right:8px;bottom:auto;
-  width:min(190px,48vw);height:auto;aspect-ratio:180/126
+  width:min(190px,48vw);height:auto;aspect-ratio:1/1
  }
  body[data-engine=flower].hud-open #tools-toggle,
  body[data-engine=flower].hud-open #overview-shell{opacity:0;pointer-events:none}
@@ -417,7 +428,7 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
  body[data-engine=flower] #squad-tabs .squad-card-status{font-size:8px}
  body[data-engine=flower] #command-dock{
   left:50%;right:auto;bottom:calc(114px + env(safe-area-inset-bottom));
-  transform:translateX(-50%);width:calc(100vw - 18px);max-width:410px
+  transform:translateX(-50%);width:min(312px,calc(100vw - 18px));max-width:312px
  }
  body[data-engine=flower] .command-selection-row{margin-bottom:4px;gap:4px}
  body[data-engine=flower] .squad-line{min-height:34px;padding:5px 8px}
@@ -428,14 +439,14 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
  body[data-engine=flower] #clear-selection{min-height:34px;min-width:34px;padding:3px 5px;font-size:9px}
  body[data-engine=flower] .selection-tools button svg{width:17px;height:17px}
  body[data-engine=flower] #clear-selection{width:34px;font-size:19px}
- body[data-engine=flower] #primary-orders{gap:3px}
+ body[data-engine=flower] #primary-orders{gap:2px}
  body[data-engine=flower] #primary-orders button{min-height:68px;gap:4px}
  body[data-engine=flower] #primary-orders button svg{width:43px;height:43px;padding:10px}
  body[data-engine=flower] #primary-orders button>span{font-size:9px}
  body[data-engine=flower] #formation-panel{
   left:50%;right:auto;bottom:calc(222px + env(safe-area-inset-bottom));
   transform:translate(-50%,9px);
-  width:calc(100vw - 18px);max-width:410px;max-height:55dvh;padding:8px
+  width:min(312px,calc(100vw - 18px));max-width:312px;max-height:55dvh;padding:8px
  }
  body[data-engine=flower] #formation-panel:not([hidden]){transform:translate(-50%,0)}
  body[data-engine=flower] #formation-controls button{min-height:64px;font-size:9px}

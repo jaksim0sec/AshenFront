@@ -34,8 +34,16 @@ These tokens belong in `src/flower-ui.css` and must be reused. Avoid unrelated h
 
 - A platoon heading selects the **current two live match squads** in that visible platoon, including those deployed *after* its button was created. Its fold control affects display only, not selection.
 - Individual squad cards choose individual squads unless additive selection is enabled; eliminated squads cannot be selected. Show grouped selection state.
-- Minimap opens by default and has a small close control, and may be reopened from settings. A tap dismissing any other open menu must not accidentally deploy or command troops.
-- Keep panels separate by function, respect screen safe areas and touch target sizes, preserve short transitions and `prefers-reduced-motion`, and maintain meaningful `aria-pressed`/`aria-expanded` values.
+- Minimap opens by default as a circular, non-animated radar at the previous width. Its small X is intentionally hidden for now; reopen the radar from the menu. It must stay below alerts and result overlays. A tap dismissing any other open menu must not accidentally deploy or command troops.
+- Keep panels separate by function, keep the selected squad information chip content-sized rather than stretched with empty space, respect screen safe areas and touch target sizes, preserve short transitions and `prefers-reduced-motion`, and maintain meaningful `aria-pressed`/`aria-expanded` values.
+
+## Tools, compact commands and global overlay order
+
+- Use a monochrome three-dot More SVG on the top-right tool button, and a simple eye SVG for the selected-unit View action.
+- Do not restore redundant `+`, `−`, `◎`, `⌖` mini camera buttons inside tools. Named view shortcuts and fit-to-front remain, with wheel/pinch zoom on the battlefield.
+- The selected-unit line should fit its label, status and adjacent actions without a blank flex stretch. Keep the five order buttons together with comfortable touch targets and compact gaps.
+- Overlay priority: radar below tactical menus, tactical menus below alerts, alerts below the full-screen result modal. Full-screen result and notifications must not inherit battlefield filter/stacking effects.
+- Preserve existing troop cards and gameplay logic; changes to controls or layout must not alter active command behavior.
 
 ## Verification gate
 

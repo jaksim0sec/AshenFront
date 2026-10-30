@@ -410,7 +410,7 @@ function bind(){
  $('formation-toggle').innerHTML=icon('line')+'<span>진형</span>';
  $('multi-select').innerHTML=icon('plus')+'<span>복수</span>';
  $('selection-platoon').innerHTML=icon('platoon')+'<span>소대 선택</span>';
- $('selection-locate').innerHTML=icon('fit')+'<span>위치</span>';
+ $('selection-locate').innerHTML=icon('eye')+'<span>보기</span>';
  const formations={line:'횡대',column:'종대',dense:'밀집',spread:'산개',square:'방진'};
  for(const [name,label]of Object.entries(formations)){
   const b=document.createElement('button');b.type='button';b.dataset.formation=name;
@@ -432,8 +432,7 @@ function bind(){
  $('close-roster').onclick=()=>document.body.classList.remove('roster-open');
  $('selection-platoon').onclick=()=>{const first=squads().find(s=>selected.has(s.id));if(first){selected=new Set(platoonSquadIds(board,Math.floor(first.matchIndex/2)));roster();hud();}};
  $('selection-locate').onclick=()=>{const members=selectedIds().flatMap(id=>living(squadsFor(board).get(id)));if(members.length)focus(members.reduce((s,u)=>s+u.x,0)/members.length,members.reduce((s,u)=>s+u.y,0)/members.length);};
- $('zoom-in').onclick=()=>zoom(1.2);$('zoom-out').onclick=()=>zoom(1/1.2);$('fit-view').onclick=fit;
- $('focus-objective').onclick=()=>focus(match.flags.B.x,match.flags.B.y);$('focus-squad').onclick=()=>$('selection-locate').click();
+ $('fit-view').onclick=fit;
  $('home-view').onclick=()=>focus(match.flags.A.x,match.flags.A.y);$('enemy-view').onclick=()=>focus(match.flags.B.x,match.flags.B.y);
  $('toggle-map').onclick=()=>setMapOpen(!document.body.classList.contains('map-open'));
  $('mobile-map-toggle').onclick=()=>setMapOpen(!document.body.classList.contains('map-open'));
@@ -461,7 +460,7 @@ function bind(){
  };
  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
  canvas.addEventListener('pointerleave',()=>{hover=null;});
- mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect();const area=miniArea||minimapRegion(board,camera,canvas.clientWidth,canvas.clientHeight);const target=minimapWorldPoint(area,e.clientX-r.left,e.clientY-r.top,r.width,r.height);focus(Math.max(0,Math.min(board.width-1,target.x)),Math.max(0,Math.min(board.height-1,target.y)));paintMini();});
+ mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2;if(dx*dx+dy*dy>(Math.min(r.width,r.height)/2)**2)return;const area=miniArea||minimapRegion(board,camera,canvas.clientWidth,canvas.clientHeight);const target=minimapWorldPoint(area,e.clientX-r.left,e.clientY-r.top,r.width,r.height);focus(Math.max(0,Math.min(board.width-1,target.x)),Math.max(0,Math.min(board.height-1,target.y)));paintMini();});
  addEventListener('resize',()=>{resize();if(!matchMedia('(max-width:700px)').matches)setHudExpanded(false);});document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const key=e.key.toLowerCase();if(key==='m')setCommand('move');if(key==='a')setCommand('attack');if(key==='h')$('hold').click();if(key==='escape'){setCommand(null);setHudExpanded(false);setPanelOpen(tools,false);setMapOpen(false);closeTacticalPanels();}if(key===' '){e.preventDefault();$('pause').click();}});
 }
 function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
