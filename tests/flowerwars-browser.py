@@ -186,8 +186,8 @@ try:
    assert 'grayscale(1)' not in page.locator('#match-hud').evaluate("el=>getComputedStyle(el).filter")
    page.wait_for_timeout(950)
    page.screenshot(path=str(out/f'annihilated-{width}.png'))
-   if width<=700: page.locator('#hud-toggle').click()
-   page.locator('#restart').click()
+   # The finished match covers the HUD with its result overlay.
+   page.locator('#play-again').click()
    page.wait_for_function("document.body.dataset.annihilated==='false'",timeout=5000)
    context.close()
   # Full-size renderer stress: 35 squads each, 700 live soldiers.
