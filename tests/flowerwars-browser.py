@@ -138,6 +138,8 @@ try:
      match.refreshStatus();
    }""")
    page.wait_for_function("document.body.dataset.annihilated==='true'",timeout=5000)
+   # CSS fades over 850ms; check the fully desaturated computed frame, not the first transition frame.
+   page.wait_for_function("getComputedStyle(document.querySelector('#field')).filter.includes('grayscale(1)')",timeout=5000)
    assert 'grayscale(1)' in page.locator('#field').evaluate("el=>getComputedStyle(el).filter")
    assert 'grayscale(1)' not in page.locator('#match-hud').evaluate("el=>getComputedStyle(el).filter")
    page.wait_for_timeout(950)
