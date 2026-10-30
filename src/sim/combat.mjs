@@ -31,7 +31,7 @@ export function damage(w,u,amount) {
 export function resolveFire(w) {
  if(!w.combat)return;const index=spatialIndex(w),shots=[];
  for(const u of w.units) {
-  if(u.hp<=0||w.tick<u.nextFireTick)continue;
+  if(u.hp<=0||u.moveTo>=0||w.tick<u.nextFireTick)continue;
   w.metrics.queries++;const candidates=index.query(u.x,u.y,9).filter(v=>v.team!==u.team&&v.hp>0).map(v=>({v,d:(v.x-u.x)**2+(v.y-u.y)**2})).filter(o=>o.d<=81);
   const ownSquad=w.squads[u.squadId-1],focused=v=>ownSquad.order==='attack'&&(ownSquad.targetUnitId!=null?v.id===ownSquad.targetUnitId:v.squadId===ownSquad.targetSquadId);
   candidates.sort((a,b)=>Number(focused(b.v))-Number(focused(a.v))||a.d-b.d||a.v.id-b.v.id);let choice;
@@ -41,7 +41,7 @@ export function resolveFire(w) {
   const target=choice.v,s=w.squads[target.squadId-1];s.suppression=Math.min(100,s.suppression+2);s.lastThreatTick=w.tick;
   const chance=Math.max(.22,Math.min(.55,.55-.035*Math.max(0,Math.sqrt(choice.d)-3))),hit=random(w)<chance;
   shots.push({target,amount:hit?20*coverMultiplier(w.map,u,target):0});w.metrics.shots++;
-  emit(w,{kind:'shot',unitId:u.id,x:u.x,y:u.y,tx:target.x,ty:target.y,team:u.team,hit});
+  u.fireUntilTick=w.tick+3;emit(w,{kind:'shot',unitId:u.id,x:u.x,y:u.y,tx:target.x,ty:target.y,team:u.team,hit});
  }
  // All eligible shooters evaluate from the same pre-damage state.
  for(const shot of shots)if(shot.amount)damage(w,shot.target,shot.amount);

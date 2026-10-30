@@ -1,3 +1,4 @@
+import {ActorMotion} from './actor-motion.mjs';
 import {drawCommandOverlay} from './command-overlay.mjs';
 import {DEATH_DURATION} from '../characters/animation.mjs';
 import {SoldierRenderer,SOLDIER_SCALE} from '../characters/renderer.mjs';
@@ -5,10 +6,10 @@ import {palette as P} from './palette.mjs';
 import {unitFoot,project,toScreen,HALF_W as W,HALF_H as H} from './projection.mjs';import {TerrainRenderer,visibleBounds,tileFaces,polygon} from './terrain.mjs';import {spatialIndex} from '../sim/spatial.mjs';
 const colors={A:P.teamA,B:P.teamB};
 export class Scene {
- constructor(canvas){this.canvas=canvas;this.terrain=new TerrainRenderer();this.rendered=0;this.low=false;this.soldiers=new SoldierRenderer();this.soldiers.ready.catch(()=>{});this.shots=new Map();this.hp=new Map();this.hitTicks=new Map();this.muzzles=new Map();this.lastSeen=new Map();this.deathFacings=new Map();this.deathFeet=new Map();this.width=1;this.height=1;}
+ constructor(canvas){this.canvas=canvas;this.terrain=new TerrainRenderer();this.rendered=0;this.low=false;this.soldiers=new SoldierRenderer();this.soldiers.ready.catch(()=>{});this.shots=new Map();this.hp=new Map();this.hitTicks=new Map();this.muzzles=new Map();this.lastSeen=new Map();this.deathFeet=new Map();this.motion=new ActorMotion();this.width=1;this.height=1;}
  resize(){const r=this.canvas.getBoundingClientRect(),dpr=Math.min(this.low?1:2,devicePixelRatio||1);this.width=r.width;this.height=r.height;if(this.canvas.width!==Math.round(r.width*dpr)||this.canvas.height!==Math.round(r.height*dpr)){this.canvas.width=Math.round(r.width*dpr);this.canvas.height=Math.round(r.height*dpr);}this.dpr=dpr;}
  draw(w,c,selected,visible,alpha=0,selectedIds=new Set(selected?[selected]:[])) {
-  if(this.world!==w){this.world=w;this.shots.clear();this.hp.clear();this.hitTicks.clear();this.muzzles.clear();this.lastSeen.clear();this.deathFacings.clear();this.deathFeet.clear();this.actorFrames=new Map();}
+  if(this.world!==w){this.world=w;this.shots.clear();this.hp.clear();this.hitTicks.clear();this.muzzles.clear();this.lastSeen.clear();this.deathFeet.clear();this.motion.clear();this.actorFrames=new Map();}
   for(const u of visible.values())this.lastSeen.set(u.id,w.tick);
   if(this.eventTick!==w.tick){this.eventTick=w.tick;for(const e of w.events)if(e.kind==='shot'&&e.unitId)this.shots.set(e.unitId,e);}
   this.resize();const ctx=this.canvas.getContext('2d'),m=w.map;ctx.setTransform(this.dpr,0,0,this.dpr,0,0);ctx.fillStyle=P.background;ctx.fillRect(0,0,this.width,this.height);
@@ -24,14 +25,11 @@ export class Scene {
   for(const {u,p,h,deathAge} of sprites){const s=w.squads[u.squadId-1],chosen=selectedIds.has(u.squadId);ctx.save();ctx.translate(p.x,p.y);
 
    if(chosen&&deathAge===undefined){ctx.strokeStyle=P.selection;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,19,10,0,0,Math.PI*2);ctx.stroke();}
-   const shot=this.shots.get(u.id),age=shot?(w.tick-shot.tick+alpha)/20:Infinity,target=shot?project(shot.tx,shot.ty,m.floorLevel[shot.ty*m.width+shot.tx]):null,aimVector=target?{x:target.x-p.x,y:target.y-36-p.y}:null;
-   const movement=u.moveTo>=0?{x:(u.moveTo%m.width-u.x)-(Math.floor(u.moveTo/m.width)-u.y),y:0}:null;
-   let facing=aimVector&&age<1.5?(aimVector.x<0?-1:1):movement?(movement.x<0?-1:1):u.team==='A'?1:-1;
-   if(deathAge!==undefined){if(!this.deathFacings.has(u.id))this.deathFacings.set(u.id,facing);facing=this.deathFacings.get(u.id);}
+   const shot=this.shots.get(u.id);
    const rank=u.rank??(u.id===s.unitIds[0]?(w.squads.find(v=>v.team===u.team)?.id===s.id?'captain':'sergeant'):'private');
    const oldHP=this.hp.get(u.id);if(oldHP>u.hp)this.hitTicks.set(u.id,w.tick);this.hp.set(u.id,u.hp);const hurtAge=(w.tick-(this.hitTicks.get(u.id)??-1000)+alpha)/20;
-   const state=deathAge!==undefined?'death':age<.08?'shoot':hurtAge<.25?'hit':age<1.5?'shoot':u.moveTo>=0?'walk':'idle';
-   const animation={state,moving:u.moveTo>=0,time:deathAge??(state==='hit'?hurtAge:state==='shoot'?age:(w.tick+alpha)/20),facing,aim:aimVector?Math.atan2(aimVector.y,Math.max(.01,Math.abs(aimVector.x))):0,target:state==='shoot'?{x:aimVector.x/SOLDIER_SCALE,y:aimVector.y/SOLDIER_SCALE}:null,phase:u.id%3};
+   const animation=this.motion.sample(w,u,{foot:p,shot,alpha,hurtAge,deathAge});
+
    this.actorFrames.set(u.id,{foot:p,rank,animation});
    ctx.save();let shadowX=0,shadowRadius=14;if(deathAge!==undefined){ctx.globalAlpha=Math.max(0,Math.min(1,(DEATH_DURATION-deathAge)/.35));if(this.soldiers.loaded){const contact=this.soldiers.shadow(u.team,rank,animation,this.low||c.zoom<.5);shadowX=contact.x;shadowRadius=contact.radius;}}ctx.fillStyle='#1D202266';ctx.beginPath();ctx.ellipse(shadowX,0,shadowRadius,deathAge===undefined?7:4,0,0,Math.PI*2);ctx.fill();ctx.restore();
    const animated=this.soldiers.draw(ctx,u.team,rank,animation,this.low||c.zoom<.5);

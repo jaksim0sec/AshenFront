@@ -103,7 +103,7 @@ export function stepMovement(w) {
  // Rotate priority every tick so IDs cannot monopolize a doorway.
  const order=w.units.slice(),offset=w.tick%Math.max(1,order.length);order.push(...order.splice(0,offset));
  for(const u of order) {
-  if(u.hp<=0||u.moveTo>=0||proposals.has(u.id)||yielding(w,u))continue;
+  if(u.hp<=0||u.moveTo>=0||w.tick<(u.fireUntilTick??-Infinity)||proposals.has(u.id)||yielding(w,u))continue;
   const s=w.squads[u.squadId-1];if(s.order==='hold'||s.goal===null||s.suppressed)continue;
   const f=unitField(w,s,u),i=cell(m,u.x,u.y),dist=f.distance[i];
   if(s.placement==='formation'&&s.slots[u.id]===undefined)continue;
@@ -140,6 +140,7 @@ export function stepMovement(w) {
  }
  const status=new Map();
  function accepts(id,stack=[]) {
+  if(w.tick<(w.units[id-1].fireUntilTick??-Infinity)){status.set(id,false);return false;}
   if(status.has(id))return status.get(id);
   if(stack.includes(id)){for(const n of stack.slice(stack.indexOf(id)))status.set(n,true);return true;}
   const dest=proposals.get(id);if(dest===undefined)return false;

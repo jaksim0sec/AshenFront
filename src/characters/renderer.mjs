@@ -5,7 +5,8 @@ export const SOLDIER_SCALE=.285;
 export function sampleAnimation(options={},low=false){
  const fps=low?6:18,state=options.state??'idle',time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:state==='idle'?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
  const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,state==='death'?DEATH_DURATION:1.4):index/count*duration;
- return {...options,state,time:sample,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,phase:0};
+ const gaitPeriod=Math.PI*2/10,gaitCount=Math.max(2,Math.round(gaitPeriod*fps)),gaitTime=options.gaitTime===undefined||!(options.moving||state==='walk')?undefined:Math.floor((((Math.max(0,options.gaitTime)+(options.phase??0)/10)%gaitPeriod)/gaitPeriod)*gaitCount)/gaitCount*gaitPeriod;
+ return {...options,state,time:sample,gaitTime,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,phase:0};
 }
 export class SoldierRenderer {
  constructor(){this.catalog=createCatalog();this.images=new Map();this.metadata={};this.cache=new Map();this.cacheBytes=0;this.hits=0;this.misses=0;this.loaded=false;this.error=null;this.revision=0;this.margin=140;
@@ -38,16 +39,16 @@ export class SoldierRenderer {
   if(!this.loaded)return false;const id=profileId(team,rank),profile=this.catalog.profiles[id],sampled=sampleAnimation(options,low),{state,time:sample,aim,phase}=sampled;
   // Cached sprites face right. Reflect a world-relative target into that same frame.
   if(sampled.target)sampled.target={x:sampled.target.x*(options.facing<0?-1:1),y:sampled.target.y};
-  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
+  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
   if(canvas){this.hits++;this.cache.delete(key);this.cache.set(key,canvas);}
   if(!canvas){this.misses++;
    const options={...sampled,facing:1},bounds=poseBounds(poseCharacter(profile,options)),resolution=Math.min(.57,384/Math.max(bounds.width,bounds.height));
    const bitmap=document.createElement('canvas');bitmap.width=Math.min(384,Math.max(1,Math.ceil(bounds.width*resolution)));bitmap.height=Math.min(384,Math.max(1,Math.ceil(bounds.height*resolution)));const c=bitmap.getContext('2d');c.scale(resolution,resolution);c.translate(-bounds.left,-bounds.top);this.drawPose(c,profile,options);
-   const bytes=bitmap.width*bitmap.height*4;canvas={bitmap,bounds,bytes};
+   const bytes=bitmap.width*bitmap.height*4;canvas={bitmap,bounds,bytes,resolution};
    while(this.cache.size&&(this.cache.size>=256||this.cacheBytes+bytes>16*1024*1024)){const oldest=this.cache.keys().next().value;this.cacheBytes-=this.cache.get(oldest).bytes;this.cache.delete(oldest);}
    this.cache.set(key,canvas);this.cacheBytes+=bytes;
   }
-  const {bounds}=canvas;ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*SOLDIER_SCALE,bounds.top*SOLDIER_SCALE,bounds.width*SOLDIER_SCALE,bounds.height*SOLDIER_SCALE);ctx.restore();return true;
+  const {bounds}=canvas;ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*SOLDIER_SCALE,bounds.top*SOLDIER_SCALE,canvas.bitmap.width/canvas.resolution*SOLDIER_SCALE,canvas.bitmap.height/canvas.resolution*SOLDIER_SCALE);ctx.restore();return true;
 
  }
  shadow(team,rank,options,low=false){const s=contactShadow(poseCharacter(this.catalog.profiles[profileId(team,rank)],sampleAnimation(options,low)));return{x:s.x*SOLDIER_SCALE,radius:s.radius*SOLDIER_SCALE};}

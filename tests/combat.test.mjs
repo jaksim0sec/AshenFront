@@ -28,3 +28,4 @@ test('suppression pauses retained intent, recovers hysteretically and permits HO
 test('mirrored armies use matching staggered initial cooldowns rather than a team-wide offset',()=>{
  const w=createGame(),a=w.units.filter(u=>u.team==='A'),b=w.units.filter(u=>u.team==='B');for(let i=0;i<a.length;i++)assert.equal(a[i].nextFireTick,b[i].nextFireTick);
 });
+test('units inside a reserved movement step do not emit shots',()=>{const w=createGame(),u=w.units[0];for(const a of w.units)a.nextFireTick=1e9;u.nextFireTick=0;u.moveTo=u.y*w.map.width+u.x+1;resolveFire(w);assert(!w.events.some(e=>e.kind==='shot'&&e.unitId===u.id));assert.equal(u.nextFireTick,0);});

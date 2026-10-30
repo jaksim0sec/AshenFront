@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {ActorMotion} from '../src/render/actor-motion.mjs';import {createTerrain} from '../src/sim/world.mjs';import {project} from '../src/render/projection.mjs';import {sampleAnimation} from '../src/characters/renderer.mjs';
+test('walking faces the actual projected step even when an old shot points behind it',()=>{
+ const map=createTerrain(6,6),w={map,tick:20};map.floorLevel.fill(1);
+ for(const [dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const actor=new ActorMotion(),u={id:1,team:'B',x:2,y:2,moveTo:(2+dy)*6+2+dx},foot=project(2,2,1),shot={tick:19,tx:2-dx,ty:2-dy},frame=actor.sample(w,u,{foot,shot});assert.equal(frame.state,'walk');assert.equal(frame.facing,Math.sign(dx-dy));assert.equal(frame.target,null);u.moveTo=-1;w.tick++;const stopped=actor.sample(w,u,{foot,shot});assert.equal(stopped.state,'idle');assert.equal(stopped.facing,frame.facing);}
+});
+test('stationary shooting turns toward the current target, with no return to team default afterward',()=>{const map=createTerrain(6,6);map.floorLevel.fill(1);const w={map,tick:20},u={id:1,team:'A',x:2,y:2,moveTo:-1},motion=new ActorMotion(),foot=project(2,2,1),shot={tick:20,tx:0,ty:2};const firing=motion.sample(w,u,{foot,shot});assert.equal(firing.state,'shoot');assert.equal(firing.facing,-1);w.tick=55;assert.equal(motion.sample(w,u,{foot,shot}).facing,-1);});
+test('locomotion samples keep the same gait clock across action clock resets',()=>{const a=sampleAnimation({state:'walk',time:8.4,gaitTime:8.4,moving:true,phase:1}),b=sampleAnimation({state:'shoot',time:0,gaitTime:8.4,moving:true,phase:1});assert.equal(a.gaitTime,b.gaitTime);});

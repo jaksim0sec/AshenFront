@@ -23,8 +23,8 @@ function weaponMatrix(p,x,y,angle){
  // The supplied character art faces left; the SVG rifle points right.
  return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(-p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));
 }
-export function poseCharacter(profile,{state='idle',time=0,aim=0,target=null,facing=1,phase=0,moving=false}={}){
- const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||(moving&&state!=='death'),wave=walk?Math.sin(time*10+phase):0,breath=state==='death'?0:Math.sin(time*2.6+phase),bob=walk?-Math.abs(wave)*3:breath*1.1;
+export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false}={}){
+ const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||(moving&&state!=='death'),wave=walk?Math.sin((gaitTime??time)*10+phase):0,breath=state==='death'?0:Math.sin(time*2.6+phase),bob=walk?-Math.abs(wave)*3:breath*1.1;
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
  const dying=state==='death',impactKick=dying?triangle(time,0,.065,.24):0,buckle=dying?triangle(time,.12,.36,.82):0,slump=dying?smooth((time-.18)/.55):0;
  const hit=state==='hit'?(1-smooth(time/.4))*Math.sin(time*30)*5:0,death=state==='death'?clamp((time-.14)/.62):0;
