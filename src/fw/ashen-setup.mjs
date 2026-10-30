@@ -6,10 +6,17 @@ export const ASHEN_ARMY_SIZE=40;
 export const ASHEN_ARMY_LIMIT=350;
 export const ASHEN_ARMY_CHOICES=Object.freeze([40,100,200,350]);
 export const RIFLE_STATS=Object.freeze({
- maxHealth:100,damage:18,attackPeriod:1.35,range:9,
+ maxHealth:85,damage:18,attackPeriod:1.35,range:9,
  rangeShape:'king',preferredRange:6,lineOfSight:true,searchInterval:.3
 });
-export const RIFLE_MOVEMENT=Object.freeze({stepTime:.38,waitBeforeDetour:.24,yieldAfter:.65});
+export const RIFLE_MOVEMENT=Object.freeze({stepTime:.42,waitBeforeDetour:.24,yieldAfter:.65});
+
+// Each soldier receives a stable 5/6/7-cell comfort distance at spawn.
+// The 9-cell maximum range and existing navigation/combat rules are unchanged.
+export function preferredRangeForSoldier(seed,unitId){
+ const hash=Math.imul((unitId|0)^(seed|0),0x9e3779b1)>>>0;
+ return 5+hash%3;
+}
 
 export function infantryBlueprint(){
  const members=[{characterId:'ashen-rifleman',role:'banner',offset:{x:-2,y:0}}];
@@ -27,7 +34,7 @@ export function createAshenMatch({seed=1977,count=ASHEN_ARMY_SIZE}={}){
  const match=new FlagMatch(board,{
   seed,count:normalized,blueprints:[infantryBlueprint()],aiImplementation:'legacy',
   makeCharacter:()=>null,
-  optionsFor:()=>({stats:{...RIFLE_STATS},movement:{...RIFLE_MOVEMENT},
+  optionsFor:(_character,_member,i)=>({stats:{...RIFLE_STATS,preferredRange:preferredRangeForSoldier(seed,board.nextId+i)},movement:{...RIFLE_MOVEMENT},
    battle:null,unitType:'ashen-rifleman',capabilities:[]})
  });
  return {board,match};

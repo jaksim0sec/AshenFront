@@ -83,13 +83,13 @@ try:
    assert page.evaluate("document.querySelectorAll('#faction-ribbon img').length")==2
    assert page.evaluate("Array.from(document.querySelectorAll('#faction-ribbon img')).every(img=>img.complete && img.naturalWidth>0)")
    assert page.evaluate('__ashenFlower.match.counts.B')==40
-   # Experienced units adopt the braced resting pose without a new game phase.
+   # Even troops without combat history adopt the braced resting pose in battle.
    page.locator('.squad-card').first.dblclick()
    page.wait_for_timeout(180)
    stage=page.evaluate("""()=>{
      const id=__ashenFlower.match.squadIds.A[0];
      const u=__ashenFlower.board.units.find(u=>u.squadId===id&&u.team==='A'&&u._visualStance&&u.state==='idle');
-     if(!u)return null;u.hasEngaged=true;return u.id;
+     if(!u)return null;u.hasEngaged=false;return u.id;
    }""")
    assert stage is not None,'first selected squad must be in viewport after focus'
    page.wait_for_function("""id=>{

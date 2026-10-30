@@ -109,14 +109,14 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   const targetBlend=shot?1:state==='guard'?.63:0;
   view.blend+=(targetBlend-view.blend)*(1-Math.exp(-delta/.11));
   view.walk+=((state==='walk'?1:0)-view.walk)*(1-Math.exp(-delta/.12));
-  // Experience is persistent in the unit; only waiting soldiers settle into the brace.
-  const braceTarget=u.hasEngaged&&state==='guard'?1:0;
+  // All idle troops brace once battle begins, without waiting for their first hit or shot.
+  const braceTarget=state==='guard'?1:0;
   view.crouch+=(braceTarget-view.crouch)*(1-Math.exp(-delta/.24));
   const difference=Math.atan2(Math.sin(rawAim-view.aim),Math.cos(rawAim-view.aim));
   view.aim+=difference*Math.min(1,delta/.13);
   const hitReaction=Math.max(0,Math.min(1,((u.hitPulseUntil??-1)-board.time)/.16));
   const pose=distant&&state!=='death'
-   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0,crouchBlend:u.hasEngaged&&state==='guard'?1:0}
+   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0,crouchBlend:state==='guard'?1:0}
    :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,facing,aim:view.aim,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:view.blend,walkBlend:view.walk,crouchBlend:view.crouch,hitReaction};
   const muzzle=shot?(u._shotMuzzle??(u._shotMuzzle={})):null;
   if(muzzle)muzzle.valid=false;
