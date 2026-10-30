@@ -87,7 +87,7 @@ test('fully downloaded release serves offline entry and removes old cache on act
  const source=(await readFile(join(root,'sw.js'),'utf8'))
   .replace('/*RELEASE*/',"const VERSION='new';const ASSETS=['/index.html','/src/boot.mjs'];");
  const listeners=new Map(),saved=new Map([['ashenfront-release-old',new Map()]]);
- let claims=0,network=0;
+ let claims=0,network=0,online=true;
  const caches={
   async open(key){
    if(!saved.has(key))saved.set(key,new Map());
@@ -99,16 +99,18 @@ test('fully downloaded release serves offline entry and removes old cache on act
  };
  new Script(source).runInContext(createContext({
   self:{location:{origin:'https://game.example'},addEventListener:(name,fn)=>listeners.set(name,fn),skipWaiting:()=>{},clients:{claim:async()=>claims++}},
-  caches,fetch:async url=>{network++;return {ok:true,url}},URL,Set,Map,Promise,Array
+  caches,fetch:async url=>{if(!online)throw Error('network unavailable');network++;return {ok:true,url}},URL,Set,Map,Promise,Array
  }));
  let install;listeners.get('install')({waitUntil:p=>install=p});await install;
  assert.equal(saved.get('ashenfront-release-new').size,2);
  assert.ok(saved.has('ashenfront-release-old'),'old version remains until activation');
  let activation;listeners.get('activate')({waitUntil:p=>activation=p});await activation;
  assert.ok(!saved.has('ashenfront-release-old'));assert.equal(claims,1);
+ assert.ok(saved.get('ashenfront-release-new').has('/index.html'),'precache stores canonical URL');
+ online=false;
  let fetched;
  listeners.get('fetch')({request:{method:'GET',url:'https://game.example/?seed=42'},respondWith:p=>fetched=p});
- const response=await fetched;assert.equal(response.url,'/index.html');assert.equal(network,2);
+ const response=await fetched;assert.equal(response.url,'/index.html?__pwa=new');assert.equal(network,2);
 });
 
 test('Vercel static build produces installable worker and icon resources',async()=>{

@@ -17,15 +17,15 @@ try:
    assert page.evaluate('__ashenFlower.match.phase')=='preparation'
    assert page.evaluate('(__ashenFlower.board.width === 512 && __ashenFlower.board.height === 384)'), 'expanded map dimensions were not applied'
    page.evaluate("""() => {for(let i=0;i<40;i++)document.getElementById('zoom-out').click();}""")
-   assert abs(page.evaluate('__ashenFlower.camera.scale')-.32)<1e-10, 'zoom-out limit changed'
+   assert abs(page.evaluate('__ashenFlower.camera.scale')-.27)<1e-10, 'zoom-out limit changed'
    page.evaluate("""() => {for(let i=0;i<40;i++)document.getElementById('zoom-in').click();}""")
    assert abs(page.evaluate('__ashenFlower.camera.scale')-2.4)<1e-10, 'zoom-in limit changed'
    page.evaluate("document.getElementById('fit-view').click()")
    page.locator('#toggle-map').click()
    page.wait_for_function('window.__ashenFlower.renderStats.miniArea !== null')
    sample=page.evaluate('window.__ashenFlower.renderStats')
-   assert sample['miniArea']['width']==160 and sample['miniArea']['height']==120,sample
-   assert sample['miniQueries']<=4800,sample
+   assert sample['miniArea']['width']==120 and sample['miniArea']['height']==120,sample
+   assert sample['miniQueries']<=3600,sample
    page.locator('#toggle-map').click()
    page.wait_for_timeout(250)
    assert not errors, 'preparation canvas error: '+repr(errors)
