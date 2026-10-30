@@ -67,7 +67,7 @@ function paintMini(){const sx=mini.width/board.width,sy=mini.height/board.height
  for(let y=0;y<board.height;y+=2)for(let x=0;x<board.width;x+=2){const t=board.terrain[y][x];if(t==='void')continue;mctx.fillStyle=t==='forest'?'#43616b':t==='soil'?'#666762':'#777e7a';mctx.fillRect(x*sx,y*sy,Math.ceil(sx*2),Math.ceil(sy*2));}
  for(const u of board.units)if(u.health.current>0){mctx.fillStyle=colors[u.team];mctx.fillRect(u.x*sx-1,u.y*sy-1,3,3);}
 }
-function roster(){const host=$('squad-tabs');host.replaceChildren();const all=squads();
+function roster(){document.body.dataset.selected=String(selected.size>0);const host=$('squad-tabs');host.replaceChildren();const all=squads();
  for(let i=0;i<all.length;i+=2){const section=document.createElement('section'),heading=document.createElement('button');heading.className='platoon-title';heading.textContent='제'+(Math.floor(i/2)+1)+'소대';heading.onclick=()=>{selected=new Set(all.slice(i,i+2).map(s=>s.id));roster();hud();};section.append(heading);
   for(const s of all.slice(i,i+2)){const btn=document.createElement('button');btn.className='squad-card';btn.classList.toggle('active',selected.has(s.id));
    const portrait=document.createElement('canvas');portrait.width=56;portrait.height=74;const text=document.createElement('span'),a=document.createElement('strong'),b=document.createElement('small');

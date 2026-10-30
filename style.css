@@ -25,3 +25,89 @@
 #squad-tabs .squad-card canvas{width:47px;height:63px;flex:none}
 #squad-tabs .squad-card span{display:flex;flex-direction:column;gap:4px}
 #squad-tabs .squad-card small{white-space:normal;word-break:keep-all}
+
+
+/* FlowerWars UI composition: same roster/right + contextual dock/bottom layout. Legacy unaffected. */
+body[data-engine=flower]{--glass:#20272ae8;--panel:#2d3639ed;--edge:#b6c1c4;--text:#e8e9e6}
+body[data-engine=flower] #terrain-key,body[data-engine=flower] .pressure{display:none!important}
+#faction-ribbon{display:none}
+body[data-engine=flower] #faction-ribbon{display:flex;align-items:center;gap:6px}
+body[data-engine=flower] #forces{display:none}
+body[data-engine=flower] .faction-team{display:flex;align-items:center;gap:5px;font-weight:750;font-size:13px;font-variant-numeric:tabular-nums}
+body[data-engine=flower] .faction-team img{width:27px;height:19px;object-fit:contain;border:1px solid #b6bec14a;border-radius:3px}
+body[data-engine=flower] .faction-team.arken{color:#b5d0e4}
+body[data-engine=flower] .faction-team.velian{color:#d9a394}
+body[data-engine=flower] .faction-versus{color:#849398}
+body[data-engine=flower] #match-hud{max-width:calc(100vw - 160px);gap:10px;padding:5px 9px 5px 12px;border-radius:13px;background:#20272add}
+body[data-engine=flower] .match-topline{gap:10px}
+body[data-engine=flower] #battle-notice{top:76px;font-size:10px;padding:6px 12px;max-width:min(420px,calc(100% - 40px));border-radius:8px;opacity:.85}
+body[data-engine=flower] #objective{display:none}
+body[data-engine=flower] #roster-panel{top:69px;left:auto;right:max(10px,env(safe-area-inset-right));bottom:14px;width:190px;max-height:calc(100dvh - 84px);overflow:auto;padding:8px;background:#252e31e8;border:1px solid #85939642;border-radius:13px;box-shadow:0 8px 25px #080c0e38;pointer-events:auto;backdrop-filter:blur(8px)}
+body[data-engine=flower] .roster-tools{display:flex;align-items:center;padding:3px 4px 8px;gap:6px;border-bottom:1px solid #82919433}
+body[data-engine=flower] .roster-tools strong{font-size:11px}
+body[data-engine=flower] .roster-tools #select-squad{display:none}
+body[data-engine=flower] .platoon-title{display:block;width:100%;min-height:30px;padding:5px 7px;margin:6px 0 3px;background:#39444988;border:0;border-radius:6px;text-align:left;font-size:10px;font-weight:650}
+body[data-engine=flower] .platoon-squads{display:flex;flex-direction:column;gap:4px}
+body[data-engine=flower] #squad-tabs{gap:5px}
+body[data-engine=flower] .squad-card{display:flex;gap:7px;align-items:center;width:100%;height:58px;min-height:58px;padding:4px;border:1px solid #76878b44;border-radius:8px;background:#354044d9}
+body[data-engine=flower] .squad-card.active{border:1px solid #bcccd2;background:#52636b}
+body[data-engine=flower] .squad-avatar{width:48px;height:48px;flex:none;object-fit:contain;border-radius:7px;background:#222b2e;border:1px solid #77868b44}
+body[data-engine=flower] .squad-card-body{min-width:0;display:flex;flex-direction:column;gap:3px}
+body[data-engine=flower] .squad-card-body strong{font-size:10px;font-weight:700}
+body[data-engine=flower] .squad-card-body small{font-size:9px;white-space:nowrap;color:#bec7c7}
+body[data-engine=flower] #command-dock{left:50%;right:auto;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:520px;max-width:calc(100vw - 220px);padding:9px;border:1px solid #87979b88;border-radius:13px;background:#222a2ded;box-shadow:0 7px 28px #04080955;backdrop-filter:blur(10px)}
+body[data-engine=flower] .command-selection-row{padding:2px 4px 7px;background:none;border:0;border-bottom:1px solid #8b999b33;border-radius:0}
+body[data-engine=flower] .command-selection-row strong{font-size:12px}
+body[data-engine=flower] .selection-actions{margin:6px 0;gap:4px;justify-content:flex-start}
+body[data-engine=flower] .selection-actions button{min-height:33px;flex:1;padding:4px 7px;border:1px solid #8a999a55;border-radius:7px;font-size:10px;white-space:nowrap;background:#364044b3}
+body[data-engine=flower] .commands{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+body[data-engine=flower] .commands button{display:flex;align-items:center;flex-direction:column;justify-content:center;gap:4px;min-height:62px;border:1px solid #81909255;border-radius:8px;padding:5px 3px;background:#313d40b3;font-size:10px}
+body[data-engine=flower] .commands button svg{width:23px;height:23px;min-width:0;box-sizing:border-box;padding:0;border:0;background:none;border-radius:0;backdrop-filter:none}
+body[data-engine=flower] .commands button.active{border-color:#d0dfde;background:#546a72}
+body[data-engine=flower] .commands button.active svg{color:#e5f0ee;background:none;border:0}
+body[data-engine=flower] .commands button>span{font-size:10px}
+body[data-engine=flower] .command-help{margin-top:5px;padding-left:3px;font-size:10px}
+body[data-engine=flower] #cancel{min-height:32px}
+body[data-engine=flower] #command-dock:not(.is-expanded) .selection-actions,body[data-engine=flower] #command-dock:not(.is-expanded) .commands,body[data-engine=flower] #command-dock:not(.is-expanded) .command-help{display:none}
+body[data-engine=flower] #formation-panel{right:auto;left:50%;bottom:205px;transform:translateX(-50%);width:520px;max-width:calc(100vw - 220px);border-radius:12px;padding:9px}
+body[data-engine=flower] #formation-controls{grid-template-columns:repeat(5,minmax(0,1fr))}
+body[data-engine=flower] #formation-controls button{min-width:0}
+body[data-engine=flower] #deployment-tools{width:410px;max-width:calc(100vw - 60px)}
+body[data-engine=flower] #deployment-tools .deployment-head{background:#252f32e9;border-radius:10px}
+body[data-engine=flower][data-play-mode=control] #deployment-tools{left:12px;top:74px;bottom:auto;width:110px}
+body[data-engine=flower] #overview{right:210px;bottom:16px;max-width:155px;max-height:110px}
+body[data-engine=flower] #toggle-map{right:210px;bottom:18px}
+body[data-engine=flower] #game-tools{right:210px;top:75px}
+body[data-engine=flower] #tools-toggle{right:14px;top:16px}
+@media(max-width:700px){
+ body[data-engine=flower] #match-hud{top:max(7px,env(safe-area-inset-top));left:7px;right:58px;transform:none;width:auto;max-width:none;padding:6px 9px;gap:4px;border-radius:10px;flex-wrap:wrap}
+ body[data-engine=flower] .match-topline{gap:6px;flex-wrap:wrap}
+ body[data-engine=flower] .faction-team img{width:22px;height:15px}
+ body[data-engine=flower] .faction-team{font-size:11px;gap:3px}
+ body[data-engine=flower] #match-phase{font-size:10px}
+ body[data-engine=flower] #preparation-clock,body[data-engine=flower] #clock{font-size:15px}
+ body[data-engine=flower] #battle-notice{top:100px;left:50%;font-size:9px}
+ body[data-engine=flower] #roster-panel{top:auto;left:0;right:0;bottom:max(0px,env(safe-area-inset-bottom));height:93px;max-height:93px;width:100%;padding:3px 7px 0;overflow-x:auto;overflow-y:hidden;display:block;border-radius:12px 12px 0 0;border-bottom:0;background:linear-gradient(0deg,#232c31ed,#303b3fd5);box-shadow:none}
+ body[data-engine=flower] .roster-tools{display:none}
+ body[data-engine=flower] #squad-tabs{display:flex;flex-direction:row;gap:10px;width:max-content;align-items:flex-start}
+ body[data-engine=flower] #squad-tabs>section{display:flex;gap:5px;align-items:center;min-width:0;flex:none}
+ body[data-engine=flower] .platoon-title{width:51px;min-width:51px;min-height:61px;margin:0;font-size:9px;text-align:center;white-space:normal}
+ body[data-engine=flower] .platoon-squads{flex-direction:row;gap:5px}
+ body[data-engine=flower] .squad-card{width:108px;min-width:108px;height:63px;min-height:63px;padding:4px}
+ body[data-engine=flower] .squad-avatar{width:39px;height:48px}
+ body[data-engine=flower] .squad-card-body strong{font-size:9px}
+ body[data-engine=flower] .squad-card-body small{font-size:8px}
+ body[data-engine=flower] #command-dock{left:auto;right:8px;bottom:calc(100px + env(safe-area-inset-bottom));transform:none;width:310px;max-width:calc(100vw - 16px);padding:7px;border-radius:10px}
+ body[data-engine=flower] .commands{grid-template-columns:repeat(5,minmax(0,1fr))}
+ body[data-engine=flower] .commands button{min-height:48px;padding:4px 1px;gap:2px;font-size:9px}
+ body[data-engine=flower] .commands button svg{width:18px;height:18px}
+ body[data-engine=flower] .selection-actions{gap:3px}
+ body[data-engine=flower] .selection-actions button{font-size:9px;padding:3px;min-height:32px}
+ body[data-engine=flower] #formation-panel{left:auto;right:8px;bottom:calc(282px + env(safe-area-inset-bottom));transform:none;max-width:calc(100vw - 16px);width:310px}
+ body[data-engine=flower] #game-tools{right:8px;top:66px}
+ body[data-engine=flower] #toggle-map{right:8px;bottom:calc(101px + env(safe-area-inset-bottom))}
+ body[data-engine=flower] #overview{right:8px;bottom:calc(146px + env(safe-area-inset-bottom))}
+ body[data-engine=flower] #tools-toggle{right:8px;top:8px}
+ body[data-engine=flower][data-play-mode=control] #deployment-tools{left:8px;top:87px;width:110px}
+ body[data-engine=flower] #deployment-tools{bottom:max(10px,env(safe-area-inset-bottom))}
+}

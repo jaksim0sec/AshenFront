@@ -8,7 +8,7 @@ The first implementation uses original FlowerWars game simulation and 176x128 ba
 
 The original AI operation size is adapted to one squad so that the four bot squads receive distinct tactical roles. Rifleman parameters are centralized in src/fw/ashen-setup.mjs.
 
-The first pass explicitly does NOT carry AshenFront H0/H1/H2 elevations, connected ramps, suppression, artillery or custom cover yet. These exist in legacy mode only. The map is original FlowerWars terrain with AshenFront colors. The original renderer has not been copied. The existing AshenFront interface layout is kept while reconnected directly to the original FlowerWars squad command API.
+The first pass explicitly does NOT carry AshenFront H0/H1/H2 elevations, connected ramps, suppression, artillery or custom cover yet. These exist in legacy mode only. The map is original FlowerWars terrain with AshenFront colors. The original renderer has not been copied. The FlowerWars UI composition (right-hand squad roster on desktop, bottom mobile roster, bottom command dock) is now applied using AshenFront's palette. Approved assets/factions/*/flag.webp are drawn as physical flag objectives and displayed in the HUD. Fire effects are muzzle flashes, tracers and small earth debris instead of white circular hit bubbles.
 
 Smoke test: node --test tests/flowerwars-port.test.mjs. Browser/manual combat validation is still needed before declaring this production ready.
 

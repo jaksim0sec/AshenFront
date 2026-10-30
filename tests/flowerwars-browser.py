@@ -22,10 +22,26 @@ try:
    page.screenshot(path=str(out/f'deployment-{width}.png'))
    page.locator('#start-battle').click(timeout=10000)
    page.wait_for_function('__ashenFlower.match.phase==="battle"',timeout=10000)
+   page.wait_for_function('__ashenFlower.flagsLoaded',timeout=12000)
+   assert page.evaluate("document.querySelectorAll('#faction-ribbon img').length")==2
+   assert page.evaluate("Array.from(document.querySelectorAll('#faction-ribbon img')).every(img=>img.complete && img.naturalWidth>0)")
    assert page.evaluate('__ashenFlower.match.counts.B')==40
    assert page.locator('.squad-card').count()==4
    await_s=page.evaluate('({n:__ashenFlower.board.units.length,squads:__ashenFlower.match.squadIds.A.length})')
    assert await_s['n']==80,await_s
+   assert page.locator('#command-dock').is_visible()
+   assert page.locator('#roster-panel').is_visible()
+   positions=page.evaluate("""()=>({
+    roster:document.querySelector('#roster-panel').getBoundingClientRect().toJSON(),
+    dock:document.querySelector('#command-dock').getBoundingClientRect().toJSON(),
+    viewport:{width:innerWidth,height:innerHeight}
+   })""")
+   if width>700:
+    assert positions['roster']['x']>width*.7,positions
+    assert abs(positions['dock']['x']+positions['dock']['width']/2-width/2)<35,positions
+   else:
+    assert positions['roster']['y']>height*.72,positions
+    assert positions['dock']['y']+positions['dock']['height']<=positions['roster']['y']+12,positions
    page.wait_for_timeout(850)
    assert not errors,errors
    page.screenshot(path=str(out/f'battle-{width}.png'))
