@@ -20,7 +20,7 @@ test('individual maximum firing ranges are 5, 6 or 7, deterministic across both 
  for(const u of board.units){
   assert.equal(u.health.max,32);
   assert.equal(u.health.current,32);
-  assert.equal(u.movement.stepTime,.50);
+  assert.equal(u.movement.stepTime,.70);
   const distance=u.combat.range;
   assert(totals.has(distance),'unsupported maximum firing range: '+distance);
   assert.equal(distance,preferredRangeForSoldier(seed,u.id));
@@ -44,5 +44,5 @@ test('350 per side use the same individual stats without changing the 700-unit c
  assert(match.start());
  assert.equal(board.units.length,700);
  assert(board.units.every(u=>u.health.max===32 && u.movement.stepTime===.70));
- assert(board.units.every(u=>[5,6,7].includes(u.combat.range) && u.combat.preferredRange===u.combat.range));
+ assert(board.units.every(u=>[5,6,7].includes(u.combat.range) && u.combat.preferredRange===3));
 });

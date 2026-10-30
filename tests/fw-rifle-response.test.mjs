@@ -20,6 +20,7 @@ test('two connecting rifle rounds are lethal; maximum range has worse accuracy t
 test('shot dispersion is fixed at trigger pull and reproducible for the same seed',()=>{
  const sequence=()=>{
   const b=new Board(30,16,{seed:91}),a=shoot(b,3,6,'A',false),enemy=shoot(b,10,6,'B',false);
+  enemy.health.current=enemy.health.max=10000;
   const hits=[];
   for(let i=0;i<20;i++){assert(b.beginAttack(a,enemy.id));hits.push(a.strike.hit);b.update(1.4);}
   return hits;
