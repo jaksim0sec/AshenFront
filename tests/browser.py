@@ -9,10 +9,10 @@ with sync_playwright() as p:
  for width,height,dpr in [(390,844,1),(390,844,2),(1280,800,1),(1280,800,2)]:
   ctx=browser.new_context(viewport={'width':width,'height':height},device_scale_factor=dpr,has_touch=True)
   page=ctx.new_page(); errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-  page.goto(BASE+'/?debug=1');page.wait_for_function('window.__ashen && window.__ashen.state.tick > 2')
+  page.goto(BASE+'/?debug=1');page.wait_for_function('window.__ashen');page.locator('#start-battle').click();page.wait_for_function('__ashen.state.tick>2')
   assert page.locator('#status').inner_text()
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-  page.locator('#pause').click();page.locator('#select-squad').click()
+  page.locator('#pause').click();page.locator('#squad-1').click()
   before=page.evaluate('__ashen.state.commandLog.length')
   page.locator('#move').click()
   pt=page.evaluate('__ashen.screenCell(10,22)');page.locator('#battlefield').tap(position=pt)
@@ -21,8 +21,8 @@ with sync_playwright() as p:
   assert page.evaluate('__ashen.state.commandLog.length')==before+1, 'second tap accidentally orders'
   page.locator('#hold').click();assert page.evaluate('__ashen.state.squads[0].order')=='hold'
   page.locator('#rally').click();assert page.evaluate('__ashen.state.squads[0].order')=='rally'
-  page.locator('#zoom-in').click();page.locator('#zoom-out').click()
-  page.locator('#focus-objective').click();page.locator('#focus-squad').click()
+  page.locator('#tools-toggle').click();page.locator('#zoom-in').click();page.locator('#zoom-out').click()
+  page.locator('#focus-objective').click();page.locator('#focus-squad').click();page.locator('#tools-toggle').click()
   # Real drag and two-pointer touch gesture must not produce orders.
   page.locator('#move').click();n=page.evaluate('__ashen.state.commandLog.length')
   box=page.locator('#battlefield').bounding_box();x=box['x']+80;y=box['y']+120
@@ -34,13 +34,16 @@ with sync_playwright() as p:
   cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
   assert page.evaluate('__ashen.state.commandLog.length')==n
   page.locator('#cancel').click()
-  page.locator('#focus-squad').click()
+  if page.locator('#game-tools').is_hidden():page.locator('#tools-toggle').click()
+  page.locator('#focus-squad').click();page.locator('#tools-toggle').click()
+  if page.locator('#game-tools').is_hidden():page.locator('#tools-toggle').click()
   page.locator('#support').click()
   friendly=page.evaluate('({x:__ashen.state.units[0].x,y:__ashen.state.units[0].y})')
   aim=page.evaluate('(p)=>__ashen.screenCell(p.x,p.y)',friendly)
   page.locator('#battlefield').tap(position=aim)
   assert page.evaluate('__ashen.state.support.A.uses')==1
   assert page.evaluate('__ashen.state.units[0].hp')==85
+  if page.locator('#game-tools').is_hidden():page.locator('#tools-toggle').click()
   page.locator('#low-mode').check()
   page.screenshot(path=f'artifacts/play-{width}-{dpr}.png')
   for b in page.locator('.commands button').all():
@@ -55,7 +58,7 @@ with sync_playwright() as p:
   ctx.close()
  # Focused renderer/input regressions, isolated from match-outcome assertions.
  ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=1,has_touch=True)
- page=ctx.new_page();page.goto(BASE+'/?debug=1');page.wait_for_function('window.__ashen && __ashen.state.tick>2');page.locator('#pause').click();page.locator('#select-squad').click()
+ page=ctx.new_page();page.goto(BASE+'/?debug=1');page.wait_for_function('window.__ashen');page.locator('#start-battle').click();page.wait_for_function('__ashen.state.tick>2');page.locator('#pause').click();page.locator('#squad-1').click()
  page.locator('#squad-2').click()
  page.evaluate("""()=>{const w=__ashen.state,u=w.units[0],m=w.map;m.occupancy[u.y*m.width+u.x]=0;u.x=10;u.y=20;u.moveTo=20*m.width+11;u.moveProgress=7;m.occupancy[20*m.width+10]=u.id;m.reservation[u.moveTo]=u.id;__ashen.clock.backlog=0;__ashen.camera.zoom=1.6;__ashen.focus(10.875,20);}""")
  page.wait_for_timeout(60)

@@ -1,0 +1,28 @@
+[
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "deployment": true,
+    "noCombatDuringPreparation": true,
+    "formationBeforeBattle": true,
+    "battleStart": true,
+    "contextDock": true,
+    "artillery": true,
+    "pageErrors": []
+  },
+  {
+    "viewport": [
+      1280,
+      800
+    ],
+    "deployment": true,
+    "noCombatDuringPreparation": true,
+    "formationBeforeBattle": true,
+    "battleStart": true,
+    "contextDock": true,
+    "artillery": true,
+    "pageErrors": []
+  }
+]
