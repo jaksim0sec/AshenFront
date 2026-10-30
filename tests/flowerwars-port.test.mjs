@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createAshenMatch,autoDeployPlayer} from '../src/fw/ashen-setup.mjs';
 import {orderSquads,updateSquadOrders} from '../src/fw/squad-orders.mjs';
 import {squadsFor} from '../src/fw/unit-groups.mjs';
+import {drawCommandOverlay} from '../src/fw/command-overlay.mjs';
 
 test('FlowerWars original match handles two-army deployment and starts battle',()=>{
  const {board,match}=createAshenMatch({seed:1977});
@@ -32,4 +33,21 @@ test('Original squad orders cause physical movement and bot responds',()=>{
  assert(soldiers.some((u,i)=>u.x!==initial[i][0]||u.y!==initial[i][1]),'soldiers must move physically');
  assert([...squadsFor(board).values()].some(s=>s.team==='B'&&s.order),'bot must give source squad orders');
  assert(enemy.some((u,i)=>u.x!==enemyStart[i][0]||u.y!==enemyStart[i][1]),'enemy soldiers must physically move rather than just shoot in place');
+});
+
+test('original FlowerWars command overlay renders squad route, target marker and move caption',()=>{
+ const {board,match}=createAshenMatch({seed:1977});
+ assert(autoDeployPlayer(match).complete);match.start();
+ const id=match.squadIds.A[0],target={x:Math.floor(board.width*.4),y:Math.floor(board.height*.5)};
+ const result=orderSquads(board,[id],'advance',target);
+ assert.equal(result.accepted.length,1);
+ const labels=[],calls={ellipses:0,lines:0};
+ const ctx={
+  globalAlpha:1,save(){},restore(){},beginPath(){},stroke(){},translate(){},scale(){},
+  setLineDash(){},moveTo(){calls.lines++;},lineTo(){calls.lines++;},ellipse(){calls.ellipses++;},
+  fillRect(){},strokeText(){},fillText(value){labels.push(value)}
+ };
+ drawCommandOverlay(ctx,board,{selectedSquadIds:[id]},.3);
+ assert(labels.includes('이동'),'source overlay must draw readable action captions');
+ assert(calls.lines>0&&calls.ellipses>0,'source overlay must draw path and target marker');
 });

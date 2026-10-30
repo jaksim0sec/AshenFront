@@ -21,6 +21,13 @@ try:
    page.locator('#auto-deploy').click(timeout=10000)
    assert page.evaluate('__ashenFlower.match.counts.A')==40
    assert page.locator('.squad-card').count()==4
+   assert page.locator('.squad-card .squad-kind').count()==4
+   assert page.locator('.squad-card .squad-activity').count()==4
+   assert page.locator('.squad-card .commander-photo').count()==4
+   assert all('소총보병' in text for text in page.locator('.squad-kind').all_text_contents())
+   page.evaluate("window.__rosterCardNode=document.querySelector('.squad-card')")
+   page.wait_for_timeout(950)
+   assert page.evaluate("window.__rosterCardNode===document.querySelector('.squad-card')"),'roster DOM must be stable'
    page.screenshot(path=str(out/f'deployment-{width}.png'))
    page.locator('#start-battle').click(timeout=10000)
    page.wait_for_function('__ashenFlower.match.phase==="battle"',timeout=10000)
@@ -41,6 +48,19 @@ try:
    assert positions['roster']['y']>height*.72,positions
    assert positions['roster']['width']>width*.9,positions
    assert positions['dock']['y']+positions['dock']['height']<=positions['roster']['y']+12,positions
+   # Verify the original source command overlay actually draws a move label on Canvas.
+   move=page.evaluate("""()=>{
+     const ctx=document.querySelector('#battlefield').getContext('2d');
+     window.__seenMoveLabel=false;
+     const original=ctx.fillText.bind(ctx);
+     ctx.fillText=function(value,...args){if(value==='이동')window.__seenMoveLabel=true;return original(value,...args);};
+     const id=__ashenFlower.match.squadIds.A[0],board=__ashenFlower.board;
+     const result=__ashenFlower.order([id],'advance',{x:Math.floor(board.width*.4),y:Math.floor(board.height*.5)});
+     return {accepted:result.accepted.length};
+   }""")
+   assert move['accepted']==1,move
+   page.wait_for_function('window.__seenMoveLabel',timeout=8000)
+   assert '소총보병' in page.locator('.squad-kind').first.text_content()
    page.wait_for_timeout(1150)
    metrics=page.evaluate('__ashenFlower.renderStats')
    assert metrics['frames']>2,metrics

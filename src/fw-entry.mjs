@@ -1,10 +1,11 @@
 import {createAshenMatch,autoDeployPlayer} from './fw/ashen-setup.mjs';
 import {project,unproject} from './fw/model.mjs';
-import {orderSquads,configureSquad,updateSquadOrders} from './fw/squad-orders.mjs';
+import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS} from './fw/squad-orders.mjs';
 import {squadsFor} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
 import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
 import {drawSquadTeamFlags} from './fw/match-overlay.mjs';
+import {drawCommandOverlay} from './fw/command-overlay.mjs';
 import {BattlefieldTerrainRenderer} from './fw/terrain-art.mjs';
 import {icon} from './fw/ui-icons.mjs';
 import {applyPalette} from './render/palette.mjs';
@@ -13,7 +14,7 @@ const $=id=>document.getElementById(id),canvas=$('battlefield'),ctx=canvas.getCo
 const terrainArt=new BattlefieldTerrainRenderer();
 const soldiers=new SoldierRenderer();soldiers.ready.catch(e=>alert('군복 이미지 오류: '+e.message));
 const seed=Number(new URLSearchParams(location.search).get('seed'))||1977;
-let {board,match}=createAshenMatch({seed}),selected=new Set(),mode=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
+let {board,match}=createAshenMatch({seed}),selected=new Set(),mode=null,hover=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
 let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1;
 const renderSamples=[];let renderedFrames=0;
 const camera={x:0,y:0,scale:.27},pointers=new Map(),colors={A:'#a7c6dd',B:'#d39283'};
@@ -27,12 +28,29 @@ function fit(){camera.scale=innerWidth<650?.18:.3;focus(board.width*.34,board.he
 function zoom(ratio,x=canvas.clientWidth/2,y=canvas.clientHeight/2){const scale=Math.min(1.5,Math.max(.07,camera.scale*ratio)),r=scale/camera.scale;camera.x=x-(x-camera.x)*r;camera.y=y-(y-camera.y)*r;camera.scale=scale;}
 function switchMode(m){playMode=m;document.body.dataset.playMode=m;$('deployment-toggle').textContent=m==='deploy'?'지휘 모드':'배치 모드';}
 function choose(id,more=false){if(!more)selected.clear();if(id){if(more&&selected.has(id))selected.delete(id);else selected.add(id);}document.body.dataset.selected=String(selected.size>0);if(selected.size&&playMode==='deploy')switchMode('control');roster();hud();}
-function command(action,target=null){const ids=selectedIds();if(!ids.length){notice('분대를 선택하세요');return false;}const r=orderSquads(board,ids,action,target);const count=r?.accepted?.length||0;notice(count?count+'개 분대 명령 전달':'이동·공격 불가 · 목표를 확인하세요');hud();return count>0;}
-function setCommand(m){mode=m;for(const name of ['move','attack','flank'])$(name).classList.toggle('active',name===m);notice(m==='attack'?'공격할 적을 터치하세요':m==='flank'?'우회 위치를 터치하세요':m==='move'?'이동 위치를 터치하세요':'분대를 선택해 명령하세요');}
+let feedbackTimer=null;
+function showCommandFeedback(target,action){
+ const p=target?.unitId?board.unit(target.unitId):target;
+ if(!p||p.x==null||p.y==null)return;
+ const pt=project(p.x,p.y),r=canvas.getBoundingClientRect(),mark=$('command-feedback');
+ mark.style.left=Math.round(r.left+camera.x+pt.x*camera.scale)+'px';
+ mark.style.top=Math.round(r.top+camera.y+pt.y*camera.scale)+'px';
+ mark.textContent=action==='focus'?'◎':'✓';mark.hidden=false;mark.classList.remove('confirmed');
+ void mark.offsetWidth;mark.classList.add('confirmed');
+ clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>{mark.hidden=true;},650);
+}
+function command(action,target=null){
+ const ids=selectedIds();if(!ids.length){notice('분대를 선택하세요');return false;}
+ const result=orderSquads(board,ids,action,target),count=result?.accepted?.length||0;
+ if(count){showCommandFeedback(target,action);notice(count+'개 분대 명령 전달');}
+ else notice('이동·공격 불가 · 목표를 확인하세요');
+ roster();hud();return count>0;
+}
+function setCommand(m){mode=m;hover=null;for(const name of ['move','attack','flank'])$(name).classList.toggle('active',name===m);notice(m==='attack'?'공격할 적을 터치하세요':m==='flank'?'우회 위치를 터치하세요':m==='move'?'이동 위치를 터치하세요':'분대를 선택해 명령하세요');}
 function deploy(p){const s=match.deploy('A','infantry',p);if(!s){notice('배치 불가 · 진영의 빈 공간을 선택하세요');return;}if(deployFormation!=='line')configureSquad(board,s.id,{formation:deployFormation});notice('제'+match.squadIds.A.length+'분대 배치 · 예비 '+match.reserve.A+'명');if(!match.reserve.A)switchMode('control');roster();hud();}
 function autoDeploy(){const r=autoDeployPlayer(match);notice(r.complete?'배치 완료':'배치할 공간이 부족합니다');if(r.complete)switchMode('control');roster();hud();return r.complete;}
 function start(){if(match.phase!=='preparation')return;if(!autoDeploy())return;match.start();if(match.phase!=='battle'){notice('전투 시작 실패');return;}switchMode('control');document.body.dataset.phase='battle';if(!selected.size&&squads().length)selected.add(squads()[0].id);notice('전투 시작 · 개나리워즈 원본 지휘 체계 가동');roster();hud();}
-function restart(){({board,match}=createAshenMatch({seed}));selected.clear();mode=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterSignature='';$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();notice('아군 진영에 병력을 배치하세요');roster();hud();}
+function restart(){({board,match}=createAshenMatch({seed}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();notice('아군 진영에 병력을 배치하세요');roster();hud();}
 function locate(px,py){const r=unproject((px-camera.x)/camera.scale,(py-camera.y)/camera.scale),x=Math.round(r.x),y=Math.round(r.y);return board.inside(x,y)?{x,y}:null;}
 function hit(px,py){let closest=null,d=25;for(const u of board.units){if(u.health.current<=0)continue;const p=project(u.visualX,u.visualY),dist=Math.hypot(px-camera.x-p.x*camera.scale,py-camera.y-p.y*camera.scale+25*camera.scale);if(dist<d){d=dist;closest=u;}}return closest;}
 function tap(px,py,shift=false){const p=locate(px,py);if(!p)return;if(playMode==='deploy'&&match.phase==='preparation'){deploy(p);return;}const u=hit(px,py);
@@ -53,7 +71,13 @@ function bounds(){
 function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransform(drawDpr,0,0,drawDpr,0,0);ctx.fillStyle='#272e31';ctx.fillRect(0,0,w,h);terrainArt.draw(ctx,board,camera,w,h,drawDpr,low);ctx.save();ctx.translate(camera.x,camera.y);ctx.scale(camera.scale,camera.scale);
  drawHeadquarters(ctx,match.flags,board.time);
  if(playMode==='deploy'&&match.phase==='preparation'){const b=bounds();ctx.fillStyle='#adc1d026';for(let y=b.y0;y<=b.y1;y+=3)for(let x=b.x0;x<Math.min(b.x1,board.width/2);x+=3){if(board.navigation.blocked(y*board.width+x))continue;const p=project(x,y);ctx.fillRect(p.x-5,p.y-3,10,6);}}
- for(const id of selected){const s=squadsFor(board).get(id),g=s?.order?.target;if(g?.x===undefined)continue;const members=living(s);if(!members.length)continue;const a=project(members.reduce((v,u)=>v+u.visualX,0)/members.length,members.reduce((v,u)=>v+u.visualY,0)/members.length),p=project(g.x,g.y);ctx.strokeStyle='#d3e8f7aa';ctx.lineWidth=3;ctx.setLineDash([14,10]);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.setLineDash([]);}
+ if(match.phase==='battle')drawCommandOverlay(ctx,board,{
+  selectedSquadIds:selectedIds(),
+  mode:mode?'squad-target':null,
+  squadOrder:mode==='attack'?'focus':mode==='flank'?'flank':mode==='move'?'advance':null,
+  commandSquadIds:selectedIds(),
+  hover
+ },camera.scale);
  const troops=board.units.filter(u=>u.health.current>0||u.state==='death').sort((a,b)=>a.visualX+a.visualY-b.visualX-b.visualY||a.id-b.id);
  for(const u of troops){const p=project(u.visualX,u.visualY),sx=camera.x+p.x*camera.scale,sy=camera.y+p.y*camera.scale;if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
   ctx.save();ctx.translate(p.x,p.y);
@@ -72,34 +96,76 @@ function paintMini(){const sx=mini.width/board.width,sy=mini.height/board.height
  for(let y=0;y<board.height;y+=2)for(let x=0;x<board.width;x+=2){const t=board.terrain[y][x];if(t==='void')continue;mctx.fillStyle=t==='forest'?'#43616b':t==='soil'?'#666762':'#777e7a';mctx.fillRect(x*sx,y*sy,Math.ceil(sx*2),Math.ceil(sy*2));}
  for(const u of board.units)if(u.health.current>0){mctx.fillStyle=colors[u.team];mctx.fillRect(u.x*sx-1,u.y*sy-1,3,3);}
 }
-let rosterSignature='';
+// Persistent cards from the original FlowerWars roster approach: create once, update fields.
+const rosterCards=new Map();
+let rosterEpoch=null;
+const PHASES={forming:'진형 형성 중',moving:'이동 중',flanking:'우회 중',attacking:'공격 중',holding:'사수',stopped:'정지',arrived:'도착',complete:'완료','target-lost':'대상 소실',blocked:'경로 대기',reforming:'재집결 중'};
+const ACTION_NAMES=Object.fromEntries(Object.entries(SQUAD_ACTIONS).map(([k,v])=>[k,v.label]));
+const phaseName=s=>PHASES[s?.order?.phase]||ACTION_NAMES[s?.order?.type]||'대기';
 function roster(){
  document.body.dataset.selected=String(selected.size>0);
- const all=squads();
- const signature=all.map(s=>[s.id,living(s).length,s.order?.type||'대기',selected.has(s.id)?1:0].join(':')).join('|')+':'+soldiers.loaded;
- if(signature===rosterSignature)return;
- rosterSignature=signature;
- const host=$('squad-tabs');host.replaceChildren();
+ const host=$('squad-tabs'),all=squads();
+ if(rosterEpoch!==board.byId){
+  host.replaceChildren();rosterCards.clear();rosterEpoch=board.byId;
+ }
  for(let i=0;i<all.length;i+=2){
-  const section=document.createElement('section'),heading=document.createElement('button');
-  heading.className='platoon-title';heading.textContent='제'+(Math.floor(i/2)+1)+'소대 · '+Math.min(2,all.length-i)+'분대';
-  heading.onclick=()=>{selected=new Set(all.slice(i,i+2).map(s=>s.id));roster();hud();};section.append(heading);
-  const row=document.createElement('div');row.className='platoon-squads';
+  const platoonId=Math.floor(i/2),key='platoon-'+platoonId;
+  let section=host.querySelector('[data-platoon-id="'+key+'"]');
+  if(!section){
+   section=document.createElement('section');section.dataset.platoonId=key;section.className='squad-platoon';
+   const head=document.createElement('div');head.className='platoon-controls';
+   const pick=document.createElement('button');pick.className='platoon-title';
+   pick.innerHTML=icon('platoon')+'<span>A · '+(platoonId+1)+'소대</span>';
+   pick.onclick=()=>{selected=new Set(all.slice(platoonId*2,platoonId*2+2).map(s=>s.id));roster();hud();};
+   const fold=document.createElement('button');fold.className='platoon-fold';fold.innerHTML=icon('chevron');
+   fold.setAttribute('aria-label',(platoonId+1)+'소대 접기');fold.setAttribute('aria-expanded','true');
+   const row=document.createElement('div');row.className='platoon-squads';
+   fold.onclick=()=>{const collapsed=row.hidden=!row.hidden;fold.setAttribute('aria-expanded',String(!collapsed));};
+   head.append(pick,fold);section.append(head,row);host.append(section);
+  }
+  const row=section.querySelector('.platoon-squads');
   for(const s of all.slice(i,i+2)){
-   const btn=document.createElement('button');btn.className='squad-card';btn.classList.toggle('active',selected.has(s.id));
-   const portrait=document.createElement('canvas');portrait.className='squad-avatar';portrait.width=64;portrait.height=64;
-   const body=document.createElement('span');body.className='squad-card-body';
-   const title=document.createElement('strong');title.textContent='제'+(s.matchIndex+1)+'분대';
-   const count=document.createElement('small');count.textContent=living(s).length+'/10 · '+({advance:'전진',focus:'공격',flank:'우회',rally:'집결',hold:'사수',retreat:'후퇴'}[s.order?.type]||'대기');
-   body.append(title,count);btn.append(portrait,body);
-   btn.onclick=e=>choose(s.id,e.shiftKey||additive);row.append(btn);
-   if(soldiers.loaded){
-    const pc=portrait.getContext('2d');
-    pc.translate(32,59);pc.scale(.65,.65);
-    soldiers.draw(pc,'A',s.matchIndex===0?'captain':'sergeant',{state:'idle',time:0,facing:1},false);
+   let node=rosterCards.get(s.id);
+   if(!node){
+    const button=document.createElement('button');button.className='squad-card';button.dataset.squadId=s.id;
+    const portrait=document.createElement('span');portrait.className='squad-portrait';
+    const canvas=document.createElement('canvas');canvas.width=100;canvas.height=100;canvas.className='commander-photo';
+    const badge=document.createElement('span');badge.className='commander-badge';badge.innerHTML=icon('focus');badge.title='소총보병';
+    portrait.append(canvas,badge);
+    const body=document.createElement('span');body.className='squad-card-body';
+    const title=document.createElement('strong');title.className='squad-card-title';title.textContent=(s.matchIndex+1)+'분대';
+    const kind=document.createElement('span');kind.className='squad-kind';kind.textContent='소총보병';
+    const status=document.createElement('small');status.className='squad-card-status';
+    body.append(title,kind,status);
+    const activity=document.createElement('span');activity.className='squad-activity';
+    button.append(portrait,body,activity);
+    button.onclick=e=>choose(s.id,e.shiftKey||e.ctrlKey||e.metaKey||additive);
+    button.ondblclick=()=>{choose(s.id);$('selection-locate').click();};
+    button.setAttribute('aria-label',(s.matchIndex+1)+'분대 선택');
+    row.append(button);
+    node={button,canvas,status,activity,portraitRank:null,activityType:null};rosterCards.set(s.id,node);
+   }
+   const alive=squadSummary(board,s.id);
+   const n=alive?.alive??living(s).length;
+   const phase=phaseName(s);
+   const statusText=n+'/'+s.memberIds.length+' · '+(s.order?.after?'우회 → 공격':phase);
+   if(node.status.textContent!==statusText)node.status.textContent=statusText;
+   const type=s.order?.type||'wait';
+   if(node.activityType!==type){node.activity.innerHTML=icon(type);node.activityType=type;}
+   const target=s.order?.target;
+   const dest=target?.x!=null?' → '+(target.x+1)+','+(target.y+1):target?.unitId?' → 적 병사':'';
+   node.activity.title=(ACTION_NAMES[type]||'대기')+' · '+phase+dest;
+   const active=selected.has(s.id);node.button.classList.toggle('active',active);
+   node.button.classList.toggle('is-selected',active);node.button.setAttribute('aria-pressed',String(active));
+   node.button.classList.toggle('leader-down',alive?!alive.commanderAlive:false);
+   const rank=s.leaderId&&board.unit(s.leaderId)?.health.current>0?(s.matchIndex===0?'captain':'sergeant'):'private';
+   if(soldiers.loaded&&node.portraitRank!==rank){
+    const pc=node.canvas.getContext('2d');pc.setTransform(1,0,0,1,0,0);pc.clearRect(0,0,100,100);
+    pc.translate(50,94);pc.scale(1.08,1.08);
+    soldiers.draw(pc,'A',rank,{state:'idle',time:0,facing:1},false);
+    node.portraitRank=rank;
    }
   }
-  section.append(row);host.append(section);
  }
 }
 function hud(){document.body.dataset.phase=match.phase==='finished'?'battle':match.phase;$('match-phase').textContent=match.phase==='preparation'?'병력 배치':match.phase==='battle'?'전투 중':'전투 종료';
@@ -108,7 +174,7 @@ function hud(){document.body.dataset.phase=match.phase==='finished'?'battle':mat
  $('deployment-reserve').textContent='예비 '+match.reserve.A+'명 · 배치 '+match.counts.A+'명';
  $('start-battle').hidden=match.phase!=='preparation';$('match-charge').hidden=match.phase!=='battle';$('auto-deploy').hidden=match.phase!=='preparation'||match.reserve.A===0;$('deployment-toggle').hidden=match.phase!=='preparation';
  const ids=selectedIds(),s=squadsFor(board).get(ids[0]);$('squad-name').textContent=ids.length>1?ids.length+'개 분대 선택':s?'제'+(s.matchIndex+1)+'분대 · '+living(s).length+'명':'분대 지휘';
- $('squad-info').textContent=s?.order?.type||'';$('objective').textContent='적 지휘소 점령 또는 적군 전멸';
+ $('squad-info').textContent=s?phaseName(s):'';$('objective').textContent='적 지휘소 점령 또는 적군 전멸';
  if(match.phase==='finished'&&$('result').hidden){$('result').hidden=false;$('result').querySelector('h1').textContent=match.winner==='A'?'아르켄 승리':'벨리안 승리';$('result').querySelector('p').textContent='전투 종료';}
 }
 function bind(){
@@ -141,9 +207,10 @@ function bind(){
  $('support').disabled=true;$('support').title='초기 이식판: 포격은 후속 작업';
  canvas.addEventListener('wheel',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();zoom(e.deltaY<0?1.13:.89,e.clientX-r.left,e.clientY-r.top);},{passive:false});
  canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,ox:e.clientX,oy:e.clientY,multi:pointers.size>0});if(pointers.size>1)for(const p of pointers.values())p.multi=true;});
- canvas.addEventListener('pointermove',e=>{const p=pointers.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;if(pointers.size===1){camera.x+=dx;camera.y+=dy;}else if(pointers.size===2){const other=[...pointers].find(([id])=>id!==e.pointerId)?.[1];if(other){const a=Math.hypot(p.x-other.x,p.y-other.y),b=Math.hypot(e.clientX-other.x,e.clientY-other.y);if(a>10&&b>10){const r=canvas.getBoundingClientRect();zoom(b/a,(e.clientX+other.x)/2-r.left,(e.clientY+other.y)/2-r.top);}}}p.x=e.clientX;p.y=e.clientY;});
+ canvas.addEventListener('pointermove',e=>{const p=pointers.get(e.pointerId);if(!p){const rect=canvas.getBoundingClientRect();hover=locate(e.clientX-rect.left,e.clientY-rect.top);return;}hover=null;const dx=e.clientX-p.x,dy=e.clientY-p.y;if(pointers.size===1){camera.x+=dx;camera.y+=dy;}else if(pointers.size===2){const other=[...pointers].find(([id])=>id!==e.pointerId)?.[1];if(other){const a=Math.hypot(p.x-other.x,p.y-other.y),b=Math.hypot(e.clientX-other.x,e.clientY-other.y);if(a>10&&b>10){const r=canvas.getBoundingClientRect();zoom(b/a,(e.clientX+other.x)/2-r.left,(e.clientY+other.y)/2-r.top);}}}p.x=e.clientX;p.y=e.clientY;});
  const end=e=>{const p=pointers.get(e.pointerId);if(!p)return;pointers.delete(e.pointerId);if(e.type==='pointerup'&&!p.multi&&Math.hypot(e.clientX-p.ox,e.clientY-p.oy)<7){const r=canvas.getBoundingClientRect();tap(e.clientX-r.left,e.clientY-r.top,e.shiftKey);}};
  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+ canvas.addEventListener('pointerleave',()=>{hover=null;});
  mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect();focus((e.clientX-r.left)/r.width*board.width,(e.clientY-r.top)/r.height*board.height);});
  addEventListener('resize',resize);document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const key=e.key.toLowerCase();if(key==='m')setCommand('move');if(key==='a')setCommand('attack');if(key==='h')$('hold').click();if(key==='escape')setCommand(null);if(key===' '){e.preventDefault();$('pause').click();}});
 }
