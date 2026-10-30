@@ -27,7 +27,7 @@
     </button>
     <div id="match-details" class="match-details">
       <div class="match-topline"><strong id="match-phase">배치 준비</strong><span id="preparation-clock">01:00</span><span id="clock">00:00</span><span id="forces">A 0 : 40 B</span><div id="faction-ribbon" aria-label="양국 병력"><span class="faction-team arken"><img src="assets/factions/arken/flag.webp" alt=""><b id="army-a">0</b></span><span class="faction-versus">:</span><span class="faction-team velian"><b id="army-b">0</b><img src="assets/factions/velian/flag.webp" alt=""></span></div></div>
-      <div class="match-actions"><button id="start-battle">전투 시작</button><button id="match-charge" hidden>전군 진격</button><button id="pause" aria-label="일시정지">Ⅱ</button><button id="restart" aria-label="새 전투">↻</button></div>
+      <div class="match-actions"><button id="resume-deployment" hidden>배치 편집</button><button id="start-battle">전투 시작</button><button id="match-charge" hidden>전군 진격</button><button id="pause" aria-label="일시정지">Ⅱ</button><button id="restart" aria-label="새 전투">↻</button></div>
     </div>
   </header>
   <button id="tools-toggle" class="floating-tool" aria-controls="game-tools" aria-expanded="false" aria-label="전장 도구 열기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1 1-3Z"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -60,6 +60,7 @@
   <section id="game-tools" aria-label="전장 도구" hidden>
     <strong class="tools-heading">전장 도구</strong>
     <div id="view-controls" role="group" aria-label="카메라"><button id="zoom-in" aria-label="확대">＋</button><button id="zoom-out" aria-label="축소">−</button><button id="focus-objective" aria-label="목표 지점 보기">◎</button><button id="focus-squad" aria-label="선택 분대 보기">⌖</button></div>
+    <button id="mobile-map-toggle" type="button" aria-expanded="false" aria-controls="overview">국지 지도 열기</button>
     <button id="fit-view">기본 전선 시야</button>
     <div class="tool-actions"><button id="home-view">아군 본진</button><button id="enemy-view">적 본진</button><button id="select-all">전군 선택</button><button id="command-all">전군 진격</button><button id="withdraw">철수</button><button id="support">지원</button></div>
     <label class="low-mode"><input id="low-mode" type="checkbox"> 절전 모드</label><a id="soldier-workshop" href="soldier-workshop.html">병사 파츠 작업실 ↗</a>
