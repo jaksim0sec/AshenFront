@@ -2,9 +2,13 @@
 
 ## Battlefield terrain artwork
 
-The default 2.5D battlefield now renders war-toned FlowerWars ground surfaces (10 deterministic variants per material), dirt roads, ponds, rock obstacles, shoreline seams, and sparse static scenery. Only a padded viewport is cached; camera pans reuse that cache until it falls out of range. Tactical tiles, navigation, and combat are unchanged. Low-quality mode omits decorative sprites and large ground patches.
+The active FlowerWars-based battlefield uses the original AI-generated AshenFront 60-texture atlas at `assets/world/terrain/ashenfront-atlas.webp.b64` (1440x642, six rows of ten 144x107 RGBA WebP tiles). The rows are grass, soil, road, marsh, rock, and scorched ground. Rendering uses deterministic 5x2 variants, pre-bakes transparent top surfaces without interior block sidewalls, and shows full block sidewalls only at exposed world edges. Natural terrain transitions, sparse static scenery, and lowered-detail zoom remain render-only.
 
-Source artwork: `jaksim0sec/FlowerWars-MINI` at `0d4e7a5` (`assets/world/terrain/atlas.webp`, `decorations.webp`). The self-contained WebP images are stored here as `.webp.b64` text assets to accommodate the repository upload interface; the browser decodes them once and tints them into cached canvases. No external image host is used. Legacy `?legacy=1` rendering is unaffected. Geometry/cache regression tests: `tests/terrain-art.test.mjs`. Real mobile frame times and final visual QA remain unverified.
+The visual terrain map preserves `board.terrain`, obstacles, navigation, and combat unchanged. It paints roads over designed tactical paths, clustered scorched ground near the battlefield center, marshes on impassable wet ground, and rocks where the world marks rock obstacles. The base texture is never intentionally replaced by a flat color at the minimum zoom of 0.07. A padded viewport cache reuses rendered pixels during panning; zoom and terrain revisions invalidate it. Low-quality mode reduces decoration work, not base textures.
+
+The new artwork comes from the generated `ashenfront_terrain_textures_144x107.zip`, not the older FlowerWars terrain atlas. The older FlowerWars `atlas.webp.b64` remains a fallback **only if** the new asset fails to load. Binary WebP is stored as base64 text because the GitHub upload bridge accepts text files; it is decoded by the browser once without any external hosting. The original `?legacy=1` engine is not modified.
+
+Regression coverage: `node --test tests/terrain-art.test.mjs` checks atlas integrity, all six materials, viewport coverage at 0.07–1.2, and pan cache reuse. Device-level Chrome/mobile screenshots and FPS still require live testing.
 
 Default route loads the new FlowerWars-based simulation. Query ?legacy=1 loads the previous AshenFront engine and UI, preserved for regression.
 
