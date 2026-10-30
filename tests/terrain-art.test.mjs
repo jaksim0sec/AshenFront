@@ -125,3 +125,33 @@ test('spatial decoration retrieval matches viewport-filtered full list',()=>{
  b.terrain[18][18]='forest';b.terrainRevision++;
  assert.deepEqual(visibleTerrainDecorations(b,0,100,0,100),terrainDecorations(b).filter(p=>p.x<=100&&p.y<=100));
 });
+
+test('restoring a suspended canvas rebuilds the cached terrain and derived texture surfaces',async()=>{
+ const oldDocument=globalThis.document,oldFetch=globalThis.fetch,oldImage=globalThis.Image;
+ const calls={draws:0};
+ const ctx=()=>({setTransform(){},clearRect(){},fillRect(){},translate(){},scale(){},save(){},restore(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clip(){},drawImage(){calls.draws++}});
+ try{
+  globalThis.document={createElement:()=>({width:0,height:0,getContext:ctx})};
+  globalThis.fetch=async()=>({ok:false,status:404});
+  globalThis.Image=class {};
+  const renderer=new BattlefieldTerrainRenderer();await renderer.ready;
+  const b=board(30,24),screen=ctx(),cam={x:0,y:0,scale:.3};
+  renderer.kind='new';renderer.sourceAtlas={naturalWidth:1440,naturalHeight:642};
+  renderer.sourceDecorations={naturalWidth:1020,naturalHeight:810};
+  renderer.atlas=renderer.sourceAtlas;renderer.surface={old:true};renderer.decorations={old:true};
+  renderer.draw(screen,b,cam,390,844,1,false,1000);
+  renderer.draw(screen,b,cam,390,844,1,false,1100);
+  assert.equal(renderer.rebuilds,1,'unchanged viewport should hit cache');
+  assert.equal(renderer.cacheHits,1);
+  const before=renderer.version;
+  renderer.restore();
+  assert.equal(renderer.pages.length,0,'discard old GPU-backed viewport pages');
+  assert.equal(renderer.cache,null);
+  assert.ok(renderer.surface&&!renderer.surface.old,'recreate the derived terrain surface');
+  assert.ok(renderer.decorations&&!renderer.decorations.old,'recreate decorations');
+  assert.equal(renderer.version,before+1);
+  renderer.draw(screen,b,cam,390,844,1,false,1200);
+  assert.equal(renderer.rebuilds,2,'same camera must repaint rather than reuse a potentially blank page');
+  assert.ok(calls.draws>0);
+ }finally{globalThis.document=oldDocument;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
+});

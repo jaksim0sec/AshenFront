@@ -20,7 +20,7 @@ const params=new URLSearchParams(location.search);
 const seed=Number(params.get('seed'))||1977;
 let armySize=ASHEN_ARMY_CHOICES.includes(Number(params.get('army')))?Number(params.get('army')):40;
 let {board,match}=createAshenMatch({seed,count:armySize}),selected=new Set(),mode=null,hover=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
-let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1;
+let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1,lastResumeAt=-Infinity;
 let lastRosterRevision=-1,lastRosterAlive=-1;
 const renderSamples=[];let renderedFrames=0,visibleTroops=0;
 let miniGround=null,miniArea=null,miniQueries=0;
@@ -45,6 +45,20 @@ function setHudExpanded(open){
  $('hud-toggle').setAttribute('aria-label',expanded?'전투 현황 접기':'전투 현황 펼치기');
 }
 function resize(){const r=canvas.getBoundingClientRect();drawDpr=Math.min(low?1:2,devicePixelRatio||1);canvas.width=Math.round(r.width*drawDpr);canvas.height=Math.round(r.height*drawDpr);}
+function restoreAfterBackground(force=false){
+ if(document.hidden)return;
+ const now=performance.now();
+ if(!force&&now-lastResumeAt<250)return;
+ lastResumeAt=now;
+ terrainArt.restore();miniGround=null;miniArea=null;
+ // Resizing resets the main canvas backing store, which may also have been lost.
+ resize();lastPaint=0;lastMini=0;
+ requestAnimationFrame(()=>{
+  if(document.hidden)return;
+  paint();lastPaint=performance.now();
+  if(document.body.classList.contains('map-open')){paintMini();lastMini=performance.now();}
+ });
+}
 function focus(x,y){const p=project(x,y);camera.x=canvas.clientWidth/2-p.x*camera.scale;camera.y=canvas.clientHeight/2-p.y*camera.scale;}
 function fit(){camera.scale=innerWidth<650?.40:.48;focus(board.width*.34,board.height*.5);}
 function zoom(ratio,x=canvas.clientWidth/2,y=canvas.clientHeight/2){const scale=Math.min(2.4,Math.max(.27,camera.scale*ratio)),r=scale/camera.scale;camera.x=x-(x-camera.x)*r;camera.y=y-(y-camera.y)*r;camera.scale=scale;}
@@ -349,6 +363,10 @@ function hud(){
  if(match.phase==='finished'&&$('result').hidden){roster();$('result').hidden=false;$('result').querySelector('h1').textContent=match.winner==='draw'?'무승부':match.winner==='A'?'아르켄 승리':'벨리안 승리';$('result').querySelector('p').textContent=match.finishReason==='annihilation'?'병력 전멸':'지휘소 함락';}
 }
 function bind(){
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)restoreAfterBackground();});
+ addEventListener('pageshow',event=>{if(event.persisted)restoreAfterBackground();});
+ canvas.addEventListener('contextlost',event=>{event.preventDefault();terrainArt.invalidate();});
+ canvas.addEventListener('contextrestored',()=>restoreAfterBackground(true));
  const hud=$('match-hud'),tools=$('game-tools');
  const squadPanel=$('squad-panel'),formationPanel=$('formation-panel');
  const dismissedWorldPointers=new Set();

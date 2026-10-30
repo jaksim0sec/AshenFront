@@ -185,21 +185,39 @@ const PAGE_LIMIT=6,BYTE_LIMIT=40*1024*1024,IDLE_TTL=20000,ZOOM_SETTLE=120;
 export class BattlefieldTerrainRenderer{
  constructor(){
   this.atlas=null;this.surface=null;this.kind='pending';this.decorations=null;this.version=0;
+  this.sourceAtlas=null;this.sourceDecorations=null;
   this.cache=null;this.pages=[];this.baseKey=null;this.cacheBytes=0;this.rebuilds=0;
   this.cacheHits=0;this.zoomReuses=0;this.evictions=0;this.lastScale=null;this.zoomChangedAt=0;this.lastPrune=0;this.failures=[];
   const next=imageFromBase64('../../assets/world/terrain/ashenfront-atlas.webp.b64').then(img=>{
    if(img.naturalWidth!==1440||img.naturalHeight!==642)throw Error('Expected a 1440x642 AshenFront atlas');
-   this.surface=surfaceOnly(img);this.atlas=img;this.kind='new';this.version++;
+   this.sourceAtlas=img;this.surface=surfaceOnly(img);this.atlas=img;this.kind='new';this.version++;
   }).catch(async e=>{
    this.failures.push(e.message);console.warn('New terrain unavailable, using original atlas:',e.message);
    try{const img=await imageFromBase64('../../assets/world/terrain/atlas.webp.b64');
-    this.atlas=toneOld(img);this.kind='legacy';this.version++;
+    this.sourceAtlas=img;this.atlas=toneOld(img);this.kind='legacy';this.version++;
    }catch(fallbackError){this.failures.push(fallbackError.message);}
   });
   const decor=imageFromBase64('../../assets/world/terrain/decorations.webp.b64').then(img=>{
-   this.decorations=toneOld(img,true);this.version++;
+   this.sourceDecorations=img;this.decorations=toneOld(img,true);this.version++;
   }).catch(e=>{this.failures.push(e.message);});
   this.ready=Promise.allSettled([next,decor]);
+ }
+ // Backgrounded mobile browsers can discard canvas backing stores while JS
+ // still considers viewport pages reusable. Never trust those pages on return.
+ invalidate(){
+  this.pages=[];this.cache=null;this.cacheBytes=0;this.baseKey=null;
+  this.lastScale=null;this.lastPrune=0;
+ }
+ restore(){
+  this.invalidate();
+  // These canvases are derived GPU resources too, not just the viewport pages.
+  // Re-rasterize from the decoded Image originals instead of recycling blanks.
+  if(this.sourceAtlas){
+   if(this.kind==='new')this.surface=surfaceOnly(this.sourceAtlas);
+   else if(this.kind==='legacy')this.atlas=toneOld(this.sourceAtlas);
+  }
+  if(this.sourceDecorations)this.decorations=toneOld(this.sourceDecorations,true);
+  this.version++;
  }
  draw(ctx,board,camera,width,height,drawDpr=1,low=false,now=performance.now()){
   const density=Math.min(drawDpr,low||camera.scale<.12?1:1.5);
