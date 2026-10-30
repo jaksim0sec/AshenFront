@@ -119,7 +119,9 @@ function surfaceOnly(image){
   c.lineTo(x+72,y+86);c.lineTo(x,y+44);c.closePath();c.clip();
   c.fillStyle=COLORS[['grass','soil','road','marsh','rock','scorched'][row]];
   c.fillRect(x,y,TW,TH);
-  c.drawImage(image,x,y,TW,TH,x,y,TW,TH);c.restore();
+  // Sample the interior, excluding black sprite outlines and sidewall pixels.
+  // The slightly oversized UV covers diamond edges without a per-tile clip at draw time.
+  c.drawImage(image,x+5,y+6,TW-10,75,x-3,y-2,TW+6,92);c.restore();
  }
  return canvas;
 }
