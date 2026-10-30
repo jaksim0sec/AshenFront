@@ -55,3 +55,9 @@
 - [ ] Record numerical before/after if tested with matching scenarios; never claim faster without measured comparison.
 - [ ] Inspect diff, no unintended character/assets or main changes.
 - [ ] Keep experiment isolated; do not merge.
+
+## Execution outcome / ruled deviations
+- Task 1: completed, 7 focused regression tests green.
+- Task 2 moving-blocker patch: skipped after regression test passed on existing engine. Replaced speculative change with task 2b, squad maintenance cadence, with a RED-GREEN test.
+- Task 3: Node24 full suite 137/137 green, 700-soldier capacity test green. CPU reduction versus main **not proven**; see `docs/superpowers/reports/2026-10-30-steering-experiment.md`.
+- Do not treat this as approval to replace the integer collision grid. The technical migration remains unresolved.
