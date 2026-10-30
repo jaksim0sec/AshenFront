@@ -53,7 +53,9 @@ try:
    assert not page.locator('#army-size').is_disabled()
    page.locator('#auto-deploy').click(timeout=10000)
    assert page.evaluate('__ashenFlower.match.counts.A')==40
-   # Changing the choice after deployment intentionally creates a fresh preparation.
+   # Completed auto-deployment switches to command mode and hides the panel.
+   # The preparation HUD has a visible action to reopen deployment editing.
+   page.locator('#resume-deployment').click()
    page.locator('#army-size').select_option('100')
    page.wait_for_function('__ashenFlower.armySize===100 && __ashenFlower.match.counts.A===0',timeout=3000)
    page.locator('#army-size').select_option('40')
