@@ -195,8 +195,8 @@ body[data-engine=flower] #squad-tabs .squad-portrait{
 body[data-engine=flower] #squad-tabs .squad-portrait canvas.commander-photo{
  display:block;width:80px;height:80px;max-height:none;object-fit:contain;object-position:bottom left;
  background:none;border:0;border-radius:0;
- mask-image:linear-gradient(#000 67%,transparent 100%);
- -webkit-mask-image:linear-gradient(#000 67%,transparent 100%)
+ mask-image:linear-gradient(to bottom,#000 0%,#000 66%,transparent 100%);
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 66%,transparent 100%)
 }
 body[data-engine=flower] #squad-tabs .commander-badge{
  position:absolute;right:-1px;bottom:5px;display:grid;place-items:center;

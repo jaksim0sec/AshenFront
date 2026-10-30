@@ -24,6 +24,25 @@ try:
    assert page.locator('.squad-card .squad-kind').count()==4
    assert page.locator('.squad-card .squad-activity').count()==4
    assert page.locator('.squad-card .commander-photo').count()==4
+   # An actual painted face/hat at high resolution, not a tiny reused world sprite.
+   page.wait_for_function("""()=>{const c=document.querySelector('.commander-photo');if(!c||c.width<240)return false;
+     const pixels=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+     let painted=0;for(let i=3;i<pixels.length;i+=4)if(pixels[i]>80)painted++;
+     return painted>1000;
+   }""",timeout=15000)
+   portrait=page.locator('.commander-photo').first.evaluate("""c=>{
+     const {width,height}=c,p=c.getContext('2d').getImageData(0,0,width,height).data;
+     let minY=height,maxY=0,minX=width,maxX=0,count=0;
+     for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+       if(p[(y*width+x)*4+3]<80)continue;
+       count++;minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+       minX=Math.min(minX,x);maxX=Math.max(maxX,x);
+     }
+     return {width,height,minX,maxX,minY,maxY,count};
+   }""")
+   assert portrait['width']==240 and portrait['height']==240,portrait
+   assert portrait['maxY']-portrait['minY']>=150,portrait
+   assert portrait['minY']<50 and portrait['count']>1000,portrait
    card=page.locator('.squad-card').first
    metrics=card.evaluate("""el=>({
     width:el.getBoundingClientRect().width,

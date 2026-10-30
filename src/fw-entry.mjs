@@ -3,6 +3,7 @@ import {project,unproject} from './fw/model.mjs';
 import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS} from './fw/squad-orders.mjs';
 import {squadsFor} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
+import {drawSquadPortrait} from './characters/portrait.mjs';
 import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
 import {drawSquadTeamFlags} from './fw/match-overlay.mjs';
 import {drawCommandOverlay} from './fw/command-overlay.mjs';
@@ -142,7 +143,7 @@ function roster(){
    if(!node){
     const button=document.createElement('button');button.className='squad-card';button.dataset.squadId=s.id;
     const portrait=document.createElement('span');portrait.className='squad-portrait';
-    const canvas=document.createElement('canvas');canvas.width=100;canvas.height=100;canvas.className='commander-photo';
+    const canvas=document.createElement('canvas');canvas.width=240;canvas.height=240;canvas.className='commander-photo';
     const badge=document.createElement('span');badge.className='commander-badge';badge.innerHTML=icon('focus');badge.title='소총보병';
     portrait.append(canvas,badge);
     const body=document.createElement('span');body.className='squad-card-body';
@@ -172,11 +173,8 @@ function roster(){
    node.button.classList.toggle('is-selected',active);node.button.setAttribute('aria-pressed',String(active));
    node.button.classList.toggle('leader-down',alive?!alive.commanderAlive:false);
    const rank=s.leaderId&&board.unit(s.leaderId)?.health.current>0?(s.matchIndex===0?'captain':'sergeant'):'private';
-   if(soldiers.loaded&&node.portraitRank!==rank){
-    const pc=node.canvas.getContext('2d');pc.setTransform(1,0,0,1,0,0);pc.clearRect(0,0,100,100);
-    pc.translate(50,94);pc.scale(1.08,1.08);
-    soldiers.draw(pc,'A',rank,{state:'idle',time:0,facing:1},false);
-    node.portraitRank=rank;
+   if(soldiers.loaded&&node.portraitRank!==rank+':'+soldiers.revision){
+    if(drawSquadPortrait(node.canvas,soldiers,'arken',rank))node.portraitRank=rank+':'+soldiers.revision;
    }
   }
  }
