@@ -282,3 +282,188 @@ body[data-engine=flower][data-annihilated=true] #field{filter:grayscale(1) brigh
 /* Retain dead squads in the roster; desaturate their commander portraits only. */
 body[data-engine=flower] .squad-card.is-eliminated .commander-photo{filter:grayscale(1) brightness(.64)}
 body[data-engine=flower] .squad-card.is-eliminated{cursor:default}
+
+
+/* Mobile-first UI hierarchy: compact top status > context commands > squad strip.
+   Only the FlowerWars-powered screen uses the new layout; legacy remains untouched. */
+#hud-toggle{display:none}
+.match-details{display:contents}
+body[data-engine=flower] #battle-notice{
+ opacity:0;transform:translate(-50%,-7px);transition:opacity .18s ease,transform .18s ease;
+ pointer-events:none;max-width:min(310px,calc(100vw - 24px));line-height:1.4;
+ background:#20272ae8;border:1px solid #b6b8b364;box-shadow:0 5px 18px #1117
+}
+body[data-engine=flower] #battle-notice.is-visible{opacity:1;transform:translate(-50%,0)}
+@media(max-width:700px){
+ body[data-engine=flower] #match-hud{
+  position:fixed;top:max(8px,env(safe-area-inset-top));left:50%;right:auto;
+  transform:translateX(-50%);display:flex;flex-direction:column;align-items:stretch;
+  width:min(246px,calc(100vw - 100px));max-width:calc(100vw - 100px);
+  padding:4px;gap:0;flex-wrap:nowrap;border:1px solid #a9b8bc6b;border-radius:25px;
+  z-index:11;background:#20272af5;box-shadow:0 5px 18px #15181955;
+  transition:width .27s cubic-bezier(.2,.75,.25,1),max-width .27s ease,border-radius .27s ease,box-shadow .27s ease
+ }
+ body[data-engine=flower] #match-hud.is-open{
+  width:min(350px,calc(100vw - 22px));max-width:calc(100vw - 22px);
+  border-radius:22px;box-shadow:0 14px 42px #090d0fa8
+ }
+ body[data-engine=flower] #hud-toggle{
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto 18px;
+  align-items:center;gap:7px;width:100%;min-width:0;min-height:41px;
+  padding:7px 12px;border:0;border-radius:22px;background:transparent;
+  text-align:left;color:#edf0ee;cursor:pointer
+ }
+ body[data-engine=flower] #hud-toggle:hover{background:#ffffff0b}
+ #hud-compact-phase{font-size:11px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #hud-compact-time{font-size:16px;font-weight:800;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+ #hud-compact-force{font-size:10px;color:#b6c2c4;white-space:nowrap}
+ body[data-engine=flower] #hud-toggle .hud-chevron{
+  width:17px;height:17px;stroke:currentColor;fill:none;color:#becacc;
+  transition:transform .27s cubic-bezier(.2,.75,.25,1)
+ }
+ body[data-engine=flower] #match-hud.is-open .hud-chevron{transform:rotate(180deg)}
+ body[data-engine=flower] .match-details{
+  display:block;flex:none;width:100%;max-height:0;min-height:0;
+  opacity:0;overflow:hidden;pointer-events:none;transform:translateY(-5px);
+  transition:max-height .3s cubic-bezier(.2,.75,.25,1),opacity .2s ease,transform .3s ease
+ }
+ body[data-engine=flower] #match-hud.is-open .match-details{
+  max-height:170px;opacity:1;pointer-events:auto;transform:translateY(0)
+ }
+ body[data-engine=flower] .match-details .match-topline{
+  display:flex;flex:none;justify-content:center;align-items:center;
+  gap:8px;width:100%;padding:8px 4px 5px;white-space:normal
+ }
+ body[data-engine=flower] .match-details #match-phase,
+ body[data-engine=flower] .match-details #preparation-clock,
+ body[data-engine=flower] .match-details #clock{display:none!important}
+ body[data-engine=flower] .match-details #faction-ribbon{display:flex;align-items:center;justify-content:center;gap:12px}
+ body[data-engine=flower] .match-details .faction-team img{width:27px;height:19px}
+ body[data-engine=flower] .match-details .faction-team{font-size:14px}
+ body[data-engine=flower] .match-details .match-actions{
+  display:grid;grid-template-columns:minmax(0,1fr) 46px 46px;
+  align-items:center;gap:7px;padding:6px 6px 8px;margin:0
+ }
+ body[data-engine=flower] .match-actions button{height:44px;min-height:44px;min-width:0;padding:6px;border-radius:13px;font-size:12px}
+ body[data-engine=flower] .match-actions #pause,
+ body[data-engine=flower] .match-actions #restart{background:#3b4549;border:1px solid #8793953f;font-size:19px}
+ body[data-engine=flower].hud-open #tools-toggle,
+ body[data-engine=flower].hud-open #toggle-map,
+ body[data-engine=flower].hud-open #overview{opacity:0;pointer-events:none}
+ body[data-engine=flower] #tools-toggle{top:max(8px,env(safe-area-inset-top));right:8px;transition:opacity .18s ease}
+ body[data-engine=flower] #toggle-map{
+  left:auto;right:8px;top:calc(max(8px,env(safe-area-inset-top)) + 59px);
+  bottom:auto;width:44px;max-width:44px;height:44px;z-index:7;
+  font-size:9px;transition:opacity .18s ease
+ }
+ body[data-engine=flower] #overview{top:calc(max(8px,env(safe-area-inset-top)) + 109px);right:8px;bottom:auto;width:150px;height:105px}
+ body[data-engine=flower] #game-tools{top:calc(max(8px,env(safe-area-inset-top)) + 60px);right:8px}
+ body[data-engine=flower] #battle-notice{
+  top:calc(max(8px,env(safe-area-inset-top)) + 58px);padding:6px 10px;
+  font-size:10px;z-index:4
+ }
+ body[data-engine=flower][data-phase=battle] #deployment-tools{display:none!important}
+ body[data-engine=flower][data-play-mode=deploy] #deployment-tools{
+  left:50%;bottom:calc(10px + env(safe-area-inset-bottom));top:auto;
+  transform:translateX(-50%);width:calc(100vw - 16px);max-width:440px
+ }
+ body[data-engine=flower][data-play-mode=deploy] .deployment-head{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  column-gap:9px;row-gap:7px;align-items:center;
+  min-height:0;padding:9px 10px;border-radius:16px
+ }
+ body[data-engine=flower][data-play-mode=deploy] .deployment-head>div{grid-column:1;grid-row:1}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-head strong{font-size:13px}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-head span{font-size:10px;line-height:1.35;max-width:none}
+ body[data-engine=flower][data-play-mode=deploy] .army-size-label{grid-column:2;grid-row:1;font-size:10px}
+ body[data-engine=flower][data-play-mode=deploy] #auto-deploy{grid-column:1;grid-row:2}
+ body[data-engine=flower][data-play-mode=deploy] #deployment-toggle{grid-column:2;grid-row:2}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-head button{min-height:39px;font-size:11px;padding:6px 10px;border-radius:11px}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:6px
+ }
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types button{
+  min-width:0;min-height:70px;gap:3px;padding:7px 2px;border-radius:14px
+ }
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types svg{width:27px;height:23px}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types strong{font-size:11px}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types small{font-size:9px}
+ body[data-engine=flower][data-play-mode=control] #deployment-tools{
+  top:calc(max(8px,env(safe-area-inset-top)) + 61px);left:8px;right:auto;
+  bottom:auto;max-width:170px;width:max-content;transform:none
+ }
+ body[data-engine=flower][data-play-mode=control] .deployment-head{display:flex;gap:5px}
+ body[data-engine=flower] #roster-panel{
+  position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;
+  height:calc(88px + env(safe-area-inset-bottom));max-height:calc(88px + env(safe-area-inset-bottom));
+  padding:5px 7px max(4px,env(safe-area-inset-bottom));
+  overflow-x:auto;overflow-y:hidden
+ }
+ body[data-engine=flower] #squad-tabs{gap:10px}
+ body[data-engine=flower] #squad-tabs .squad-platoon{gap:3px}
+ body[data-engine=flower] #squad-tabs .platoon-controls{height:17px}
+ body[data-engine=flower] #squad-tabs .platoon-title{
+  height:17px;min-height:17px;font-size:9px;padding:1px 7px
+ }
+ body[data-engine=flower] #squad-tabs .platoon-fold{
+  min-width:21px;min-height:21px;width:21px;height:21px
+ }
+ body[data-engine=flower] #squad-tabs .squad-card{
+  grid-template-columns:50px minmax(0,1fr);gap:4px;
+  width:157px;min-width:157px;max-width:157px;
+  height:61px;min-height:61px;padding:2px 4px 2px 0;border-radius:12px
+ }
+ body[data-engine=flower] #squad-tabs .squad-portrait{width:51px;height:60px}
+ body[data-engine=flower] #squad-tabs .squad-portrait canvas.commander-photo{width:64px;height:64px}
+ body[data-engine=flower] #squad-tabs .squad-card-title{font-size:11px}
+ body[data-engine=flower] #squad-tabs .squad-kind{font-size:9px}
+ body[data-engine=flower] #squad-tabs .squad-card-status{font-size:8px}
+ body[data-engine=flower] #command-dock{
+  position:fixed;left:50%;right:auto;bottom:calc(95px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);width:calc(100vw - 16px);max-width:390px
+ }
+ body[data-engine=flower] .command-selection-row{
+  min-height:42px;padding:5px 8px;border-radius:13px;gap:7px
+ }
+ body[data-engine=flower] .command-selection-row strong{font-size:11px}
+ body[data-engine=flower] .selection-actions{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:4px;margin:5px 0
+ }
+ body[data-engine=flower] .selection-actions button{
+  display:block;min-width:0;min-height:42px;padding:5px 2px;
+  font-size:9px;white-space:nowrap;border-radius:10px
+ }
+ body[data-engine=flower] .commands{gap:2px}
+ body[data-engine=flower] .commands button{min-height:61px;gap:3px}
+ body[data-engine=flower] .commands button svg{
+  display:block;width:43px;height:43px;padding:10px
+ }
+ body[data-engine=flower] .commands button>span{font-size:9px}
+ body[data-engine=flower] #command-dock .command-help{display:none}
+ body[data-engine=flower][data-command-mode=move] #command-dock .command-help,
+ body[data-engine=flower][data-command-mode=attack] #command-dock .command-help,
+ body[data-engine=flower][data-command-mode=flank] #command-dock .command-help{display:flex}
+ body[data-engine=flower] #formation-panel{
+  left:50%;right:auto;bottom:calc(260px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);width:calc(100vw - 16px);max-width:390px;
+  max-height:calc(100dvh - 340px);overflow-y:auto;padding:10px;border-radius:13px
+ }
+ body[data-engine=flower] #formation-controls{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+ body[data-engine=flower] #formation-controls button{min-width:0;min-height:58px;font-size:10px}
+ body[data-engine=flower] #formation-controls button svg{width:22px;height:22px}
+}
+@media(max-width:360px){
+ body[data-engine=flower] #hud-toggle{gap:5px;padding:7px 9px}
+ body[data-engine=flower] #hud-compact-force{font-size:9px}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-head span{font-size:9px}
+ body[data-engine=flower][data-play-mode=deploy] .deployment-types small{display:none}
+ body[data-engine=flower] .selection-actions button{font-size:8px}
+ body[data-engine=flower] #formation-panel{bottom:calc(265px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-engine=flower] #match-hud,
+ body[data-engine=flower] #match-hud .match-details,
+ body[data-engine=flower] #match-hud .hud-chevron,
+ body[data-engine=flower] #battle-notice{transition:none!important}
+}
