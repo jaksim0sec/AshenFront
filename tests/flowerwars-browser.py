@@ -55,6 +55,7 @@ try:
    assert page.evaluate('__ashenFlower.match.counts.A')==40
    # Completed auto-deployment switches to command mode and hides the panel.
    # The preparation HUD has a visible action to reopen deployment editing.
+   if width<=700: page.locator('#hud-toggle').click()
    page.locator('#resume-deployment').click()
    page.locator('#army-size').select_option('100')
    page.wait_for_function('__ashenFlower.armySize===100 && __ashenFlower.match.counts.A===0',timeout=3000)
@@ -102,6 +103,7 @@ try:
    page.wait_for_timeout(950)
    assert page.evaluate("window.__rosterCardNode===document.querySelector('.squad-card')"),'roster DOM must be stable'
    page.screenshot(path=str(out/f'deployment-{width}.png'))
+   if width<=700: page.locator('#hud-toggle').click()
    page.locator('#start-battle').click(timeout=10000)
    page.wait_for_function('__ashenFlower.match.phase==="battle"',timeout=10000)
    page.wait_for_function('__ashenFlower.flagsLoaded',timeout=12000)
@@ -182,6 +184,7 @@ try:
    assert 'grayscale(1)' not in page.locator('#match-hud').evaluate("el=>getComputedStyle(el).filter")
    page.wait_for_timeout(950)
    page.screenshot(path=str(out/f'annihilated-{width}.png'))
+   if width<=700: page.locator('#hud-toggle').click()
    page.locator('#restart').click()
    page.wait_for_function("document.body.dataset.annihilated==='false'",timeout=5000)
    context.close()
@@ -195,6 +198,7 @@ try:
   stage.locator('#auto-deploy').click(timeout=30000)
   stage.wait_for_function('__ashenFlower.match.counts.A===350',timeout=30000)
   assert stage.locator('.squad-card').count()==35
+  stage.locator('#hud-toggle').click()
   stage.locator('#start-battle').click(timeout=30000)
   stage.wait_for_function('__ashenFlower.match.counts.B===350 && __ashenFlower.match.phase==="battle"',timeout=30000)
   stage.wait_for_timeout(2500)
