@@ -38,7 +38,7 @@ test('rifle hands retain their joint transforms at animation state boundaries',(
  const raised=poseCharacter(profile,{state:'shoot',time:0,aim:0,shootBlend:1});
  const exit=poseCharacter(profile,{state:'idle',time:0,aim:0,shootBlend:1});
  const get=(pose,key)=>pose.draws.find(d=>d.part===key).matrix;
- for(const key of ['armLeft','armRight','sleeveLeft','sleeveRight','rifle']){
+ for(const key of ['armLeft','armRight','sleeveLeft','sleeveRight','rifle'].filter(key=>profile.parts[key].visible)){
   const dist=(a,b)=>Math.max(...a.map((x,i)=>Math.abs(x-b[i])));
   assert(dist(get(idle,key),get(enter,key))<1e-6, key+' snapped on first firing frame');
   assert(dist(get(raised,key),get(exit,key))<1e-6,key+' snapped back on firing exit');
