@@ -31,16 +31,16 @@ export function drawHeadquarters(ctx,flags,time){
 }
 
 /** Short muzzle flash and tracer at the source impact frame; no white bubble particles. */
-export function drawBattleEffects(ctx,board){
+export function drawBattleEffects(ctx,board,frameStamp){
  for(const unit of board.units){
-  if(unit.state!=='attack'||!unit.strike||!unit.impacted||unit.strike.healing)continue;
+  if(unit.state!=='attack'||!unit.strike||!unit.impacted||unit.strike.healing||unit._shotMuzzleStamp!==frameStamp||!unit._shotMuzzle?.valid)continue;
   const age=unit.elapsed-unit.strike.impactTime;
   if(age<0||age>.13)continue;
   const target=board.unit(unit.strike.target);
   if(!target)continue;
-  const a=project(unit.visualX,unit.visualY),b=project(target.visualX,target.visualY),dx=b.x-a.x,dy=b.y-a.y;
+  const foot=project(unit.visualX,unit.visualY),a={x:foot.x+unit._shotMuzzle.x,y:foot.y+unit._shotMuzzle.y},b=project(target.visualX,target.visualY),dx=b.x-a.x,dy=b.y-30-a.y;
   const len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
-  const start={x:a.x+ux*18,y:a.y-40+uy*18},end={x:b.x-ux*13,y:b.y-37-uy*13};
+  const start=a,end={x:b.x-ux*13,y:b.y-30-uy*13};
   const alpha=1-age/.13;
   ctx.save();ctx.globalAlpha=alpha;
   const gradient=ctx.createLinearGradient(start.x,start.y,end.x,end.y);
