@@ -4,6 +4,7 @@ import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS}
 import {squadsFor} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
 import {drawSquadPortrait} from './characters/portrait.mjs';
+import {firingOrientation} from './fw/shot-geometry.mjs';
 import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
 import {drawSquadTeamFlags} from './fw/match-overlay.mjs';
 import {drawCommandOverlay} from './fw/command-overlay.mjs';
@@ -83,13 +84,15 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
  },camera.scale);
  const troops=board.units.filter(u=>u.health.current>0||u.state==='death').sort((a,b)=>a.visualX+a.visualY-b.visualX-b.visualY||a.id-b.id);
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
+ const squadIndex=squadsFor(board),shotStamp=renderedFrames+1;
  for(const u of troops){const p=project(u.visualX,u.visualY),sx=camera.x+p.x*camera.scale,sy=camera.y+p.y*camera.scale;if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
   ctx.save();ctx.translate(p.x,p.y);
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
-  const s=squadsFor(board).get(u.squadId),rank=s?.leaderId===u.id?(match.squadIds[u.team][0]===u.squadId?'captain':'sergeant'):'private';
+  const s=squadIndex.get(u.squadId),rank=s?.leaderId===u.id?(match.squadIds[u.team][0]===u.squadId?'captain':'sergeant'):'private';
   const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':match.phase==='battle'?'guard':'idle';
-  const shot=state==='shoot',rawAim=u.attackVector?Math.atan2(u.attackVector.y,Math.max(.1,Math.abs(u.attackVector.x))):0;
+  const shot=state==='shoot',orientation=shot?firingOrientation(board,u):null;
+  const facing=orientation?.facing??u.facing,rawAim=shot?orientation.aim:0;
   // Smooth view-only stance changes; simulation and authoritative attack timing stay untouched.
   const view=u._visualStance??(u._visualStance={blend:0,walk:state==='walk'?1:0,crouch:0,aim:rawAim,time:board.time});
   const delta=Math.max(0,Math.min(.1,board.time-view.time));view.time=board.time;
@@ -103,13 +106,18 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   view.aim+=difference*Math.min(1,delta/.13);
   const hitReaction=Math.max(0,Math.min(1,((u.hitPulseUntil??-1)-board.time)/.16));
   const pose=distant&&state!=='death'
-   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing:u.facing,phase:0,aim:Math.round(rawAim*4)/4,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0,crouchBlend:u.hasEngaged&&state==='guard'?1:0}
-   :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,aim:view.aim,shootBlend:view.blend,walkBlend:view.walk,crouchBlend:view.crouch,hitReaction};
-  if(!soldiers.draw(ctx,u.team,rank,{...pose,pixelDensity:camera.scale*drawDpr*.285*1.8},distant)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
+   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:state==='guard'?.63:0,walkBlend:0,crouchBlend:u.hasEngaged&&state==='guard'?1:0}
+   :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,facing,aim:view.aim,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:view.blend,walkBlend:view.walk,crouchBlend:view.crouch,hitReaction};
+  const muzzle=shot?(u._shotMuzzle??(u._shotMuzzle={})):null;
+  if(muzzle)muzzle.valid=false;
+  if(!soldiers.draw(ctx,u.team,rank,{...pose,muzzleOut:muzzle,pixelDensity:camera.scale*drawDpr*.285*1.8},distant)){
+   ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);
+  }
+  if(shot)u._shotMuzzleStamp=muzzle.valid?shotStamp:-1;
   ctx.restore();
  }
  drawSquadTeamFlags(ctx,board,camera.scale,camera,w,h,[...selected]);
- drawBattleEffects(ctx,board);ctx.restore();
+ drawBattleEffects(ctx,board,shotStamp);ctx.restore();
 }
 function paintMini(){const sx=mini.width/board.width,sy=mini.height/board.height;mctx.fillStyle='#30383b';mctx.fillRect(0,0,mini.width,mini.height);
  for(let y=0;y<board.height;y+=2)for(let x=0;x<board.width;x+=2){const t=board.terrain[y][x];if(t==='void')continue;mctx.fillStyle=t==='forest'?'#43616b':t==='soil'?'#666762':'#777e7a';mctx.fillRect(x*sx,y*sy,Math.ceil(sx*2),Math.ceil(sy*2));}

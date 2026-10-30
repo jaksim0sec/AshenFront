@@ -21,8 +21,8 @@ export class SoldierRenderer {
   this.loaded=true;return this;
  }catch(e){this.error=e.message;throw e;}}
  setCatalog(c){this.catalog=importCatalog(c);this.revision++;this.cache.clear();this.cacheBytes=0;this.margin=Math.max(100,...Object.values(this.catalog.profiles).flatMap(p=>Object.values(p.parts).filter(p=>p.visible).map(p=>Math.hypot(Math.abs(p.x)+2*p.w*p.scaleX,Math.abs(p.y)+2*p.h*p.scaleY)*.285)));}
- drawPose(ctx,profile,options={}, {selectedPart=null,guides=false}={}){
-  const pose=poseCharacter(profile,options);ctx.save();ctx.globalAlpha*=pose.alpha;
+ drawPose(ctx,profile,options={}, {selectedPart=null,guides=false,computedPose=null}={}){
+  const pose=computedPose??poseCharacter(profile,options);ctx.save();ctx.globalAlpha*=pose.alpha;
   for(const d of pose.draws){const im=this.images.get(d.asset),meta=this.metadata[d.asset];if(!im||!meta)continue;
    const [sx,sy,ex,ey]=meta.crop,m=d.matrix;ctx.save();ctx.transform(...m);
    if(d.clip?.capsule){const [ax,ay,bx,by,r]=d.clip.capsule;ctx.save();ctx.translate(ax,ay);ctx.rotate(Math.atan2(by-ay,bx-ax));ctx.beginPath();ctx.roundRect(-r,-r,Math.hypot(bx-ax,by-ay)+r*2,r*2,r);ctx.restore();ctx.clip();}
@@ -43,16 +43,19 @@ export class SoldierRenderer {
   // Keeping a 0.57x offscreen bitmap at mobile zoom wastes ~9x raster area.
   const density=Number.isFinite(options.pixelDensity)?Math.max(.16,Math.min(.57,options.pixelDensity)):.57;
   const resolutionBucket=Math.round(density*100)/100;
-  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,resolutionBucket,sampled.shootBlend,sampled.hitReaction,sampled.walkBlend,sampled.crouchBlend,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
+  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,resolutionBucket,sampled.fireAt??0,sampled.shootBlend,sampled.hitReaction,sampled.walkBlend,sampled.crouchBlend,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
   if(canvas){this.hits++;this.cache.delete(key);this.cache.set(key,canvas);}
   if(!canvas){this.misses++;
-   const options={...sampled,facing:1},bounds=poseBounds(poseCharacter(profile,options)),resolution=Math.min(resolutionBucket,384/Math.max(bounds.width,bounds.height));
-   const bitmap=document.createElement('canvas');bitmap.width=Math.min(384,Math.max(1,Math.ceil(bounds.width*resolution)));bitmap.height=Math.min(384,Math.max(1,Math.ceil(bounds.height*resolution)));const c=bitmap.getContext('2d');c.scale(resolution,resolution);c.translate(-bounds.left,-bounds.top);this.drawPose(c,profile,options);
-   const bytes=bitmap.width*bitmap.height*4;canvas={bitmap,bounds,bytes,resolution};
+   const poseOptions={...sampled,facing:1},articulated=poseCharacter(profile,poseOptions),bounds=poseBounds(articulated),resolution=Math.min(resolutionBucket,384/Math.max(bounds.width,bounds.height));
+   const bitmap=document.createElement('canvas');bitmap.width=Math.min(384,Math.max(1,Math.ceil(bounds.width*resolution)));bitmap.height=Math.min(384,Math.max(1,Math.ceil(bounds.height*resolution)));const c=bitmap.getContext('2d');c.scale(resolution,resolution);c.translate(-bounds.left,-bounds.top);this.drawPose(c,profile,poseOptions,{computedPose:articulated});
+   const muzzle={x:articulated.rifle.muzzle.x*SOLDIER_SCALE,y:articulated.rifle.muzzle.y*SOLDIER_SCALE};
+   const bytes=bitmap.width*bitmap.height*4;canvas={bitmap,bounds,bytes,resolution,muzzle};
    while(this.cache.size&&(this.cache.size>=256||this.cacheBytes+bytes>16*1024*1024)){const oldest=this.cache.keys().next().value;this.cacheBytes-=this.cache.get(oldest).bytes;this.cache.delete(oldest);}
    this.cache.set(key,canvas);this.cacheBytes+=bytes;
   }
-  const {bounds}=canvas;ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*SOLDIER_SCALE,bounds.top*SOLDIER_SCALE,canvas.bitmap.width/canvas.resolution*SOLDIER_SCALE,canvas.bitmap.height/canvas.resolution*SOLDIER_SCALE);ctx.restore();return true;
+  const {bounds}=canvas;
+  if(options.muzzleOut){options.muzzleOut.x=(options.facing<0?-1:1)*canvas.muzzle.x;options.muzzleOut.y=canvas.muzzle.y;options.muzzleOut.valid=true;}
+  ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*SOLDIER_SCALE,bounds.top*SOLDIER_SCALE,canvas.bitmap.width/canvas.resolution*SOLDIER_SCALE,canvas.bitmap.height/canvas.resolution*SOLDIER_SCALE);ctx.restore();return true;
 
  }
  shadow(team,rank,options,low=false){const s=contactShadow(poseCharacter(this.catalog.profiles[profileId(team,rank)],sampleAnimation(options,low)));return{x:s.x*SOLDIER_SCALE,radius:s.radius*SOLDIER_SCALE};}

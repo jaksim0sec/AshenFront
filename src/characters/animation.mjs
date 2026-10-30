@@ -33,12 +33,12 @@ function weaponMatrix(p,x,y,angle){
  // The supplied character art faces left; the SVG rifle points right.
  return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(-p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));
 }
-export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,walkBlend=(state==='walk'||moving)?1:0,shootBlend=state==='shoot'?1:0,crouchBlend=0,hitReaction=0}={}){
+export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,walkBlend=(state==='walk'||moving)?1:0,shootBlend=state==='shoot'?1:0,crouchBlend=0,hitReaction=0,fireAt=0}={}){
  shootBlend=clamp(shootBlend);
  walkBlend=clamp(walkBlend);
  crouchBlend=clamp(crouchBlend);
  const guarding=state==='guard';
- const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=walkBlend>.001,wave=Math.sin((gaitTime??time)*10+phase)*walkBlend,breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=-Math.abs(wave)*3+(1-walkBlend)*(breath*(guarding?.65:1.1)+weight);
+ const parts=profile.parts,t=state==='shoot'?Math.max(0,time-fireAt):time,walk=walkBlend>.001,wave=Math.sin((gaitTime??time)*10+phase)*walkBlend,breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=-Math.abs(wave)*3+(1-walkBlend)*(breath*(guarding?.65:1.1)+weight);
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
  const dying=state==='death',impactKick=dying?triangle(time,0,.065,.24):0,buckle=dying?triangle(time,.12,.36,.82):0,slump=dying?smooth((time-.18)/.55):0;
  const hit=(state==='hit'?(1-smooth(time/.4)):clamp(hitReaction)) * Math.sin(time*30)*5,death=state==='death'?clamp((time-.14)/.62):0;
@@ -99,7 +99,7 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  // Draw exactly the configured layer order in every animation state.
  if(state==='death'){const shift=translate(0,deathGroundOffset(draws,time));for(const d of draws)d.matrix=multiply(shift,d.matrix);root=multiply(shift,root);settleBodyParts(draws,parts);}
  const worldGun=state==='death'?(draws.find(d=>d.part==='rifle')?.matrix??multiply(root,gunMatrix)):multiply(root,gunMatrix),axis=Math.hypot(worldGun[0],worldGun[1]),rifle={w:gun.w,h:gun.h,matrix:worldGun,grips,muzzle:transformPoint(worldGun,gun.w*155/160,gun.h*13/40),direction:{x:worldGun[0]/axis,y:worldGun[1]/axis}};
- return {draws,rifle,hands:Object.fromEntries(Object.entries(attachments).map(([k,p])=>[k,transformPoint(root,p.hand.x,p.hand.y)])),attachments,root,flash:state==='shoot'&&t<.065?1-t/.065:0,casing:state==='shoot'&&t>.15&&t<.55?(t-.15)/.4:null,alpha:state==='death'?clamp((DEATH_DURATION-time)/.35):1};
+ return {draws,rifle,hands:Object.fromEntries(Object.entries(attachments).map(([k,p])=>[k,transformPoint(root,p.hand.x,p.hand.y)])),attachments,root,flash:state==='shoot'&&time>=fireAt&&t<.065?1-t/.065:0,casing:state==='shoot'&&t>.15&&t<.55?(t-.15)/.4:null,alpha:state==='death'?clamp((DEATH_DURATION-time)/.35):1};
 }
 /** Actual opaque body pixels, not padded rectangles or a protruding rifle, touch the ground. */
 export function bodyContactBottom(draws){

@@ -3,8 +3,8 @@ import {project} from './model.mjs';
 /** Render-only FlowerWars battle visuals, using the nation's actual approved assets. */
 const ROOT=new URL('../../',import.meta.url);
 export const FLAG_IMAGES=Object.fromEntries(['A','B'].map((team)=>{
- const image=new Image();
- image.src=new URL(team==='A'?'assets/factions/arken/flag.webp':'assets/factions/velian/flag.webp',ROOT).href;
+ const image=typeof Image==='undefined'?{complete:false,naturalWidth:0}:new Image();
+ if(typeof Image!=='undefined')image.src=new URL(team==='A'?'assets/factions/arken/flag.webp':'assets/factions/velian/flag.webp',ROOT).href;
  return [team,image];
 }));
 export function drawHeadquarters(ctx,flags,time){
