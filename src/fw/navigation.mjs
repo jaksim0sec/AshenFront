@@ -284,6 +284,17 @@ export class Navigation {
     return [...local.prefix,...trunk.slice(local.entry+1),...local.suffix];
   }
   // Static terrain is immutable during a step; only the nearby two cells need admission.
+  passSide(u,via){
+    const dx=via.x-u.x,dy=via.y-u.y;
+    // Sideways clearance extends beyond the half-tile boundary. Protect the
+    // adjoining cell rather than allowing the sprites to collide with its occupant.
+    const lateralX=-dy,lateralY=dx,preferred=lateralX+lateralY>=0?1:-1;
+    for(const side of [preferred,-preferred]){
+      const x=via.x+lateralX*side,y=via.y+lateralY*side;
+      if(this.board.inside(x,y)&&this.free(this.index(x,y),u))return side;
+    }
+    return 0;
+  }
   canPass(u,via,exit){
     const b=this.board;
     if(!u.team||!via||!exit||u.step||!b.inside(via.x,via.y)||!b.inside(exit.x,exit.y))return false;
@@ -292,7 +303,7 @@ export class Navigation {
     const middle=this.index(via.x,via.y),last=this.index(exit.x,exit.y);
     if(this.blocked(middle)||b.passage.has(middle)||!this.free(last,u))return false;
     const owner=b.unit(b.cells.get(middle)??b.reservations.get(middle));
-    return !!owner&&owner.id!==u.id&&owner.health.current>0&&owner.team===u.team;
+    return !!owner&&owner.id!==u.id&&owner.health.current>0&&owner.team===u.team&&!!this.passSide(u,via);
   }
   requestPass(u,via,exit){
     if(!this.canPass(u,via,exit))return false;
@@ -604,7 +615,11 @@ export class Navigation {
   }
   offer(u,next,via=null,exitHint=null){
     if(this.collecting){this.intents.set(u.id,{u,next,via,exitHint,command:u.command,courtesy:u.courtesy});return;}
-    if(via)this.board.beginPass(u,via,next);else this.board.beginStep(u,next);
+    if(via){
+      const side=this.passSide(u,via);
+      if(!side)return false;
+      this.board.beginPass(u,via,next,side);
+    }else this.board.beginStep(u,next);
     u.waitReason=null;u.waitSince=null;u.retryAt=0;
   }
   waitingAge(u){
@@ -646,7 +661,9 @@ export class Navigation {
     for(const intent of passWinners.values()){
       const {u,via,next}=intent;
       if(!this.canPass(u,via,next))continue;
-      b.beginPass(u,via,next);denied.delete(u.id);this.stats.passages++;
+      const side=this.passSide(u,via);
+      if(!side)continue;
+      b.beginPass(u,via,next,side);denied.delete(u.id);this.stats.passages++;
       u.waitReason=null;u.waitSince=null;u.retryAt=0;
     }
     for(const intent of denied.values()){

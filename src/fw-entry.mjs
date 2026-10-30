@@ -1,5 +1,5 @@
 import {createAshenMatch,autoDeployPlayer,ASHEN_ARMY_CHOICES} from './fw/ashen-setup.mjs';
-import {project,unproject} from './fw/model.mjs';
+import {project,unproject,soldierRenderDepth} from './fw/model.mjs';
 import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS} from './fw/squad-orders.mjs';
 import {squadsFor,platoonSquadIds} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
@@ -184,7 +184,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
   troops.push(u);
  }
- troops.sort((a,b)=>a.visualX+a.visualY+(a.step?.via ? .3 : 0)-b.visualX-b.visualY-(b.step?.via ? .3 : 0)||a.id-b.id);
+ troops.sort((a,b)=>soldierRenderDepth(a)-soldierRenderDepth(b)||a.id-b.id);
  visibleTroops=troops.length;
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
  const shotStamp=renderedFrames+1;

@@ -33,6 +33,12 @@ export function project(x, y) {
   return { x: (x - y) * HALF_W, y: (x + y) * HALF_H };
 }
 
+// Prevent a passenger visually swapping behind the resident halfway through.
+export function soldierRenderDepth(u){
+ const depth=u.visualX+u.visualY;
+ return u.step?.via?Math.max(depth,u.step.via.x+u.step.via.y+.3):depth;
+}
+
 export function unproject(x, y) {
   return { x: (x / HALF_W + y / HALF_H) / 2, y: (y / HALF_H - x / HALF_W) / 2 };
 }
@@ -90,7 +96,7 @@ export class Board {
     this.width=width;this.height=height;this.terrain=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>terrain[y]?.[x]||'grass'));
     this.obstacles=new Map();for(const[n,info]of obstacles){const p={x:n%oldWidth,y:Math.floor(n/oldWidth)};if(inside(p))this.obstacles.set(p.y*width+p.x,info);}
     this.cells=new Map();this.reservations=new Map();this.passage=new Map();this.spatial=new SpatialIndex(width,height);this.navigation=new Navigation(this);this.navClock=0;
-    for(const u of this.units){u.guide=[];u.detourPotential=null;u.guideKey=null;u.route=[];if(u.health.current<=0)continue;this.cells.set(u.y*width+u.x,u.id);if(u.step)this.reservations.set(u.step.y*width+u.step.x,u.id);if(u.step?.via)this.passage.set(u.step.via.y*width+u.step.via.x,u.id);this.spatial.add(u);this.navigation.touch(u.x,u.y);}
+    for(const u of this.units){u.guide=[];u.detourPotential=null;u.guideKey=null;u.route=[];if(u.health.current<=0)continue;this.cells.set(u.y*width+u.x,u.id);if(u.step)this.reservations.set(u.step.y*width+u.step.x,u.id);if(u.step?.via){this.passage.set(u.step.via.y*width+u.step.via.x,u.id);if(u.step.buffer)this.passage.set(u.step.buffer.y*width+u.step.buffer.x,u.id);}this.spatial.add(u);this.navigation.touch(u.x,u.y);}
     this.terrainRevision++;this.obstacleRevision++;return true;
   }
   setAutoCombat(enabled=true){
@@ -184,13 +190,17 @@ export class Board {
     u.facing=project(next.x-u.x,next.y-u.y).x>=0?1:-1;
   }
 
-  beginPass(u,via,exit){
-    // Transit never overwrites the occupied cell; its exit is reserved atomically.
+  beginPass(u,via,exit,side){
+    // Transit keeps the owner in place and reserves the adjacent buffer lane.
+    const dx=via.x-u.x,dy=via.y-u.y;
+    const buffer={x:via.x-dy*side,y:via.y+dx*side};
     const duration=2*Math.max(u.movement.stepTime,u.marchStepTime||0)*terrainStepMultiplier(this,u,exit);
     u.hasMoved=true;u.state='walk';u.elapsed=0;
-    u.step={x:exit.x,y:exit.y,via:{x:via.x,y:via.y},elapsed:0,duration};u.path=[via,exit];
-    this.passage.set(via.y*this.width+via.x,u.id);this.reservations.set(exit.y*this.width+exit.x,u.id);
-    this.spatial.move(u);this.navigation.touch(u.x,u.y);this.navigation.touch(via.x,via.y);this.navigation.touch(exit.x,exit.y);
+    u.step={x:exit.x,y:exit.y,via:{x:via.x,y:via.y},buffer,laneSide:side,elapsed:0,duration};u.path=[via,exit];
+    this.passage.set(via.y*this.width+via.x,u.id);
+    this.passage.set(buffer.y*this.width+buffer.x,u.id);
+    this.reservations.set(exit.y*this.width+exit.x,u.id);
+    this.spatial.move(u);this.navigation.touch(u.x,u.y);this.navigation.touch(via.x,via.y);this.navigation.touch(buffer.x,buffer.y);this.navigation.touch(exit.x,exit.y);
     u.facing=project(via.x-u.x,via.y-u.y).x>=0?1:-1;
   }
   inAttackRange(u,target,physical=true){return inAttackRange(u,target,physical);}
@@ -258,7 +268,7 @@ export class Board {
       u.elapsed=0;u.state='death';u.strike=null;u.impacted=false;
     }
     u.deathDirection=direction;
-    if(u.health.current<=0){if(u.team in this.teamAlive)this.teamAlive[u.team]=Math.max(0,this.teamAlive[u.team]-1);this.navigation.touch(u.x,u.y);if(u.step)this.navigation.touch(u.step.x,u.step.y);this.cells.delete(u.y*this.width+u.x);if(u.step)this.reservations.delete(u.step.y*this.width+u.step.x);if(u.step?.via&&this.passage.get(u.step.via.y*this.width+u.step.via.x)===u.id){this.passage.delete(u.step.via.y*this.width+u.step.via.x);this.navigation.touch(u.step.via.x,u.step.via.y);}u.step=null;this.spatial.remove(u);}
+    if(u.health.current<=0){if(u.team in this.teamAlive)this.teamAlive[u.team]=Math.max(0,this.teamAlive[u.team]-1);this.navigation.touch(u.x,u.y);if(u.step)this.navigation.touch(u.step.x,u.step.y);this.cells.delete(u.y*this.width+u.x);if(u.step)this.reservations.delete(u.step.y*this.width+u.step.x);if(u.step?.via)for(const cell of [u.step.via,u.step.buffer])if(cell&&this.passage.get(cell.y*this.width+cell.x)===u.id){this.passage.delete(cell.y*this.width+cell.x);this.navigation.touch(cell.x,cell.y);}u.step=null;this.spatial.remove(u);}
     return true;
   }
   update(dt) {
@@ -278,7 +288,7 @@ export class Board {
       if(p.elapsed+1e-9>=p.duration) {
         this.navigation.touch(u.x,u.y);this.navigation.touch(p.x,p.y);
         this.cells.delete(u.y*this.width+u.x);this.reservations.delete(p.y*this.width+p.x);
-        if(p.via&&this.passage.get(p.via.y*this.width+p.via.x)===u.id){this.passage.delete(p.via.y*this.width+p.via.x);this.navigation.touch(p.via.x,p.via.y);}
+        if(p.via)for(const cell of [p.via,p.buffer])if(cell&&this.passage.get(cell.y*this.width+cell.x)===u.id){this.passage.delete(cell.y*this.width+cell.x);this.navigation.touch(cell.x,cell.y);}
         u.x=p.x;u.y=p.y;u.visualX=u.x;u.visualY=u.y;this.cells.set(u.y*this.width+u.x,u.id);
         u.step=null;u.path=[];this.spatial.move(u);
         if(u.combat.charge)u.combat.chargeSteps=Math.min(u.combat.chargeDistance,u.combat.chargeSteps+1);
@@ -289,7 +299,11 @@ export class Board {
         const t=p.elapsed/p.duration;
         if(p.via){
           const first=t<.5,phase=first?t*2:(t-.5)*2,from=first?u:p.via,to=first?p.via:p;
-          const sideways=.22*(1-Math.abs(2*t-1)),dx=p.via.x-u.x,dy=p.via.y-u.y;
+          // Smooth bell: 0 at endpoints, 0.65 tiles at the midpoint, without trig.
+          // A body can sit beyond the via tile's half-width because its side
+          // neighbor is explicitly reserved as a clearance buffer.
+          const inv=1-t,sideways=.65*16*t*t*inv*inv*p.laneSide;
+          const dx=p.via.x-u.x,dy=p.via.y-u.y;
           u.visualX=from.x+(to.x-from.x)*phase-dy*sideways;
           u.visualY=from.y+(to.y-from.y)*phase+dx*sideways;
         }else{u.visualX=u.x+(p.x-u.x)*t;u.visualY=u.y+(p.y-u.y)*t;}

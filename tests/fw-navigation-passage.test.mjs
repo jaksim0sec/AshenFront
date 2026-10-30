@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Board} from '../src/fw/model.mjs';
+import {Board,soldierRenderDepth} from '../src/fw/model.mjs';
 
 const soldier=(b,x,y,team='A')=>b.spawn(x,y,null,{team,movement:{stepTime:.4},stats:{maxHealth:100},autoCombat:false});
 const key=(b,x,y)=>y*b.width+x;
@@ -22,14 +22,14 @@ test('simultaneous arrivals receive one occupation and one bounded transit',()=>
  b.batchCommands(()=>{b.move(a.id,6,4,{direct:true});b.move(c.id,3,1,{direct:true});});
  assert.equal([a,c].filter(u=>u.step).length,2);
  assert.equal([a,c].filter(u=>u.step?.via).length,1);
- assert.equal(b.reservations.size,2);assert.equal(b.passage.size,1);
+ assert.equal(b.reservations.size,2);assert.equal(new Set(b.passage.values()).size,1);
  b.navigation.schedule=()=>{};b.advance(1);
  assert.notEqual(key(b,a.x,a.y),key(b,c.x,c.y));
 });
 test('no more than one temporary passage through a tile',()=>{
  const b=new Board(16,12),owner=soldier(b,3,4),a=soldier(b,2,4),c=soldier(b,3,5);
  b.batchCommands(()=>{b.move(a.id,6,4,{direct:true});b.move(c.id,3,1,{direct:true});});
- assert.equal(b.passage.size,1);
+ assert.equal(new Set(b.passage.values()).size,1);
  assert.equal(b.cells.get(key(b,3,4)),owner.id);
  assert.equal([a,c].filter(u=>u.step?.via).length,1);
 });
@@ -71,4 +71,49 @@ test('denied local movement never accumulates unused route entries',()=>{
  const denied=[a,c].filter(u=>!u.step);
  assert.equal(denied.length,1);
  assert.equal(denied[0].route.length,0);
+});
+
+test('passer shifts beyond the half-tile boundary while its neighbor stays protected',()=>{
+ const b=new Board(16,12),owner=soldier(b,3,4),passer=soldier(b,2,4);
+ assert.equal(b.move(passer.id,6,4,{direct:true}),true);
+ const side=passer.step.buffer;
+ assert.equal(b.passage.get(key(b,side.x,side.y)),passer.id);
+ assert.equal(b.spawn(side.x,side.y,null,{team:'A'}),null,'adjacent clearance must not accept a new soldier');
+ b.navigation.schedule=()=>{};b.advance(passer.step.duration/2);
+ assert.ok(Math.hypot(passer.visualX-owner.visualX,passer.visualY-owner.visualY)>=.64,'passing body must clear the owner by more than half a cell');
+ assert.ok(soldierRenderDepth(passer)>soldierRenderDepth(owner),'passer must remain visually in front');
+ b.advance(passer.step.duration/2);
+ assert.equal(b.passage.size,0,'temporary buffer must be released');
+});
+test('choose the open side, never move through a neighboring soldier',()=>{
+ const b=new Board(16,12),owner=soldier(b,3,4),neighbor=soldier(b,3,5),passer=soldier(b,2,4);
+ assert.equal(b.move(passer.id,6,4,{direct:true}),true);
+ assert.deepEqual(passer.step.buffer,{x:3,y:3},'occupied side must be avoided');
+ b.navigation.schedule=()=>{};b.advance(passer.step.duration/2);
+ assert.ok(passer.visualY<3.4,'the open side lane must be used');
+ assert.equal(b.cells.get(key(b,3,5)),neighbor.id);
+ assert.equal(b.cells.get(key(b,3,4)),owner.id);
+});
+test('do not overlap when both lateral clearance cells are occupied',()=>{
+ const b=new Board(16,12);soldier(b,3,4);soldier(b,3,3);soldier(b,3,5);
+ const passer=soldier(b,2,4);
+ b.move(passer.id,6,4,{direct:true});
+ assert.equal(b.passage.size,0,'no full-width lane is available');
+});
+test('a killed passenger releases both the via and the lateral clearance buffer',()=>{
+ const b=new Board(16,12);soldier(b,3,4);const passer=soldier(b,2,4);
+ b.move(passer.id,6,4,{direct:true});
+ assert.equal(b.passage.size,2);
+ b.damage(passer.id,200);
+ assert.equal(b.passage.size,0);
+});
+test('passenger depth stays above its stationary occupant when passing on negative side',()=>{
+ const b=new Board(16,12),owner=soldier(b,3,4);soldier(b,3,5);
+ const passer=soldier(b,2,4);
+ b.move(passer.id,6,4,{direct:true});
+ b.navigation.schedule=()=>{};
+ for(let i=0;i<8;i++){
+  b.advance(.1);
+  if(passer.step)assert.ok(soldierRenderDepth(passer)>soldierRenderDepth(owner),'no painter-order flicker during passage');
+ }
 });
