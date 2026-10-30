@@ -45,7 +45,7 @@ export function terrainDecorations(board){
   if(material==='pond'&&h%100<34)items.push({x,y,index:h%2?4:7,width:130});
   else if(material==='rock'&&h%100<30)items.push({x,y,index:h%2?5:6,width:145});
   else if((material==='grass'||material==='soil')&&clearOfRoutes(board,x,y)&&h%100<14)
-   items.push({x,y,index:[0,3,8,5][h%4],width:85+h%43});
+   items.push({x,y,index:[0,3,8,1][h%4],width:85+h%43});
  }
  items.sort((a,b)=>(a.x+a.y)-(b.x+b.y));
  cachedDecor.set(board,{rev,items});return items;
