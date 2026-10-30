@@ -59,7 +59,7 @@ body[data-engine=flower] #game-tools{
  width:245px;max-width:calc(100vw - 24px);max-height:70dvh;overflow-y:auto;
  padding:12px;border:1px solid var(--af-line);border-radius:17px;
  background:#293337f7;box-shadow:0 14px 32px #060c11a1;
- animation:af-appear .2s ease-out
+ /* Entrance and exit are handled by setPanelOpen, not a competing CSS animation. */
 }
 body[data-engine=flower] #mobile-map-toggle{display:none}
 body[data-engine=flower] #game-tools .tools-heading{display:block;font-size:12px;margin-bottom:8px}
@@ -456,3 +456,146 @@ body[data-engine=flower] #orders-toggle{display:none!important}
 body[data-engine=flower] #formation-panel[hidden]{display:none!important}
 body[data-engine=flower] #roster-shortcuts{pointer-events:auto}
 body[data-engine=flower] .command-selection-row .selection-tools{display:flex;align-items:center;gap:4px}
+
+
+/* UI motion language: deliberate, short transitions, never on battlefield units.
+   Keep the original warm squad cards; animate selection using an opacity overlay
+   instead of jumping between two gradient background images. */
+body[data-engine=flower]{
+ --af-ui-ease:cubic-bezier(.22,.78,.25,1);
+ --af-ui-fast:130ms;
+ --af-ui-normal:210ms;
+}
+body[data-engine=flower] :is(
+ #tools-toggle,#toggle-map,#hud-toggle,#mobile-map-toggle,
+ #game-tools button,.match-actions button,
+ .deployment-head button,.deployment-types button,
+ #army-size,#multi-select,
+ .platoon-title,.platoon-fold,
+ .selection-tools button,#cancel,#formation-close,
+ #formation-controls button
+){
+ transition:background-color var(--af-ui-fast) ease,
+  border-color var(--af-ui-fast) ease,
+  color var(--af-ui-fast) ease,
+  opacity var(--af-ui-fast) ease,
+  scale var(--af-ui-fast) var(--af-ui-ease);
+}
+body[data-engine=flower] :is(
+ #tools-toggle,#toggle-map,#hud-toggle,#mobile-map-toggle,
+ #game-tools button,.match-actions button,
+ .deployment-head button,.deployment-types button,
+ #multi-select,.platoon-title,.platoon-fold,
+ .selection-tools button,#cancel,#formation-close,
+ #formation-controls button
+):not(:disabled):active{
+ scale:.96;
+}
+@media(hover:hover) and (pointer:fine){
+ body[data-engine=flower] :is(
+  #tools-toggle,#toggle-map,#mobile-map-toggle,
+  #game-tools button,.match-actions button,
+  .deployment-head button,.deployment-types button,
+  .platoon-title,.platoon-fold,
+  .selection-tools button,#formation-controls button
+ ):not(:disabled):hover{
+  border-color:#c6d4d3a1;
+ }
+}
+/* Primary command remains a row of independent tools, with tactile icons. */
+body[data-engine=flower] #primary-orders button svg{
+ transition:background-color var(--af-ui-fast) ease,
+  border-color var(--af-ui-fast) ease,
+  color var(--af-ui-fast) ease,
+  transform var(--af-ui-normal) var(--af-ui-ease);
+}
+body[data-engine=flower] #primary-orders button.active svg{
+ transform:translateY(-2px);
+}
+body[data-engine=flower] #primary-orders button:active svg{
+ transform:scale(.92);
+}
+body[data-engine=flower] #formation-controls button .ui-icon,
+body[data-engine=flower] .deployment-types button svg{
+ transition:transform var(--af-ui-normal) var(--af-ui-ease);
+}
+body[data-engine=flower] #formation-controls button.active .ui-icon,
+body[data-engine=flower] .deployment-types button[aria-pressed=true] svg{
+ transform:translateY(-2px);
+}
+/* Animate warm selection without replacing the user's preferred roster look. */
+body[data-engine=flower] #squad-tabs .squad-card{
+ isolation:isolate;
+ transition:border-color var(--af-ui-normal) ease,
+  box-shadow var(--af-ui-normal) ease,
+  opacity var(--af-ui-normal) ease;
+}
+body[data-engine=flower] #squad-tabs .squad-card::before{
+ content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+ border-radius:inherit;
+ background:linear-gradient(120deg,#a48b62d4,#796448c9 75%,#665037cb);
+ opacity:0;
+ transition:opacity var(--af-ui-normal) var(--af-ui-ease);
+}
+body[data-engine=flower] #squad-tabs .squad-card.is-selected{
+ background:linear-gradient(120deg,#887255b8,#68563fb5 72%,#534936a8);
+ border:1px solid #ead3a1;
+ padding:3px 7px 3px 0;
+}
+body[data-engine=flower] #squad-tabs .squad-card.is-selected::before{opacity:1}
+body[data-engine=flower] #squad-tabs .squad-portrait,
+body[data-engine=flower] #squad-tabs .squad-card-body{position:relative;z-index:1}
+body[data-engine=flower] #squad-tabs .squad-activity{z-index:1}
+body[data-engine=flower] #squad-tabs .commander-photo{
+ transition:filter .34s ease;
+}
+/* Floating map uses reversible show/hide instead of a hard display toggle. */
+body[data-engine=flower] #overview{
+ display:block;visibility:hidden;opacity:0;pointer-events:none;
+ transform:translateY(-6px) scale(.97);
+ transition:opacity var(--af-ui-normal) ease,
+  transform var(--af-ui-normal) var(--af-ui-ease),
+  visibility var(--af-ui-normal);
+}
+body[data-engine=flower].map-open #overview{
+ visibility:visible;opacity:1;pointer-events:auto;transform:none;
+}
+@keyframes af-ui-enter{
+ from{opacity:0;translate:0 9px}
+ to{opacity:1;translate:0 0}
+}
+/* Run only when a stage or squad selection becomes visible, not per render tick. */
+body[data-engine=flower][data-play-mode=deploy][data-phase=preparation] #deployment-tools{
+ animation:af-ui-enter .22s var(--af-ui-ease) both;
+}
+body[data-engine=flower][data-play-mode=control] #roster-panel{
+ animation:af-ui-enter .24s var(--af-ui-ease) both;
+}
+body[data-engine=flower][data-play-mode=control][data-selected=true] #command-dock{
+ animation:af-ui-enter .2s var(--af-ui-ease) both;
+}
+@media(max-width:700px){
+ body[data-engine=flower] #match-hud{
+  transition:width .3s var(--af-ui-ease),
+   max-width .3s var(--af-ui-ease),
+   border-radius .3s var(--af-ui-ease);
+ }
+ body[data-engine=flower] .match-details{
+  transition:max-height .3s var(--af-ui-ease),opacity .2s ease;
+ }
+ body[data-engine=flower] #squad-tabs .squad-card.is-selected{
+  padding:2px 5px 2px 0;
+ }
+}
+/* Accessibility and mobile power: no continuous effects or cached animation layers. */
+@media(prefers-reduced-motion:reduce){
+ body[data-engine=flower] :is(
+  #overview,#match-hud,.match-details,#deployment-tools,#roster-panel,
+  #command-dock,#game-tools,#formation-panel,#battle-notice,
+  button,select,#primary-orders button svg,#formation-controls button .ui-icon,
+  .deployment-types button svg,#squad-tabs .squad-card,
+  #squad-tabs .squad-card::before,#squad-tabs .commander-photo
+ ){
+  transition:none!important;animation:none!important;scroll-behavior:auto!important;
+ }
+}
