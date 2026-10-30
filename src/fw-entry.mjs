@@ -4,6 +4,7 @@ import {orderSquads,configureSquad,updateSquadOrders} from './fw/squad-orders.mj
 import {squadsFor} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
 import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
+import {drawSquadTeamFlags} from './fw/match-overlay.mjs';
 import {BattlefieldTerrainRenderer} from './fw/terrain-art.mjs';
 import {icon} from './fw/ui-icons.mjs';
 import {applyPalette} from './render/palette.mjs';
@@ -14,6 +15,7 @@ const soldiers=new SoldierRenderer();soldiers.ready.catch(e=>alert('군복 이�
 const seed=Number(new URLSearchParams(location.search).get('seed'))||1977;
 let {board,match}=createAshenMatch({seed}),selected=new Set(),mode=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
 let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1;
+const renderSamples=[];let renderedFrames=0;
 const camera={x:0,y:0,scale:.27},pointers=new Map(),colors={A:'#a7c6dd',B:'#d39283'};
 const living=s=>s.memberIds.map(id=>board.unit(id)).filter(u=>u?.health.current>0);
 const squads=()=>[...squadsFor(board).values()].filter(s=>s.team==='A'&&living(s).length);
@@ -59,10 +61,11 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
   const s=squadsFor(board).get(u.squadId),rank=s?.leaderId===u.id?(match.squadIds[u.team][0]===u.squadId?'captain':'sergeant'):'private';
   const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':'idle';
-  const pose={state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:u.id*.3,aim:u.attackVector?Math.atan2(u.attackVector.y,Math.max(.1,Math.abs(u.attackVector.x))):0};
-  if(!soldiers.draw(ctx,u.team,rank,pose,low||camera.scale<.23)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
+  const pose={state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,aim:u.attackVector?Math.atan2(u.attackVector.y,Math.max(.1,Math.abs(u.attackVector.x))):0};
+  if(!soldiers.draw(ctx,u.team,rank,pose,low||camera.scale<.35)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
   ctx.restore();
  }
+ drawSquadTeamFlags(ctx,board,camera.scale,camera,w,h,[...selected]);
  drawBattleEffects(ctx,board);ctx.restore();
 }
 function paintMini(){const sx=mini.width/board.width,sy=mini.height/board.height;mctx.fillStyle='#30383b';mctx.fillRect(0,0,mini.width,mini.height);
@@ -146,8 +149,8 @@ function bind(){
 }
 function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  if(!paused&&dt){board.update(Math.min(dt,.05));match.update(dt);if(t-lastOrders>=50){updateSquadOrders(board);lastOrders=t;}}
- if(t-lastPaint>=33){paint();lastPaint=t;}if(t-lastUI>=250){hud();lastUI=t;}if(t-lastRoster>=800){roster();lastRoster=t;}if(t-lastMini>=500){paintMini();lastMini=t;}
+ if(t-lastPaint>=33){const begin=performance.now();paint();const ms=performance.now()-begin;if(renderSamples.length>=90)renderSamples.shift();renderSamples.push(ms);renderedFrames++;lastPaint=t;}if(t-lastUI>=250){hud();lastUI=t;}if(t-lastRoster>=800){roster();lastRoster=t;}if(t-lastMini>=500){paintMini();lastMini=t;}
  requestAnimationFrame(frame);
 }
 bind();resize();fit();switchMode('deploy');hud();roster();requestAnimationFrame(frame);
-window.__ashenFlower={get board(){return board;},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};
+window.__ashenFlower={get board(){return board;},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},get renderStats(){const samples=[...renderSamples].sort((a,b)=>a-b);const sum=samples.reduce((n,v)=>n+v,0);return {frames:renderedFrames,avgMs:sum/(samples.length||1),p95Ms:samples[Math.floor((samples.length-1)*.95)]||0,terrainRebuilds:terrainArt.rebuilds,spriteCache:soldiers.stats};},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};

@@ -44,10 +44,14 @@ try:
    else:
     assert positions['roster']['y']>height*.72,positions
     assert positions['dock']['y']+positions['dock']['height']<=positions['roster']['y']+12,positions
-   page.wait_for_timeout(850)
+   page.wait_for_timeout(1150)
+   metrics=page.evaluate('__ashenFlower.renderStats')
+   assert metrics['frames']>2,metrics
+   assert metrics['terrainRebuilds']>0,metrics
+   reports.append({'viewport':[width,height],'perf':metrics})
    assert not errors,errors
    page.screenshot(path=str(out/f'battle-{width}.png'))
-   reports.append({'viewport':[width,height],'player':40,'enemy':40,'squads':4,'pageErrors':errors})
+   reports[-1].update({'player':40,'enemy':40,'squads':4,'pageErrors':errors})
    context.close()
   browser.close()
  print(json.dumps(reports,ensure_ascii=False))
