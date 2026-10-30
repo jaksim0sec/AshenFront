@@ -44,7 +44,7 @@ test('shot tracer uses the rendered muzzle location, never a guessed face-height
  const target={visualX:3,visualY:7};
  const board={units:[soldier],unit(id){return id===2?target:null;},effects:[]};
  const moves=[];
- const ctx={save(){},restore(){},beginPath(){},stroke(){},fill(){},moveTo(x,y){moves.push({x,y});},
+ const ctx={save(){},restore(){},beginPath(){},stroke(){},fill(){},closePath(){},moveTo(x,y){moves.push({x,y});},
   lineTo(){},createLinearGradient(){return {addColorStop(){}}},set globalAlpha(x){},set strokeStyle(x){},
   set lineWidth(x){},set fillStyle(x){}};
  drawBattleEffects(ctx,board,9);
