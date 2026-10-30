@@ -1,0 +1,39 @@
+"""Exercise the transplanted FlowerWars simulation in actual Chromium."""
+import os,shutil,subprocess,time,json
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+
+out=Path('artifacts/flowerwars');out.mkdir(parents=True,exist_ok=True)
+server=subprocess.Popen(['node','tools/serve.mjs'],stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+reports=[]
+try:
+ with sync_playwright() as pw:
+  browser=pw.chromium.launch(headless=True,args=['--no-sandbox'])
+  for width,height in [(390,844),(1280,800)]:
+   context=browser.new_context(viewport={'width':width,'height':height},device_scale_factor=1,has_touch=True)
+   page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+   page.goto('http://127.0.0.1:8000/',wait_until='domcontentloaded',timeout=15000)
+   page.wait_for_function('window.__ashenFlower && window.__ashenFlower.match',timeout=15000)
+   assert page.evaluate('__ashenFlower.match.phase')=='preparation'
+   assert page.evaluate('__ashenFlower.match.counts.A')==0
+   page.locator('#auto-deploy').click(timeout=10000)
+   assert page.evaluate('__ashenFlower.match.counts.A')==40
+   assert page.locator('.squad-card').count()==4
+   page.screenshot(path=str(out/f'deployment-{width}.png'))
+   page.locator('#start-battle').click(timeout=10000)
+   page.wait_for_function('__ashenFlower.match.phase==="battle"',timeout=10000)
+   assert page.evaluate('__ashenFlower.match.counts.B')==40
+   assert page.locator('.squad-card').count()==4
+   await_s=page.evaluate('({n:__ashenFlower.board.units.length,squads:__ashenFlower.match.squadIds.A.length})')
+   assert await_s['n']==80,await_s
+   page.wait_for_timeout(850)
+   assert not errors,errors
+   page.screenshot(path=str(out/f'battle-{width}.png'))
+   reports.append({'viewport':[width,height],'player':40,'enemy':40,'squads':4,'pageErrors':errors})
+   context.close()
+  browser.close()
+ print(json.dumps(reports,ensure_ascii=False))
+finally:
+ server.terminate()
+ try:server.wait(timeout=5)
+ except subprocess.TimeoutExpired:server.kill()
