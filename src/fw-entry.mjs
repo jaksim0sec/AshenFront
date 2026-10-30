@@ -3,6 +3,8 @@ import {project,unproject} from './fw/model.mjs';
 import {orderSquads,configureSquad,updateSquadOrders} from './fw/squad-orders.mjs';
 import {squadsFor} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
+import {FLAG_IMAGES,drawHeadquarters,drawBattleEffects} from './fw/visuals.mjs';
+import {icon} from './fw/ui-icons.mjs';
 import {applyPalette} from './render/palette.mjs';
 applyPalette(document.documentElement);
 const $=id=>document.getElementById(id),canvas=$('battlefield'),ctx=canvas.getContext('2d'),mini=$('overview'),mctx=mini.getContext('2d');
@@ -47,7 +49,7 @@ function bounds(){const w=canvas.clientWidth,h=canvas.clientHeight,points=[[0,0]
  return {x0:Math.max(0,Math.floor(Math.min(...points.map(p=>p.x))-4)),x1:Math.min(board.width-1,Math.ceil(Math.max(...points.map(p=>p.x))+4)),y0:Math.max(0,Math.floor(Math.min(...points.map(p=>p.y))-4)),y1:Math.min(board.height-1,Math.ceil(Math.max(...points.map(p=>p.y))+4))};}
 function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransform(drawDpr,0,0,drawDpr,0,0);ctx.fillStyle='#272e31';ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(camera.x,camera.y);ctx.scale(camera.scale,camera.scale);
  const b=bounds();for(let sum=b.x0+b.y0;sum<=b.x1+b.y1;sum++)for(let x=Math.max(b.x0,sum-b.y1);x<=Math.min(b.x1,sum-b.y0);x++)tile(x,sum-x,board.terrain[sum-x][x]);
- for(const f of Object.values(match.flags)){const p=project(f.x,f.y);ctx.strokeStyle=colors[f.team];ctx.lineWidth=4;ctx.beginPath();ctx.arc(p.x,p.y,28,0,Math.PI*2);ctx.stroke();ctx.font='bold 22px system-ui';ctx.fillStyle=colors[f.team];ctx.fillText(f.team==='A'?'아르켄 HQ':'벨리안 HQ',p.x-57,p.y-46);}
+ drawHeadquarters(ctx,match.flags,board.time);
  if(playMode==='deploy'&&match.phase==='preparation'){ctx.fillStyle='#adc1d026';for(let y=b.y0;y<=b.y1;y+=3)for(let x=b.x0;x<Math.min(b.x1,board.width/2);x+=3){if(board.navigation.blocked(y*board.width+x))continue;const p=project(x,y);ctx.fillRect(p.x-5,p.y-3,10,6);}}
  for(const id of selected){const s=squadsFor(board).get(id),g=s?.order?.target;if(g?.x===undefined)continue;const members=living(s);if(!members.length)continue;const a=project(members.reduce((v,u)=>v+u.visualX,0)/members.length,members.reduce((v,u)=>v+u.visualY,0)/members.length),p=project(g.x,g.y);ctx.strokeStyle='#d3e8f7aa';ctx.lineWidth=3;ctx.setLineDash([14,10]);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.setLineDash([]);}
  const troops=board.units.filter(u=>u.health.current>0||u.state==='death').sort((a,b)=>a.visualX+a.visualY-b.visualX-b.visualY||a.id-b.id);
@@ -61,25 +63,38 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   if(!soldiers.draw(ctx,u.team,rank,pose,low||camera.scale<.23)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
   ctx.restore();
  }
- for(const e of board.effects){if(e.healing)continue;const p=project(e.x,e.y);ctx.globalAlpha=Math.max(0,1-e.age/.55);ctx.fillStyle='#dedbd0';ctx.beginPath();ctx.arc(p.x,p.y-25,7+e.age*20,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;ctx.restore();
+ drawBattleEffects(ctx,board);ctx.restore();
 }
 function paintMini(){const sx=mini.width/board.width,sy=mini.height/board.height;mctx.fillStyle='#30383b';mctx.fillRect(0,0,mini.width,mini.height);
  for(let y=0;y<board.height;y+=2)for(let x=0;x<board.width;x+=2){const t=board.terrain[y][x];if(t==='void')continue;mctx.fillStyle=t==='forest'?'#43616b':t==='soil'?'#666762':'#777e7a';mctx.fillRect(x*sx,y*sy,Math.ceil(sx*2),Math.ceil(sy*2));}
  for(const u of board.units)if(u.health.current>0){mctx.fillStyle=colors[u.team];mctx.fillRect(u.x*sx-1,u.y*sy-1,3,3);}
 }
 function roster(){document.body.dataset.selected=String(selected.size>0);const host=$('squad-tabs');host.replaceChildren();const all=squads();
- for(let i=0;i<all.length;i+=2){const section=document.createElement('section'),heading=document.createElement('button');heading.className='platoon-title';heading.textContent='제'+(Math.floor(i/2)+1)+'소대';heading.onclick=()=>{selected=new Set(all.slice(i,i+2).map(s=>s.id));roster();hud();};section.append(heading);
-  for(const s of all.slice(i,i+2)){const btn=document.createElement('button');btn.className='squad-card';btn.classList.toggle('active',selected.has(s.id));
-   const portrait=document.createElement('canvas');portrait.width=56;portrait.height=74;const text=document.createElement('span'),a=document.createElement('strong'),b=document.createElement('small');
-   a.textContent='제'+(s.matchIndex+1)+'분대';b.textContent=living(s).length+'/10 · '+(s.order?.type||'대기');text.append(a,b);btn.append(portrait,text);
-   btn.onclick=e=>choose(s.id,e.shiftKey||additive);section.append(btn);
-   if(soldiers.loaded){const pc=portrait.getContext('2d');pc.translate(28,102);pc.scale(.42,.42);soldiers.drawPose(pc,soldiers.catalog.profiles['arken:'+(s.matchIndex===0?'captain':'sergeant')],{state:'idle',time:0,facing:-1});}
-  }host.append(section);
+ for(let i=0;i<all.length;i+=2){
+  const section=document.createElement('section'),heading=document.createElement('button');
+  heading.className='platoon-title';heading.textContent='제'+(Math.floor(i/2)+1)+'소대 · '+Math.min(2,all.length-i)+'분대';
+  heading.onclick=()=>{selected=new Set(all.slice(i,i+2).map(s=>s.id));roster();hud();};section.append(heading);
+  const row=document.createElement('div');row.className='platoon-squads';
+  for(const s of all.slice(i,i+2)){
+   const btn=document.createElement('button');btn.className='squad-card';btn.classList.toggle('active',selected.has(s.id));
+   const portrait=document.createElement('canvas');portrait.className='squad-avatar';portrait.width=64;portrait.height=64;
+   const body=document.createElement('span');body.className='squad-card-body';
+   const title=document.createElement('strong');title.textContent='제'+(s.matchIndex+1)+'분대';
+   const count=document.createElement('small');count.textContent=living(s).length+'/10 · '+({advance:'전진',focus:'공격',flank:'우회',rally:'집결',hold:'사수',retreat:'후퇴'}[s.order?.type]||'대기');
+   body.append(title,count);btn.append(portrait,body);
+   btn.onclick=e=>choose(s.id,e.shiftKey||additive);row.append(btn);
+   if(soldiers.loaded){
+    const pc=portrait.getContext('2d');
+    pc.translate(32,59);pc.scale(.65,.65);
+    soldiers.draw(pc,'A',s.matchIndex===0?'captain':'sergeant',{state:'idle',time:0,facing:1},false);
+   }
+  }
+  section.append(row);host.append(section);
  }
 }
 function hud(){document.body.dataset.phase=match.phase==='finished'?'battle':match.phase;$('match-phase').textContent=match.phase==='preparation'?'병력 배치':match.phase==='battle'?'전투 중':'전투 종료';
  const time=match.phase==='preparation'?match.remaining:match.elapsed,clock=String(Math.floor(time/60)).padStart(2,'0')+':'+String(Math.floor(time%60)).padStart(2,'0');
- $('preparation-clock').textContent=clock;$('clock').textContent=clock;$('forces').textContent='아르켄 '+match.counts.A+' : '+match.counts.B+' 벨리안';
+ $('preparation-clock').textContent=clock;$('clock').textContent=clock;$('forces').textContent='아르켄 '+match.counts.A+' : '+match.counts.B+' 벨리안';$('army-a').textContent=match.counts.A;$('army-b').textContent=match.counts.B;
  $('deployment-reserve').textContent='예비 '+match.reserve.A+'명 · 배치 '+match.counts.A+'명';
  $('start-battle').hidden=match.phase!=='preparation';$('match-charge').hidden=match.phase!=='battle';$('auto-deploy').hidden=match.phase!=='preparation'||match.reserve.A===0;$('deployment-toggle').hidden=match.phase!=='preparation';
  const ids=selectedIds(),s=squadsFor(board).get(ids[0]);$('squad-name').textContent=ids.length>1?ids.length+'개 분대 선택':s?'제'+(s.matchIndex+1)+'분대 · '+living(s).length+'명':'분대 지휘';
@@ -94,10 +109,11 @@ function bind(){
  $('withdraw').onclick=()=>command('retreat',{x:match.flags.A.x,y:match.flags.A.y});
  $('command-all').onclick=()=>{selected=new Set(squads().map(s=>s.id));command('advance',{x:match.flags.B.x,y:match.flags.B.y});roster();};
  $('match-charge').onclick=()=>$('command-all').click();
+ for(const [id,name] of [['move','advance'],['attack','focus'],['flank','flank'],['hold','hold'],['rally','rally']])$(id).innerHTML=icon(name)+'<span>'+$(id).textContent+'</span>';
  const formations={line:'횡대',column:'종대',dense:'밀집',spread:'산개',square:'방진'};
  for(const [name,label]of Object.entries(formations)){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{for(const id of selectedIds())configureSquad(board,id,{formation:name});$('formation-panel').hidden=true;};$('formation-controls').append(b);}
- $('formation-toggle').onclick=()=>$('formation-panel').hidden=!$('formation-panel').hidden;
- $('cancel').onclick=()=>setCommand(null);$('orders-toggle').onclick=()=>{for(const id of ['primary-orders','selection-actions'])$(id).hidden=!$(id).hidden;};
+ $('formation-toggle').onclick=()=>{const panel=$('formation-panel');panel.hidden=!panel.hidden;$('formation-toggle').setAttribute('aria-expanded',String(!panel.hidden));};
+ $('cancel').onclick=()=>setCommand(null);$('orders-toggle').onclick=()=>{const dock=$('command-dock'),expanded=dock.classList.toggle('is-expanded');$('orders-toggle').setAttribute('aria-expanded',String(expanded));};
  $('multi-select').onclick=()=>{additive=!additive;$('multi-select').setAttribute('aria-pressed',String(additive));};
  $('clear-selection').onclick=()=>choose(null);$('select-all').onclick=()=>{selected=new Set(squads().map(s=>s.id));roster();hud();};
  $('select-squad').onclick=()=>document.body.classList.toggle('roster-open');
@@ -127,4 +143,4 @@ function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  requestAnimationFrame(frame);
 }
 bind();resize();fit();switchMode('deploy');hud();roster();requestAnimationFrame(frame);
-window.__ashenFlower={get board(){return board;},get match(){return match;},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};
+window.__ashenFlower={get board(){return board;},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};
