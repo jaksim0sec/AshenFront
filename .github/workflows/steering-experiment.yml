@@ -13,5 +13,8 @@ jobs:
         with:
           node-version: '22'
       - run: node --test tests/flowerwars-steering.test.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - run: npm test
       - run: node --test tests/flowerwars-capacity.test.mjs

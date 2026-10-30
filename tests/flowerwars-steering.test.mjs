@@ -51,3 +51,16 @@ test('moving unit preserves precise occupancy and bounded visual offsets',()=>{
  assert.equal(a.x,8);
  assert.equal(a.y,4);
 });
+
+test('a moving blocker clears before a follower spends detour search work',()=>{
+ const board=new Board(12,12),front=board.spawn(5,5,null,{team:'A'}),rear=board.spawn(4,5,null,{team:'A'});
+ assert(board.move(front.id,8,5));
+ assert(board.move(rear.id,7,5));
+ // The lead soldier leaves its current cell in under half a second.
+ // The follower must not plan an expensive bypass around that transient block.
+ for(let i=0;i<3;i++)board.update(.12);
+ assert.equal(board.navigation.stats.detours,0,'moving leader caused needless detour');
+ for(let i=0;i<120&&rear.x!==7;i++)board.update(.05);
+ assert.equal(rear.x,7,'follower must eventually make progress');
+ assert.equal(board.occupied(7,5),true);
+});
