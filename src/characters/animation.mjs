@@ -30,9 +30,9 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,target=null,fac
  const hit=state==='hit'?(1-smooth(time/.4))*Math.sin(time*30)*5:0,death=state==='death'?clamp((time-.14)/.62):0;
  // facing +1 means screen-right; native portraits face screen-left.
  // A single connected silhouette loses balance, falls, hits the ground and settles.
- const impact=Math.max(0,time-.76),fallAngle=state==='death'?impactKick*.14+death*death*1.48-(impact>0?Math.sin(impact*19)*Math.exp(-impact*12)*.045:0):0;
- let root=multiply(scale(facing<0?1:-1,1),multiply(translate(hit+impactKick*14+death*death*24,death*8),rotate(fallAngle)));
- const upperAngle=dying?impactKick*.22-buckle*.32:walk?wave*.015:recoil*.025;
+ const impact=Math.max(0,time-.76),fallAngle=state==='death'?impactKick*.08+smooth(death)*1.48-(impact>0?Math.sin(impact*19)*Math.exp(-impact*12)*.045:0):0;
+ let root=multiply(scale(facing<0?1:-1,1),multiply(translate(hit+impactKick*10+smooth(death)*24,0),rotate(fallAngle)));
+ const upperAngle=dying?impactKick*.12+buckle*.18:walk?wave*.015:recoil*.025;
  const upper=dying?multiply(translate(parts.body.x,parts.body.y),multiply(rotate(upperAngle),translate(-parts.body.x,-parts.body.y))):multiply(translate(recoil*5,bob+recoil*1.2),rotate(upperAngle));
  const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035+(dying?-impactKick*.2+buckle*.13:0)),translate(-parts.head.x,-parts.head.y))));
  const gun=parts.rifle,carry=state==='shoot'?aim:dying?aim+(1.1-aim)*slump:-.9+(walk?wave*.025:0),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
@@ -69,7 +69,7 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,target=null,fac
   add(key,multiply(upper,matrix(p)));
  }
  // Draw exactly the configured layer order in every animation state.
- if(state==='death'){const shift=translate(0,deathGroundOffset(draws,parts));for(const d of draws)d.matrix=multiply(shift,d.matrix);root=multiply(shift,root);}
+ if(state==='death'){const shift=translate(0,deathGroundOffset(draws,time));for(const d of draws)d.matrix=multiply(shift,d.matrix);root=multiply(shift,root);settleBodyParts(draws,parts);}
  const worldGun=state==='death'?(draws.find(d=>d.part==='rifle')?.matrix??multiply(root,gunMatrix)):multiply(root,gunMatrix),axis=Math.hypot(worldGun[0],worldGun[1]),rifle={w:gun.w,h:gun.h,matrix:worldGun,grips,muzzle:transformPoint(worldGun,gun.w*155/160,gun.h*13/40),direction:{x:worldGun[0]/axis,y:worldGun[1]/axis}};
  return {draws,rifle,hands:Object.fromEntries(Object.entries(attachments).map(([k,p])=>[k,transformPoint(root,p.hand.x,p.hand.y)])),attachments,root,flash:state==='shoot'&&t<.065?1-t/.065:0,casing:state==='shoot'&&t>.15&&t<.55?(t-.15)/.4:null,alpha:state==='death'?clamp((DEATH_DURATION-time)/.35):1};
 }
@@ -80,11 +80,29 @@ export function bodyContactBottom(draws){
   for(const[u,v]of CONTACT_HULLS[d.asset]??[[0,0],[1,0],[0,1],[1,1]])bottom=Math.max(bottom,transformPoint(d.matrix,u*d.w,v*d.h).y);
  }return bottom;
 }
-function deathGroundOffset(draws,parts){
- const feet=['legLeft','legRight'].filter(k=>parts[k].visible).map(k=>({part:k,asset:parts[k].asset,w:parts[k].w,h:parts[k].h,matrix:matrix(parts[k])}));
- const plane=bodyContactBottom(feet),bottom=bodyContactBottom(draws);
- // Preserve the standing soles' plane throughout the fall, including initial loss of balance.
- return Number.isFinite(bottom)&&Number.isFinite(plane)?plane-bottom:0;
+function deathGroundOffset(draws,time){
+ const lowest=bodyContactBottom(draws),torso=bodyContactBottom(draws.filter(d=>d.part==='body')),weight=smooth((time-.24)/.42);
+ // The torso must come to rest on the terrain, not be propped up by a straight arm or leg.
+ return Number.isFinite(lowest)?-(lowest+(Number.isFinite(torso)?torso-lowest:0)*weight):0;
+}
+function settleBodyParts(draws,parts){
+ for(const [key,members]of [['legLeft',['legLeft']],['legRight',['legRight']],['armLeft',['armLeft','sleeveLeft']],['armRight',['armRight','sleeveRight']],['head',['head','hat']]]){
+  const base=draws.find(d=>d.part===key);if(!base)continue;const part=parts[key],pivot=transformPoint(base.matrix,base.w*part.pivotX,base.h*part.pivotY),group=draws.filter(d=>members.includes(d.part)),points=[];
+  for(const d of group)for(const[u,v]of CONTACT_HULLS[d.asset]??[]){const p=transformPoint(d.matrix,u*d.w,v*d.h);points.push({x:p.x-pivot.x,y:p.y-pivot.y});}
+  const fits=angle=>{const s=Math.sin(angle),c=Math.cos(angle);return points.every(p=>pivot.y+s*p.x+c*p.y<=1e-7);};if(fits(0))continue;
+  const norm=a=>Math.atan2(Math.sin(a),Math.cos(a)),angles=[];
+  // Nearest feasible rigid rotation about the existing anatomical anchor.
+  for(const p of points){const r=Math.hypot(p.x,p.y),k=-pivot.y/r;if(!r||Math.abs(k)>1)continue;const phi=Math.atan2(p.y,p.x),a=Math.asin(k);for(const v of [a-phi,Math.PI-a-phi])for(const eps of [-1e-8,0,1e-8])angles.push(norm(v+eps));}
+  angles.sort((a,b)=>Math.abs(a)-Math.abs(b));const angle=angles.find(fits);if(angle===undefined)continue;
+  const turn=multiply(translate(pivot.x,pivot.y),multiply(rotate(angle),translate(-pivot.x,-pivot.y)));for(const d of group)d.matrix=multiply(turn,d.matrix);
+ }
+}
+export function contactShadow(pose){
+ let left=Infinity,right=-Infinity;
+ for(const d of pose.draws){if(!['legLeft','legRight','body','armLeft','armRight','head','hat'].includes(d.part))continue;
+  for(const[u,v]of CONTACT_HULLS[d.asset]??[]){const p=transformPoint(d.matrix,u*d.w,v*d.h);if(p.y>=-24){left=Math.min(left,p.x);right=Math.max(right,p.x);}}
+ }
+ return Number.isFinite(left)?{x:(left+right)/2,radius:Math.max(40,(right-left)/2)}:{x:0,radius:40};
 }
 export function poseBounds(pose,padding=8){
  const points=[{x:0,y:0}];for(const d of pose.draws){let x0=0,y0=0,x1=d.w,y1=d.h;if(Array.isArray(d.clip)){const[x,y,w,h]=d.clip;x0=x*d.w;y0=y*d.h;x1=(x+w)*d.w;y1=(y+h)*d.h;}else if(d.clip?.capsule){const[ax,ay,bx,by,r]=d.clip.capsule;x0=Math.max(0,Math.min(ax,bx)-r);y0=Math.max(0,Math.min(ay,by)-r);x1=Math.min(d.w,Math.max(ax,bx)+r);y1=Math.min(d.h,Math.max(ay,by)+r);}for(const[x,y]of[[x0,y0],[x1,y0],[x1,y1],[x0,y1]])points.push(transformPoint(d.matrix,x,y));}

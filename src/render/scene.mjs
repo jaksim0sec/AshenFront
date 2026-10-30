@@ -18,11 +18,11 @@ export class Scene {
   drawCommandOverlay(ctx,w,c,selectedIds,alpha);
   const margin=Math.max(40,this.soldiers.margin*c.zoom),b=visibleBounds(m,c,this.width,this.height,margin),index=spatialIndex(w),units=index.query((b.x0+b.x1)/2,(b.y0+b.y1)/2,Math.max(b.x1-b.x0,b.y1-b.y0)/2+8),sprites=[];
   for(const u of units){if(u.team==='B'&&!visible.has(u.id))continue;const h=m.floorLevel[u.y*m.width+u.x],p=unitFoot(m,u,alpha),screen=toScreen(p,c);if(screen.x< -margin||screen.x>this.width+margin||screen.y< -margin||screen.y>this.height+margin)continue;sprites.push({u,p,h});}
-  for(const e of w.events.filter(e=>e.kind==='elimination'&&e.unitId&&w.tick-e.tick<DEATH_DURATION*20).slice(-32)){const u=w.units[e.unitId-1];if(u&&(u.team==='A'||w.tick-(this.lastSeen.get(u.id)??-1000)<40)){if(!this.deathFeet.has(u.id))this.deathFeet.set(u.id,this.actorFrames?.get(u.id)?.foot??project(e.x,e.y,m.floorLevel[e.y*m.width+e.x]));const p=this.deathFeet.get(u.id);sprites.push({u,p,h:m.floorLevel[e.y*m.width+e.x],deathAge:(w.tick-e.tick+alpha)/20});}}
+  for(const e of w.events.filter(e=>e.kind==='elimination'&&e.unitId&&w.tick-e.tick<DEATH_DURATION*20).slice(-32)){const u=w.units[e.unitId-1];if(u&&(u.team==='A'||w.tick-(this.lastSeen.get(u.id)??-1000)<40)){if(!this.deathFeet.has(u.id))this.deathFeet.set(u.id,project(e.x,e.y,m.floorLevel[e.y*m.width+e.x]));const p=this.deathFeet.get(u.id);sprites.push({u,p,h:m.floorLevel[e.y*m.width+e.x],deathAge:(w.tick-e.tick+alpha)/20});}}
   this.actorFrames=new Map();
   sprites.sort((a,b)=>a.p.y-b.p.y||a.u.id-b.u.id);this.rendered=sprites.length;
   for(const {u,p,h,deathAge} of sprites){const s=w.squads[u.squadId-1],chosen=selectedIds.has(u.squadId);ctx.save();ctx.translate(p.x,p.y);
-   ctx.save();if(deathAge!==undefined)ctx.globalAlpha=Math.max(0,Math.min(1,(DEATH_DURATION-deathAge)/.35));const fall=deathAge===undefined?0:Math.max(0,Math.min(1,(deathAge-.14)/.62)),side=-(this.deathFacings.get(u.id)??(u.team==='A'?1:-1));ctx.fillStyle='#1D202266';ctx.beginPath();ctx.ellipse(side*fall*fall*110*SOLDIER_SCALE,1,14+fall*22,7-fall*2,0,0,Math.PI*2);ctx.fill();ctx.restore();
+
    if(chosen&&deathAge===undefined){ctx.strokeStyle=P.selection;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,19,10,0,0,Math.PI*2);ctx.stroke();}
    const shot=this.shots.get(u.id),age=shot?(w.tick-shot.tick+alpha)/20:Infinity,target=shot?project(shot.tx,shot.ty,m.floorLevel[shot.ty*m.width+shot.tx]):null,aimVector=target?{x:target.x-p.x,y:target.y-36-p.y}:null;
    const movement=u.moveTo>=0?{x:(u.moveTo%m.width-u.x)-(Math.floor(u.moveTo/m.width)-u.y),y:0}:null;
@@ -33,6 +33,7 @@ export class Scene {
    const state=deathAge!==undefined?'death':age<.08?'shoot':hurtAge<.25?'hit':age<1.5?'shoot':u.moveTo>=0?'walk':'idle';
    const animation={state,moving:u.moveTo>=0,time:deathAge??(state==='hit'?hurtAge:state==='shoot'?age:(w.tick+alpha)/20),facing,aim:aimVector?Math.atan2(aimVector.y,Math.max(.01,Math.abs(aimVector.x))):0,target:state==='shoot'?{x:aimVector.x/SOLDIER_SCALE,y:aimVector.y/SOLDIER_SCALE}:null,phase:u.id%3};
    this.actorFrames.set(u.id,{foot:p,rank,animation});
+   ctx.save();let shadowX=0,shadowRadius=14;if(deathAge!==undefined){ctx.globalAlpha=Math.max(0,Math.min(1,(DEATH_DURATION-deathAge)/.35));if(this.soldiers.loaded){const contact=this.soldiers.shadow(u.team,rank,animation,this.low||c.zoom<.5);shadowX=contact.x;shadowRadius=contact.radius;}}ctx.fillStyle='#1D202266';ctx.beginPath();ctx.ellipse(shadowX,0,shadowRadius,deathAge===undefined?7:4,0,0,Math.PI*2);ctx.fill();ctx.restore();
    const animated=this.soldiers.draw(ctx,u.team,rank,animation,this.low||c.zoom<.5);
    if(!animated){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-32,16,30);}
    if(deathAge===undefined&&c.zoom>=.5&&!this.low){ctx.fillStyle=P.shadow;ctx.fillRect(-12,-84,24,3);ctx.fillStyle=P.edge;ctx.fillRect(-12,-84,24*u.hp/100,3);}

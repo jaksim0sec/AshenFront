@@ -1,5 +1,5 @@
 import {createCatalog,importCatalog,STORAGE_KEY,profileId,migratePhysique} from './model.mjs';
-import {poseBounds,poseCharacter,transformPoint,DEATH_DURATION} from './animation.mjs';
+import {poseBounds,poseCharacter,transformPoint,DEATH_DURATION,contactShadow} from './animation.mjs';
 const ROOT=new URL('../../',import.meta.url);
 export const SOLDIER_SCALE=.285;
 export function sampleAnimation(options={},low=false){
@@ -50,6 +50,7 @@ export class SoldierRenderer {
   const {bounds}=canvas;ctx.save();if(options.facing<0)ctx.scale(-1,1);ctx.drawImage(canvas.bitmap,bounds.left*SOLDIER_SCALE,bounds.top*SOLDIER_SCALE,bounds.width*SOLDIER_SCALE,bounds.height*SOLDIER_SCALE);ctx.restore();return true;
 
  }
+ shadow(team,rank,options,low=false){const s=contactShadow(poseCharacter(this.catalog.profiles[profileId(team,rank)],sampleAnimation(options,low)));return{x:s.x*SOLDIER_SCALE,radius:s.radius*SOLDIER_SCALE};}
  muzzle(team,rank,options,low=false){const p=poseCharacter(this.catalog.profiles[profileId(team,rank)],sampleAnimation(options,low)).rifle.muzzle;return {x:p.x*SOLDIER_SCALE,y:p.y*SOLDIER_SCALE};}
  get stats(){return {loaded:this.loaded,images:this.images.size,cachedFrames:this.cache.size,hits:this.hits,misses:this.misses,cacheBytes:this.cacheBytes,error:this.error};}
  dispose(){removeEventListener('storage',this.onStorage);this.cache.clear();this.cacheBytes=0;}

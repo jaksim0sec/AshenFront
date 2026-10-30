@@ -61,8 +61,10 @@ test('death recoils and folds at existing anchors, with head/hat attached and or
   for(const pose of poses){const head=pose.draws.find(d=>d.part==='head'),hat=pose.draws.find(d=>d.part==='hat');assert(Math.abs(angle(pose,'head')-angle(pose,'hat'))<1e-9);for(const key of ['armLeft','armRight','legLeft','legRight']){const d=pose.draws.find(d=>d.part===key);assert(Math.abs(Math.hypot(d.matrix[0],d.matrix[1])-p.parts[key].scaleX)<1e-10);}}
  }
 });
-test('opaque body remains on its standing sole plane through every death frame',async()=>{
+test('opaque body remains on the actual terrain plane through every death frame',async()=>{
  const {bodyContactBottom}=await import('../src/characters/animation.mjs');
- for(const p of Object.values(createCatalog().profiles))for(const facing of [-1,1]){const plane=bodyContactBottom(poseCharacter(p,{state:'death',time:0,facing}).draws);for(let time=0;time<1.7;time+=.04){const pose=poseCharacter(p,{state:'death',time,facing});assert(Math.abs(bodyContactBottom(pose.draws)-plane)<1e-8,`${p.nation}:${p.rank} hovering at ${time}`);}}
+ for(const p of Object.values(createCatalog().profiles))for(const facing of [-1,1]){const plane=0;for(let time=0;time<1.7;time+=.04){const pose=poseCharacter(p,{state:'death',time,facing});assert(Math.abs(bodyContactBottom(pose.draws)-plane)<1e-8,`${p.nation}:${p.rank} hovering at ${time}`);}}
 });
 test('all published profiles and runtime defaults preserve the complete uploaded JSON exactly',()=>{const reference=JSON.parse(readFileSync(new URL('../assets/soldiers/catalog-reference.json',import.meta.url))),published=JSON.parse(readFileSync(new URL('../assets/soldiers/catalog.json',import.meta.url)));assert.deepEqual(createCatalog(),reference);assert.deepEqual(importCatalog(reference),reference);assert.deepEqual(published,reference);});
+
+test('settled torso itself reaches the terrain instead of balancing above it on hands or boots',async()=>{const {bodyContactBottom}=await import('../src/characters/animation.mjs');for(const profile of Object.values(createCatalog().profiles))for(const facing of [-1,1])for(const time of [.8,1.1,1.5]){const pose=poseCharacter(profile,{state:'death',time,facing});assert(Math.abs(bodyContactBottom(pose.draws.filter(d=>d.part==='body')))<1e-8,profile.nation+':'+profile.rank+' torso suspended');}});
