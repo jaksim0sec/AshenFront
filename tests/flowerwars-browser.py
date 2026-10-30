@@ -175,6 +175,8 @@ try:
    page.wait_for_function("document.body.dataset.annihilated==='true'",timeout=5000)
    assert page.locator('.squad-card').count()==4,'fully eliminated squads must remain listed'
    assert page.locator('.squad-card.is-eliminated').count()==4
+   # Portrait grayscale transitions for 340ms; wait for the actual final frame.
+   page.wait_for_function("getComputedStyle(document.querySelector('.squad-card .commander-photo')).filter.includes('grayscale(1)')",timeout=5000)
    assert 'grayscale(1)' in page.locator('.squad-card .commander-photo').first.evaluate('el=>getComputedStyle(el).filter')
    assert page.evaluate('__ashenFlower.match.finishReason')=='annihilation'
    assert page.locator('#army-a').text_content()=='0'
