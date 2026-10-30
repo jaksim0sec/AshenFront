@@ -651,7 +651,7 @@ export class Navigation {
     }
     for(const intent of denied.values()){
       const {u,next}=intent;if(!valid(intent))continue;
-      if(!intent.via)u.route.unshift(next);
+      if(!intent.via&&u.guideKey)u.route.unshift(next);
       this.wait(u,'traffic',.12);
     }
     this.intents.clear();

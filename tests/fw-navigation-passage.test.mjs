@@ -64,3 +64,11 @@ test('initial forward movement is independent of full-path A-star completion',()
  assert.equal(b.navigation.stats.staticBuilds,count);
  assert.equal(runner.command.engage,false);
 });
+
+test('denied local movement never accumulates unused route entries',()=>{
+ const b=new Board(16,12),a=soldier(b,2,4),c=soldier(b,3,5);
+ b.batchCommands(()=>{b.move(a.id,3,4,{direct:true});b.move(c.id,3,4,{direct:true});});
+ const denied=[a,c].filter(u=>!u.step);
+ assert.equal(denied.length,1);
+ assert.equal(denied[0].route.length,0);
+});
