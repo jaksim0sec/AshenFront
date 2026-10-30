@@ -18,6 +18,23 @@ try:
    page.wait_for_timeout(250)
    assert not errors, 'preparation canvas error: '+repr(errors)
    assert page.evaluate('__ashenFlower.match.counts.A')==0
+   # Bot predeployment must not lock player army-size choice.
+   page.evaluate('window.__ashenFlower.match.deployBot()')
+   page.wait_for_function("document.querySelector('#army-size').disabled===false",timeout=3000)
+   assert page.evaluate('__ashenFlower.match.counts.B')>=10
+   page.locator('#army-size').select_option('100')
+   page.wait_for_function('__ashenFlower.armySize===100',timeout=3000)
+   assert page.evaluate('__ashenFlower.match.counts.A')==0
+   page.locator('#army-size').select_option('40')
+   page.wait_for_function('__ashenFlower.armySize===40',timeout=3000)
+   assert not page.locator('#army-size').is_disabled()
+   page.locator('#auto-deploy').click(timeout=10000)
+   assert page.evaluate('__ashenFlower.match.counts.A')==40
+   # Changing the choice after deployment intentionally creates a fresh preparation.
+   page.locator('#army-size').select_option('100')
+   page.wait_for_function('__ashenFlower.armySize===100 && __ashenFlower.match.counts.A===0',timeout=3000)
+   page.locator('#army-size').select_option('40')
+   page.wait_for_function('__ashenFlower.armySize===40',timeout=3000)
    page.locator('#auto-deploy').click(timeout=10000)
    assert page.evaluate('__ashenFlower.match.counts.A')==40
    assert page.locator('.squad-card').count()==4

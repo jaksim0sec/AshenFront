@@ -3,10 +3,10 @@ import {poseBounds,poseCharacter,transformPoint,DEATH_DURATION,contactShadow} fr
 const ROOT=new URL('../../',import.meta.url);
 export const SOLDIER_SCALE=.285;
 export function sampleAnimation(options={},low=false){
- const fps=low?6:18,state=options.state??'idle',time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:state==='idle'?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
+ const state=options.state??'idle',fps=low?6:state==='shoot'?30:state==='walk'?30:state==='guard'?30:24,time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:(state==='idle'||state==='guard')?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
  const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,state==='death'?DEATH_DURATION:1.4):index/count*duration;
  const gaitPeriod=Math.PI*2/10,gaitCount=Math.max(2,Math.round(gaitPeriod*fps)),gaitTime=options.gaitTime===undefined||!(options.moving||state==='walk')?undefined:Math.floor((((Math.max(0,options.gaitTime)+(options.phase??0)/10)%gaitPeriod)/gaitPeriod)*gaitCount)/gaitCount*gaitPeriod;
- return {...options,state,time:sample,gaitTime,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,shootBlend:Math.round(Math.max(0,Math.min(1,options.shootBlend??(state==='shoot'?1:0)))*12)/12,hitReaction:Math.round(Math.max(0,Math.min(1,options.hitReaction??0))*4)/4,phase:0};
+ return {...options,state,time:sample,gaitTime,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,shootBlend:Math.round(Math.max(0,Math.min(1,options.shootBlend??(state==='shoot'?1:state==='guard'?.6:0)))*30)/30,hitReaction:Math.round(Math.max(0,Math.min(1,options.hitReaction??0))*4)/4,phase:0};
 }
 export class SoldierRenderer {
  constructor(){this.catalog=createCatalog();this.images=new Map();this.metadata={};this.cache=new Map();this.cacheBytes=0;this.hits=0;this.misses=0;this.loaded=false;this.error=null;this.revision=0;this.margin=140;

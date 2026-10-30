@@ -35,7 +35,8 @@ function weaponMatrix(p,x,y,angle){
 }
 export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,shootBlend=state==='shoot'?1:0,hitReaction=0}={}){
  shootBlend=clamp(shootBlend);
- const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||(moving&&state!=='death'),wave=walk?Math.sin((gaitTime??time)*10+phase):0,breath=state==='death'?0:Math.sin(time*2.6+phase),bob=walk?-Math.abs(wave)*3:breath*1.1;
+ const guarding=state==='guard';
+ const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||(moving&&state!=='death'),wave=walk?Math.sin((gaitTime??time)*10+phase):0,breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=walk?-Math.abs(wave)*3:breath*(guarding?.65:1.1)+weight;
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
  const dying=state==='death',impactKick=dying?triangle(time,0,.065,.24):0,buckle=dying?triangle(time,.12,.36,.82):0,slump=dying?smooth((time-.18)/.55):0;
  const hit=(state==='hit'?(1-smooth(time/.4)):clamp(hitReaction)) * Math.sin(time*30)*5,death=state==='death'?clamp((time-.14)/.62):0;
@@ -43,10 +44,10 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  // A single connected silhouette loses balance, falls, hits the ground and settles.
  const impact=Math.max(0,time-.76),fallAngle=state==='death'?impactKick*.08+smooth(death)*1.48-(impact>0?Math.sin(impact*19)*Math.exp(-impact*12)*.045:0):0;
  let root=multiply(scale(facing<0?1:-1,1),multiply(translate(hit+impactKick*10+smooth(death)*24,0),rotate(fallAngle)));
- const upperAngle=dying?impactKick*.12+buckle*.18:walk?wave*.015:recoil*.025;
+ const upperAngle=dying?impactKick*.12+buckle*.18:walk?wave*.015:guarding?Math.sin(time*1.4+phase)*.009:recoil*.025;
  const upper=dying?multiply(translate(parts.body.x,parts.body.y),multiply(rotate(upperAngle),translate(-parts.body.x,-parts.body.y))):multiply(translate(recoil*5,bob+recoil*1.2),rotate(upperAngle));
- const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035+(dying?-impactKick*.2+buckle*.13:0)),translate(-parts.head.x,-parts.head.y))));
- const gun=parts.rifle,restCarry=dying?aim+(1.1-aim)*slump:-.9+(walk?wave*.025:0),carry=lerp(restCarry,aim,shootBlend),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
+ const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035+(guarding?Math.sin(time*.8+phase)*.012:0)+(dying?-impactKick*.2+buckle*.13:0)),translate(-parts.head.x,-parts.head.y))));
+ const gun=parts.rifle,restCarry=dying?aim+(1.1-aim)*slump:-.9+(walk?wave*.025:0),readyAim=aim+(guarding?Math.sin(time*1.9+phase)*.013:0),carry=lerp(restCarry,readyAim,shootBlend),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
  let gunAngle=-lerp(desiredAngle,clamp(desiredAngle,-Math.PI/2,Math.PI/2),shootBlend)-upperAngle;
  // In the native left-facing portrait, the left arm supports the fore-end;
  // the right arm operates the trigger and bolt near the stock.

@@ -88,17 +88,18 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
   const s=squadsFor(board).get(u.squadId),rank=s?.leaderId===u.id?(match.squadIds[u.team][0]===u.squadId?'captain':'sergeant'):'private';
-  const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':'idle';
+  const state=u.state==='walk'?'walk':u.state==='attack'?'shoot':u.state==='hit'?'hit':u.state==='death'?'death':match.phase==='battle'?'guard':'idle';
   const shot=state==='shoot',rawAim=u.attackVector?Math.atan2(u.attackVector.y,Math.max(.1,Math.abs(u.attackVector.x))):0;
   // Smooth view-only stance changes; simulation and authoritative attack timing stay untouched.
-  const view=u._visualStance??(u._visualStance={blend:shot?0:0,aim:rawAim,time:board.time});
+  const view=u._visualStance??(u._visualStance={blend:0,aim:rawAim,time:board.time});
   const delta=Math.max(0,Math.min(.1,board.time-view.time));view.time=board.time;
-  view.blend+=((shot?1:0)-view.blend)*Math.min(1,delta/.16);
+  const targetBlend=shot?1:state==='guard'?.63:0;
+  view.blend+=(targetBlend-view.blend)*(1-Math.exp(-delta/.11));
   const difference=Math.atan2(Math.sin(rawAim-view.aim),Math.cos(rawAim-view.aim));
   view.aim+=difference*Math.min(1,delta/.13);
   const hitReaction=Math.max(0,Math.min(1,((u.hitPulseUntil??-1)-board.time)/.16));
   const pose=distant&&state!=='death'
-   ?{state:shot?'shoot':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing:u.facing,phase:0,aim:Math.round(rawAim*4)/4,shootBlend:shot?1:0}
+   ?{state:shot?'shoot':state==='guard'?'guard':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing:u.facing,phase:0,aim:Math.round(rawAim*4)/4,shootBlend:shot?1:state==='guard'?.63:0}
    :{state,time:state==='shoot'||state==='death'?u.elapsed:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,aim:view.aim,shootBlend:view.blend,hitReaction};
   if(!soldiers.draw(ctx,u.team,rank,pose,distant)){ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);}
   ctx.restore();
@@ -183,7 +184,7 @@ function hud(){document.body.dataset.phase=match.phase==='finished'?'battle':mat
  const time=match.phase==='preparation'?match.remaining:match.elapsed,clock=String(Math.floor(time/60)).padStart(2,'0')+':'+String(Math.floor(time%60)).padStart(2,'0');
  $('preparation-clock').textContent=clock;$('clock').textContent=clock;$('forces').textContent='아르켄 '+match.counts.A+' : '+match.counts.B+' 벨리안';$('army-a').textContent=match.counts.A;$('army-b').textContent=match.counts.B;
  $('deployment-reserve').textContent='예비 '+match.reserve.A+'명 · 배치 '+match.counts.A+'명';
- $('army-size').disabled=match.phase!=='preparation'||match.counts.A>0||match.counts.B>0;
+ $('army-size').disabled=match.phase!=='preparation';
  $('start-battle').hidden=match.phase!=='preparation';$('match-charge').hidden=match.phase!=='battle';$('auto-deploy').hidden=match.phase!=='preparation'||match.reserve.A===0;$('deployment-toggle').hidden=match.phase!=='preparation';
  const ids=selectedIds(),s=squadsFor(board).get(ids[0]);$('squad-name').textContent=ids.length>1?ids.length+'개 분대 선택':s?'제'+(s.matchIndex+1)+'분대 · '+living(s).length+'명':'분대 지휘';
  $('squad-info').textContent=s?phaseName(s):'';$('objective').textContent='적 지휘소 점령 또는 적군 전멸';
@@ -192,8 +193,9 @@ function hud(){document.body.dataset.phase=match.phase==='finished'?'battle':mat
 function bind(){
  const sizeSelect=$('army-size');sizeSelect.value=String(armySize);
  sizeSelect.onchange=()=>{const next=Number(sizeSelect.value);if(!ASHEN_ARMY_CHOICES.includes(next))return;
-  if(match.phase!=='preparation'||match.counts.A||match.counts.B){sizeSelect.value=String(armySize);notice('병력 수는 배치 전에 변경하세요');return;}
-  armySize=next;restart();notice('진영당 '+next+'명 · 소총보병 '+(next/10)+'개 분대');};
+  if(match.phase!=='preparation'){sizeSelect.value=String(armySize);notice('전투 종료 후 새 전투에서 병력 수를 변경하세요');return;}
+  const reset=match.counts.A>0||match.counts.B>0;
+  armySize=next;restart();sizeSelect.value=String(next);notice('진영당 '+next+'명 · 소총보병 '+(next/10)+'개 분대'+(reset?' · 기존 배치 초기화':''));};
  $('start-battle').onclick=start;$('auto-deploy').onclick=autoDeploy;$('deployment-toggle').onclick=()=>switchMode(playMode==='deploy'?'control':'deploy');
  for(const b of $('deployment-types').querySelectorAll('[data-deploy-type]'))b.onclick=()=>{deployFormation=b.dataset.deployType;switchMode('deploy');for(const v of $('deployment-types').querySelectorAll('button'))v.setAttribute('aria-pressed',String(v===b));};
  for(const name of ['move','attack','flank'])$(name).onclick=()=>setCommand(mode===name?null:name);
