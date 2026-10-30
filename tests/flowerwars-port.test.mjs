@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createAshenMatch,autoDeployPlayer} from '../src/fw/ashen-setup.mjs';
+import {BATTLEFIELD_WIDTH,BATTLEFIELD_HEIGHT} from '../src/fw/battlefield-terrain.mjs';
 import {orderSquads,updateSquadOrders} from '../src/fw/squad-orders.mjs';
 import {squadsFor} from '../src/fw/unit-groups.mjs';
 import {drawCommandOverlay} from '../src/fw/command-overlay.mjs';
@@ -50,4 +51,14 @@ test('original FlowerWars command overlay renders squad route, target marker and
  drawCommandOverlay(ctx,board,{selectedSquadIds:[id]},.3);
  assert(labels.includes('이동'),'source overlay must draw readable action captions');
  assert(calls.lines>0&&calls.ellipses>0,'source overlay must draw path and target marker');
+});
+
+test('expanded AshenFront battlefield keeps the original match and valid headquarters',()=>{
+ const {board,match}=createAshenMatch({seed:1977});
+ assert.equal(BATTLEFIELD_WIDTH,256);assert.equal(BATTLEFIELD_HEIGHT,192);
+ assert.equal(board.width,256);assert.equal(board.height,192);
+ assert.ok(board.inside(match.flags.A.x,match.flags.A.y));
+ assert.ok(board.inside(match.flags.B.x,match.flags.B.y));
+ assert.ok(board.battlefield?.paths?.length>0);
+ assert.ok(board.battlefield?.protectedCells?.length===256*192);
 });

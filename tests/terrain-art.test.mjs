@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-import {terrainVariant,terrainMaterial,terrainMaterialCounts,visibleTerrainTiles,terrainDecorations,BattlefieldTerrainRenderer} from '../src/fw/terrain-art.mjs';
+import {terrainVariant,terrainMaterial,terrainMaterialCounts,visibleTerrainTiles,terrainDecorations,visibleTerrainDecorations,BattlefieldTerrainRenderer} from '../src/fw/terrain-art.mjs';
 
 function board(width=80,height=70){
  return {width,height,seed:1977,terrainRevision:1,obstacleRevision:1,
@@ -102,4 +102,26 @@ test('terrain viewport LRU reuses return pans, settles zoom, and expires stale p
   renderer.draw(screen,b,cam,390,844,1,false,23000);
   assert.equal(renderer.rebuilds,5);assert.ok(renderer.evictions>=1);
  }finally{globalThis.document=oldDocument;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
+});
+
+test('visible terrain work depends on viewport size, not total battlefield area',()=>{
+ const small=board(176,128),large=board(256,192);
+ // Same camera position in world-space, far from boundaries in either board.
+ const point={x:90,y:60},scale=.35,width=390,height=844;
+ const camera={x:width/2-(point.x-point.y)*72*scale,y:height/2-(point.x+point.y)*42*scale,scale};
+ const before=visibleTerrainTiles(small,camera,width,height);
+ const after=visibleTerrainTiles(large,camera,width,height);
+ assert.equal(after.length,before.length,'invisible map expansion must not add tile draws');
+ assert.ok(after.length>100&&after.length<large.width*large.height/8);
+});
+test('spatial decoration retrieval matches viewport-filtered full list',()=>{
+ const b=board(256,192),items=terrainDecorations(b);
+ for(const box of [[0,50,0,50],[50,125,25,105],[160,255,90,191],[-12,30,-10,35],[100,80,50,70]]){
+  const [x0,x1,y0,y1]=box;
+  const expected=items.filter(p=>p.x>=x0&&p.x<=x1&&p.y>=y0&&p.y<=y1);
+  assert.deepEqual(visibleTerrainDecorations(b,...box),expected,'decor viewport mismatch: '+box);
+ }
+ // A new terrain revision replaces the memoized prop list and bucket index.
+ b.terrain[18][18]='forest';b.terrainRevision++;
+ assert.deepEqual(visibleTerrainDecorations(b,0,100,0,100),terrainDecorations(b).filter(p=>p.x<=100&&p.y<=100));
 });

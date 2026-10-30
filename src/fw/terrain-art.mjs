@@ -105,6 +105,33 @@ export function terrainDecorations(board){
  items.sort((a,b)=>(a.x+a.y)-(b.x+b.y));
  cachedDecor.set(board,{map,items});return items;
 }
+// Chunk-index the sparse props once. Every cache rebuild only visits prop
+// buckets touching the viewport, regardless of the full battlefield size.
+const DECOR_BUCKET=16;
+export function visibleTerrainDecorations(board,x0,x1,y0,y1){
+ if(x1<x0||y1<y0)return [];
+ const all=terrainDecorations(board),memo=cachedDecor.get(board);
+ if(!memo.buckets){
+  const buckets=new Map();
+  for(const item of all){
+   const key=Math.floor(item.x/DECOR_BUCKET)+','+Math.floor(item.y/DECOR_BUCKET);
+   let bucket=buckets.get(key);
+   if(!bucket)buckets.set(key,bucket=[]);
+   bucket.push(item);
+  }
+  memo.buckets=buckets;
+ }
+ const chosen=[];
+ const startX=Math.floor(x0/DECOR_BUCKET),endX=Math.floor(x1/DECOR_BUCKET);
+ const startY=Math.floor(y0/DECOR_BUCKET),endY=Math.floor(y1/DECOR_BUCKET);
+ for(let by=startY;by<=endY;by++)for(let bx=startX;bx<=endX;bx++){
+  const bucket=memo.buckets.get(bx+','+by);
+  if(!bucket)continue;
+  for(const item of bucket)if(item.x>=x0&&item.x<=x1&&item.y>=y0&&item.y<=y1)chosen.push(item);
+ }
+ // Preserve existing isometric overlap order.
+ return chosen.sort((a,b)=>(a.x+a.y)-(b.x+b.y)||a.y-b.y);
+}
 function toneOld(image,decor=false){
  const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
  const ctx=canvas.getContext('2d');
@@ -242,8 +269,7 @@ export class BattlefieldTerrainRenderer{
    if(tiles.length&&this.decorations&&!low&&camera.scale>=.2){
     const x0=Math.max(0,Math.min(...tiles.map(p=>p.x))-4),x1=Math.max(...tiles.map(p=>p.x))+4;
     const y0=Math.max(0,Math.min(...tiles.map(p=>p.y))-4),y1=Math.max(...tiles.map(p=>p.y))+4;
-    for(const item of terrainDecorations(board)){
-     if(item.x<x0||item.x>x1||item.y<y0||item.y>y1)continue;
+    for(const item of visibleTerrainDecorations(board,x0,x1,y0,y1)){
      const p=project(item.x,item.y),h=item.width*270/340;
      t.drawImage(this.decorations,item.index%3*340,Math.floor(item.index/3)*270,340,270,p.x-item.width/2,p.y-h,item.width,h);
     }
