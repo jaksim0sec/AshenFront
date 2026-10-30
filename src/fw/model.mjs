@@ -221,9 +221,17 @@ export class Board {
     if(u.courtesy||u.remoteCourtesy)this.navigation.cancelCooperation(u);
     const committed=u.state==='attack'&&u.strike&&u.health.current>0;
     const resume=u.team&&u.command&&u.health.current>0;
-    if(!committed){
+    // Ordinary damage must not permanently stun a rifleman under overlapping fire.
+    // The hit reaction is visual only. Death still interrupts everything.
+    if(u.health.current>0){
+      u.lastHitAt=this.time;
+      u.hitPulseUntil=this.time+.16;
+    }else if(!committed){
       if(!resume)this.cancelCommand(u);
-      u.elapsed=0;u.state=u.health.current<=0?'death':'hit';u.strike=null;
+      u.elapsed=0;u.state='death';u.strike=null;
+    }else {
+      // A lethal shot always wins over an unfinished firing animation.
+      u.elapsed=0;u.state='death';u.strike=null;u.impacted=false;
     }
     u.deathDirection=direction;
     if(u.health.current<=0){if(u.team in this.teamAlive)this.teamAlive[u.team]=Math.max(0,this.teamAlive[u.team]-1);this.navigation.touch(u.x,u.y);if(u.step)this.navigation.touch(u.step.x,u.step.y);this.cells.delete(u.y*this.width+u.x);if(u.step)this.reservations.delete(u.step.y*this.width+u.step.x);u.step=null;this.spatial.remove(u);}
@@ -277,7 +285,7 @@ export class Board {
           u.strike=null;u.elapsed=0;
           if(strike.healing)u.waitReason=null;
           if(strike.automatic){u.target=null;u.state=u.command?'walk':'idle';}
-          else {u.state='idle';this.cancelCommand(u);}
+          else {u.state='idle';if(u.command?.type!=='attack')this.cancelCommand(u);else u.waitReason='reload';}
         }
       } else if(u.state==='hit'&&u.elapsed>=(u.combat.retaliation ? .18 : .36)){u.state=u.command?'walk':'idle';u.elapsed=0;}
     }

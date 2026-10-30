@@ -9,6 +9,16 @@ export const translate=(x,y)=>[1,0,0,1,x,y];
 export const rotate=a=>[Math.cos(a),Math.sin(a),-Math.sin(a),Math.cos(a),0,0];
 const scale=(x,y)=>[x,0,0,y,0,0];
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,t)=>a+(b-a)*t;
+function mixRigid(a,b,t){
+ if(t<=0)return a;if(t>=1)return b;
+ const angleA=Math.atan2(a[1],a[0]),angleB=Math.atan2(b[1],b[0]);
+ const angle=angleA+Math.atan2(Math.sin(angleB-angleA),Math.cos(angleB-angleA))*t;
+ const sx=lerp(Math.hypot(a[0],a[1]),Math.hypot(b[0],b[1]),t);
+ const sy=lerp(Math.hypot(a[2],a[3]),Math.hypot(b[2],b[3]),t);
+ const handedness=Math.sign(a[0]*a[3]-a[1]*a[2])||1;
+ return [sx*Math.cos(angle),sx*Math.sin(angle),-handedness*sy*Math.sin(angle),handedness*sy*Math.cos(angle),lerp(a[4],b[4],t),lerp(a[5],b[5],t)];
+}
 function smooth(x){x=clamp(x);return x*x*(3-2*x);}
 function triangle(t,a,b,c){return t<a||t>c?0:t<b?smooth((t-a)/(b-a)):1-smooth((t-b)/(c-b));}
 function matrix(p,x=p.x,y=p.y,angle=p.rotation){return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));}
@@ -23,11 +33,12 @@ function weaponMatrix(p,x,y,angle){
  // The supplied character art faces left; the SVG rifle points right.
  return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(-p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));
 }
-export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false}={}){
+export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,shootBlend=state==='shoot'?1:0,hitReaction=0}={}){
+ shootBlend=clamp(shootBlend);
  const parts=profile.parts,t=state==='shoot'?((time%1.5)+1.5)%1.5:time,walk=state==='walk'||(moving&&state!=='death'),wave=walk?Math.sin((gaitTime??time)*10+phase):0,breath=state==='death'?0:Math.sin(time*2.6+phase),bob=walk?-Math.abs(wave)*3:breath*1.1;
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
  const dying=state==='death',impactKick=dying?triangle(time,0,.065,.24):0,buckle=dying?triangle(time,.12,.36,.82):0,slump=dying?smooth((time-.18)/.55):0;
- const hit=state==='hit'?(1-smooth(time/.4))*Math.sin(time*30)*5:0,death=state==='death'?clamp((time-.14)/.62):0;
+ const hit=(state==='hit'?(1-smooth(time/.4)):clamp(hitReaction)) * Math.sin(time*30)*5,death=state==='death'?clamp((time-.14)/.62):0;
  // facing +1 means screen-right; native portraits face screen-left.
  // A single connected silhouette loses balance, falls, hits the ground and settles.
  const impact=Math.max(0,time-.76),fallAngle=state==='death'?impactKick*.08+smooth(death)*1.48-(impact>0?Math.sin(impact*19)*Math.exp(-impact*12)*.045:0):0;
@@ -35,13 +46,13 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  const upperAngle=dying?impactKick*.12+buckle*.18:walk?wave*.015:recoil*.025;
  const upper=dying?multiply(translate(parts.body.x,parts.body.y),multiply(rotate(upperAngle),translate(-parts.body.x,-parts.body.y))):multiply(translate(recoil*5,bob+recoil*1.2),rotate(upperAngle));
  const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035+(dying?-impactKick*.2+buckle*.13:0)),translate(-parts.head.x,-parts.head.y))));
- const gun=parts.rifle,carry=state==='shoot'?aim:dying?aim+(1.1-aim)*slump:-.9+(walk?wave*.025:0),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
- let gunAngle=-(state==='shoot'?clamp(desiredAngle,-Math.PI/2,Math.PI/2):desiredAngle)-upperAngle;
+ const gun=parts.rifle,restCarry=dying?aim+(1.1-aim)*slump:-.9+(walk?wave*.025:0),carry=lerp(restCarry,aim,shootBlend),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
+ let gunAngle=-lerp(desiredAngle,clamp(desiredAngle,-Math.PI/2,Math.PI/2),shootBlend)-upperAngle;
  // In the native left-facing portrait, the left arm supports the fore-end;
  // the right arm operates the trigger and bolt near the stock.
  const grips={left:[(gun.supportX??105/160)*gun.w,(gun.supportY??19/40)*gun.h],right:[(gun.gripX??55/160)*gun.w-bolt*9/160*gun.w,(gun.gripY??23/40)*gun.h-bolt*17/40*gun.h]};
  // Keep the edited firing position fixed: no circle-branch flips or aim-dependent gun jumps.
- const position={x:gun.x+recoil*4+(dying?slump*8:0),y:gun.y+(dying?slump*16:0)+(state==='shoot'?0:walk?10:state==='idle'?8:0)};
+ const position={x:gun.x+recoil*4+(dying?slump*8:0),y:gun.y+(dying?slump*16:0)+lerp(walk?10:8,0,shootBlend)};
  if(state==='shoot'&&target&&Number.isFinite(target.x)&&Number.isFinite(target.y)){
   const local=transformPoint(inverse(multiply(root,upper)),target.x,target.y),dx=local.x-position.x,dy=local.y-position.y,distance=Math.hypot(dx,dy);
   // Aim the actual barrel ray, including its offset from the editable rifle pivot.
@@ -54,7 +65,8 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  const firing=state==='shoot';
  for(const side of ['left','right']){const key=side==='left'?'armLeft':'armRight',p=parts[key];
   const rest=multiply(upper,matrix(p,p.x,p.y,p.rotation+(walk?(side==='left'?-1:1)*wave*.10:0)));
-  let arm=firing?multiply(upper,rigidArm(p,localHands[side])):rest;
+  const gripped=multiply(upper,rigidArm(p,localHands[side]));
+  let arm=shootBlend>=1?gripped:shootBlend<=0?rest:mixRigid(rest,gripped,shootBlend);
   if(dying){const from=rigidArm(p,localHands[side]),start=transformPoint(from,p.pivotX*p.w,p.pivotY*p.h),release=smooth(time/.2),a=Math.atan2(from[1],from[0]),flail=side==='left'?impactKick*.65+buckle*.9+slump*.35:-impactKick*.45-buckle*.65-slump*.25,desired=p.rotation+flail,delta=Math.atan2(Math.sin(desired-a),Math.cos(desired-a));arm=multiply(upper,matrix(p,start.x+(p.x-start.x)*release,start.y+(p.y-start.y)*release,a+delta*release));}
   attachments[side]={shoulder:transformPoint(arm,p.pivotX*p.w,p.pivotY*p.h),hand:transformPoint(arm,...palm(p)),matrix:arm};
  }

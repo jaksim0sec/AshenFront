@@ -6,7 +6,7 @@ export function sampleAnimation(options={},low=false){
  const fps=low?6:18,state=options.state??'idle',time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:state==='idle'?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
  const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,state==='death'?DEATH_DURATION:1.4):index/count*duration;
  const gaitPeriod=Math.PI*2/10,gaitCount=Math.max(2,Math.round(gaitPeriod*fps)),gaitTime=options.gaitTime===undefined||!(options.moving||state==='walk')?undefined:Math.floor((((Math.max(0,options.gaitTime)+(options.phase??0)/10)%gaitPeriod)/gaitPeriod)*gaitCount)/gaitCount*gaitPeriod;
- return {...options,state,time:sample,gaitTime,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,phase:0};
+ return {...options,state,time:sample,gaitTime,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,shootBlend:Math.round(Math.max(0,Math.min(1,options.shootBlend??(state==='shoot'?1:0)))*12)/12,hitReaction:Math.round(Math.max(0,Math.min(1,options.hitReaction??0))*4)/4,phase:0};
 }
 export class SoldierRenderer {
  constructor(){this.catalog=createCatalog();this.images=new Map();this.metadata={};this.cache=new Map();this.cacheBytes=0;this.hits=0;this.misses=0;this.loaded=false;this.error=null;this.revision=0;this.margin=140;
@@ -39,7 +39,7 @@ export class SoldierRenderer {
   if(!this.loaded)return false;const id=profileId(team,rank),profile=this.catalog.profiles[id],sampled=sampleAnimation(options,low),{state,time:sample,aim,phase}=sampled;
   // Cached sprites face right. Reflect a world-relative target into that same frame.
   if(sampled.target)sampled.target={x:sampled.target.x*(options.facing<0?-1:1),y:sampled.target.y};
-  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
+  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,sampled.shootBlend,sampled.hitReaction,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
   if(canvas){this.hits++;this.cache.delete(key);this.cache.set(key,canvas);}
   if(!canvas){this.misses++;
    const options={...sampled,facing:1},bounds=poseBounds(poseCharacter(profile,options)),resolution=Math.min(.57,384/Math.max(bounds.width,bounds.height));
