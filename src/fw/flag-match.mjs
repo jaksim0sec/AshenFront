@@ -58,7 +58,7 @@ export class FlagMatch{
    const x=anchor.x+m.offset.x*sign,y=anchor.y+m.offset.y;
    return board.inside(x,y)&&this.inTerritory(team,{x,y})&&!board.navigation.blocked(y*board.width+x)&&!board.occupied(x,y);
   });
-  if(blueprint.members.length<Math.ceil(size*.5))return null;
+  if(blueprint.members.length!==size)return null; // AshenFront: never split a 10-person squad
   // Keep a commander even when the rear flag seat was clipped.
   if(banner&&!blueprint.members.some(m=>m.role==='banner')){
    const last=blueprint.members.length-1;
