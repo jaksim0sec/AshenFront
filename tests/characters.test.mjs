@@ -60,3 +60,8 @@ test('death is a connected falling body, with no detached limbs or drifting equi
 });
 
 test('all published profiles and runtime defaults preserve the complete uploaded JSON exactly',()=>{const reference=JSON.parse(readFileSync(new URL('../assets/soldiers/catalog-reference.json',import.meta.url))),published=JSON.parse(readFileSync(new URL('../assets/soldiers/catalog.json',import.meta.url)));assert.deepEqual(createCatalog(),reference);assert.deepEqual(importCatalog(reference),reference);assert.deepEqual(published,reference);});
+
+test('opaque body remains on its standing sole plane through every death frame',async()=>{
+ const {bodyContactBottom}=await import('../src/characters/animation.mjs');
+ for(const p of Object.values(createCatalog().profiles))for(const facing of [-1,1]){const plane=bodyContactBottom(poseCharacter(p,{state:'death',time:0,facing}).draws);for(let time=0;time<1.7;time+=.04){const pose=poseCharacter(p,{state:'death',time,facing});assert(Math.abs(bodyContactBottom(pose.draws)-plane)<1e-8,`${p.nation}:${p.rank} hovering at ${time}`);}}
+});

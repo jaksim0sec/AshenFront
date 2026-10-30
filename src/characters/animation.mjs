@@ -1,3 +1,4 @@
+import {CONTACT_HULLS} from './contact-hulls.mjs';
 /** Pure, view-only animation; no simulation imports, randomness or wall-clock reads. */
 export const DEATH_DURATION=1.7;
 export const IDENTITY=[1,0,0,1,0,0];
@@ -65,15 +66,22 @@ export function poseCharacter(profile,{state='idle',time=0,aim=0,target=null,fac
   add(key,multiply(upper,matrix(p)));
  }
  // Draw exactly the configured layer order in every animation state.
- if(state==='death'){const shift=translate(0,deathGroundOffset(draws,death));for(const d of draws)d.matrix=multiply(shift,d.matrix);root=multiply(shift,root);}
+ if(state==='death'){const shift=translate(0,deathGroundOffset(draws,parts));for(const d of draws)d.matrix=multiply(shift,d.matrix);root=multiply(shift,root);}
  const worldGun=state==='death'?(draws.find(d=>d.part==='rifle')?.matrix??multiply(root,gunMatrix)):multiply(root,gunMatrix),axis=Math.hypot(worldGun[0],worldGun[1]),rifle={w:gun.w,h:gun.h,matrix:worldGun,grips,muzzle:transformPoint(worldGun,gun.w*155/160,gun.h*13/40),direction:{x:worldGun[0]/axis,y:worldGun[1]/axis}};
  return {draws,rifle,hands:Object.fromEntries(Object.entries(attachments).map(([k,p])=>[k,transformPoint(root,p.hand.x,p.hand.y)])),attachments,root,flash:state==='shoot'&&t<.065?1-t/.065:0,casing:state==='shoot'&&t>.15&&t<.55?(t-.15)/.4:null,alpha:state==='death'?clamp((DEATH_DURATION-time)/.35):1};
 }
-/** Ground correction applies to the entire body, never to individual limbs or equipment. */
-function deathGroundOffset(draws,fall){
+/** Actual opaque body pixels, not padded rectangles or a protruding rifle, touch the ground. */
+export function bodyContactBottom(draws){
  let bottom=-Infinity;
- for(const d of draws)for(const[x,y]of[[0,0],[d.w,0],[0,d.h],[d.w,d.h]])bottom=Math.max(bottom,transformPoint(d.matrix,x,y).y);
- return Number.isFinite(bottom)?-Math.max(0,bottom+2)*smooth(fall/.35):0;
+ for(const d of draws){if(!['legLeft','legRight','body','armLeft','armRight','head','hat'].includes(d.part))continue;
+  for(const[u,v]of CONTACT_HULLS[d.asset]??[[0,0],[1,0],[0,1],[1,1]])bottom=Math.max(bottom,transformPoint(d.matrix,u*d.w,v*d.h).y);
+ }return bottom;
+}
+function deathGroundOffset(draws,parts){
+ const feet=['legLeft','legRight'].filter(k=>parts[k].visible).map(k=>({part:k,asset:parts[k].asset,w:parts[k].w,h:parts[k].h,matrix:matrix(parts[k])}));
+ const plane=bodyContactBottom(feet),bottom=bodyContactBottom(draws);
+ // Preserve the standing soles' plane throughout the fall, including initial loss of balance.
+ return Number.isFinite(bottom)&&Number.isFinite(plane)?plane-bottom:0;
 }
 export function poseBounds(pose,padding=8){
  const points=[{x:0,y:0}];for(const d of pose.draws){let x0=0,y0=0,x1=d.w,y1=d.h;if(Array.isArray(d.clip)){const[x,y,w,h]=d.clip;x0=x*d.w;y0=y*d.h;x1=(x+w)*d.w;y1=(y+h)*d.h;}else if(d.clip?.capsule){const[ax,ay,bx,by,r]=d.clip.capsule;x0=Math.max(0,Math.min(ax,bx)-r);y0=Math.max(0,Math.min(ay,by)-r);x1=Math.min(d.w,Math.max(ax,bx)+r);y1=Math.min(d.h,Math.max(ay,by)+r);}for(const[x,y]of[[x0,y0],[x1,y0],[x1,y1],[x0,y1]])points.push(transformPoint(d.matrix,x,y));}

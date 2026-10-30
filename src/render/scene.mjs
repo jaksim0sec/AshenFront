@@ -5,10 +5,10 @@ import {palette as P} from './palette.mjs';
 import {unitFoot,project,toScreen,HALF_W as W,HALF_H as H} from './projection.mjs';import {TerrainRenderer,visibleBounds,tileFaces,polygon} from './terrain.mjs';import {spatialIndex} from '../sim/spatial.mjs';
 const colors={A:P.teamA,B:P.teamB};
 export class Scene {
- constructor(canvas){this.canvas=canvas;this.terrain=new TerrainRenderer();this.rendered=0;this.low=false;this.soldiers=new SoldierRenderer();this.soldiers.ready.catch(()=>{});this.shots=new Map();this.hp=new Map();this.hitTicks=new Map();this.muzzles=new Map();this.lastSeen=new Map();this.deathFacings=new Map();this.width=1;this.height=1;}
+ constructor(canvas){this.canvas=canvas;this.terrain=new TerrainRenderer();this.rendered=0;this.low=false;this.soldiers=new SoldierRenderer();this.soldiers.ready.catch(()=>{});this.shots=new Map();this.hp=new Map();this.hitTicks=new Map();this.muzzles=new Map();this.lastSeen=new Map();this.deathFacings=new Map();this.deathFeet=new Map();this.width=1;this.height=1;}
  resize(){const r=this.canvas.getBoundingClientRect(),dpr=Math.min(this.low?1:2,devicePixelRatio||1);this.width=r.width;this.height=r.height;if(this.canvas.width!==Math.round(r.width*dpr)||this.canvas.height!==Math.round(r.height*dpr)){this.canvas.width=Math.round(r.width*dpr);this.canvas.height=Math.round(r.height*dpr);}this.dpr=dpr;}
  draw(w,c,selected,visible,alpha=0,selectedIds=new Set(selected?[selected]:[])) {
-  if(this.world!==w){this.world=w;this.shots.clear();this.hp.clear();this.hitTicks.clear();this.muzzles.clear();this.lastSeen.clear();this.deathFacings.clear();}
+  if(this.world!==w){this.world=w;this.shots.clear();this.hp.clear();this.hitTicks.clear();this.muzzles.clear();this.lastSeen.clear();this.deathFacings.clear();this.deathFeet.clear();this.actorFrames=new Map();}
   for(const u of visible.values())this.lastSeen.set(u.id,w.tick);
   if(this.eventTick!==w.tick){this.eventTick=w.tick;for(const e of w.events)if(e.kind==='shot'&&e.unitId)this.shots.set(e.unitId,e);}
   this.resize();const ctx=this.canvas.getContext('2d'),m=w.map;ctx.setTransform(this.dpr,0,0,this.dpr,0,0);ctx.fillStyle=P.background;ctx.fillRect(0,0,this.width,this.height);
@@ -18,11 +18,11 @@ export class Scene {
   drawCommandOverlay(ctx,w,c,selectedIds,alpha);
   const margin=Math.max(40,this.soldiers.margin*c.zoom),b=visibleBounds(m,c,this.width,this.height,margin),index=spatialIndex(w),units=index.query((b.x0+b.x1)/2,(b.y0+b.y1)/2,Math.max(b.x1-b.x0,b.y1-b.y0)/2+8),sprites=[];
   for(const u of units){if(u.team==='B'&&!visible.has(u.id))continue;const h=m.floorLevel[u.y*m.width+u.x],p=unitFoot(m,u,alpha),screen=toScreen(p,c);if(screen.x< -margin||screen.x>this.width+margin||screen.y< -margin||screen.y>this.height+margin)continue;sprites.push({u,p,h});}
-  for(const e of w.events.filter(e=>e.kind==='elimination'&&e.unitId&&w.tick-e.tick<DEATH_DURATION*20).slice(-32)){const u=w.units[e.unitId-1];if(u&&(u.team==='A'||w.tick-(this.lastSeen.get(u.id)??-1000)<40)){const p=project(e.x,e.y,m.floorLevel[e.y*m.width+e.x]);sprites.push({u,p,h:m.floorLevel[e.y*m.width+e.x],deathAge:(w.tick-e.tick+alpha)/20});}}
+  for(const e of w.events.filter(e=>e.kind==='elimination'&&e.unitId&&w.tick-e.tick<DEATH_DURATION*20).slice(-32)){const u=w.units[e.unitId-1];if(u&&(u.team==='A'||w.tick-(this.lastSeen.get(u.id)??-1000)<40)){if(!this.deathFeet.has(u.id))this.deathFeet.set(u.id,this.actorFrames?.get(u.id)?.foot??project(e.x,e.y,m.floorLevel[e.y*m.width+e.x]));const p=this.deathFeet.get(u.id);sprites.push({u,p,h:m.floorLevel[e.y*m.width+e.x],deathAge:(w.tick-e.tick+alpha)/20});}}
   this.actorFrames=new Map();
   sprites.sort((a,b)=>a.p.y-b.p.y||a.u.id-b.u.id);this.rendered=sprites.length;
   for(const {u,p,h,deathAge} of sprites){const s=w.squads[u.squadId-1],chosen=selectedIds.has(u.squadId);ctx.save();ctx.translate(p.x,p.y);
-   ctx.save();if(deathAge!==undefined)ctx.globalAlpha=Math.max(0,Math.min(1,(DEATH_DURATION-deathAge)/.35));ctx.fillStyle='#1D202266';ctx.beginPath();ctx.ellipse(0,1,14,7,0,0,Math.PI*2);ctx.fill();ctx.restore();
+   ctx.save();if(deathAge!==undefined)ctx.globalAlpha=Math.max(0,Math.min(1,(DEATH_DURATION-deathAge)/.35));const fall=deathAge===undefined?0:Math.max(0,Math.min(1,(deathAge-.14)/.62)),side=-(this.deathFacings.get(u.id)??(u.team==='A'?1:-1));ctx.fillStyle='#1D202266';ctx.beginPath();ctx.ellipse(side*fall*fall*110*SOLDIER_SCALE,1,14+fall*22,7-fall*2,0,0,Math.PI*2);ctx.fill();ctx.restore();
    if(chosen&&deathAge===undefined){ctx.strokeStyle=P.selection;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,19,10,0,0,Math.PI*2);ctx.stroke();}
    const shot=this.shots.get(u.id),age=shot?(w.tick-shot.tick+alpha)/20:Infinity,target=shot?project(shot.tx,shot.ty,m.floorLevel[shot.ty*m.width+shot.tx]):null,aimVector=target?{x:target.x-p.x,y:target.y-36-p.y}:null;
    const movement=u.moveTo>=0?{x:(u.moveTo%m.width-u.x)-(Math.floor(u.moveTo/m.width)-u.y),y:0}:null;

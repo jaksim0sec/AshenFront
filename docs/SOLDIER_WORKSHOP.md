@@ -20,7 +20,7 @@ The native images are from `uniform-parts-crops-1.zip`, with the four whole-arm 
 
 The rifle is now20% larger (141.6×35.4 rig units), with its original4:1 aspect ratio. Existing drafts enlarge once via `rifleRevision`; later edits retain their selected size.
 
-Death now keeps the entire soldier connected: a brief loss of balance, an accelerating sideways fall, ground impact, a small damped rebound and a still body before fading. Head, hat, arms, legs, insignia and rifle share one body transform; none detach or scatter. Ground correction moves the complete silhouette together. Breathing stops at death. The battlefield, cache and editor share the1.7s duration.
+Death now keeps the entire soldier connected: a brief loss of balance, an accelerating sideways fall, ground impact, a small damped rebound and a still body before fading. Head, hat, arms, legs, insignia and rifle share one body transform; none detach or scatter. Ground correction moves the complete silhouette together. Contact now uses opaque PNG silhouette hulls instead of transparent bounding rectangles or rifle extent. It holds the original standing sole plane at every frame, without a delayed lift. The fallen shadow follows the body, and a moving unit keeps its last interpolated foot position at death instead of snapping back to a tile. Breathing stops at death. The battlefield, cache and editor share the1.7s duration.
 
 Firing keeps the edited rifle position fixed, eliminating aim-dependent jumps between arm-reach solutions. The arms rotate/translate as whole images without changing their configured scale. Their original palms follow the fore-end, trigger and bolt anchors.
 
