@@ -95,3 +95,24 @@ test('real match demo entrances support travel onto both samples',()=>{
   assert.equal(projectElevatedFoot(b,runner).y,(runner.x+runner.y)*42+(sample.kind==='trench'?22:-22));
  }
 });
+
+test('both ends of each demo feature have navigable reciprocal ramps',()=>{
+ const b=new Board(512,384);createBattlefield(b);
+ for(const feature of b.battlefield.heightDemo){
+  const {exit}=feature;
+  assert.ok(exit,feature.kind+' missing exit');
+  assert.equal(canTraverseHeight(b,i(b,exit.x,exit.y),i(b,exit.toX,exit.y)),true);
+  assert.equal(canTraverseHeight(b,i(b,exit.toX,exit.y),i(b,exit.x,exit.y)),true);
+ }
+});
+test('units can leave trenches and hills through the opposite ramp',()=>{
+ const b=new Board(512,384);createBattlefield(b);
+ for(const feature of b.battlefield.heightDemo.filter(x=>x.team==='A')){
+  const {exit}=feature,runner=unit(b,exit.x,exit.y);
+  assert.ok(runner);
+  assert.equal(b.move(runner.id,exit.toX,exit.y,{direct:true,engage:false}),true);
+  b.navigation.schedule=()=>{};
+  b.advance(1);
+  assert.deepEqual([runner.x,runner.y],[exit.toX,exit.y],feature.kind+' exit transition');
+ }
+});

@@ -38,8 +38,13 @@ export function installHeightDemo(board){
   // Keep one explicit approach per sample; no silently walkable cliff wall.
   const bit=to===from+1?E:W,other=bit===E?W:E;
   ramps[from]|=bit;ramps[to]|=other;
+  // The second ramp makes the sample a traversable battlefield corridor.
+  const farInsideX=mirrored?mirrorX(rect.x1):rect.x1,farOutsideX=mirrored?mirrorX(rect.x1+1):rect.x1+1;
+  const farInside=ry*w+farInsideX,farOutside=ry*w+farOutsideX;
+  const farBit=farOutside===farInside+1?E:W;
+  ramps[farInside]|=farBit;ramps[farOutside]|=farBit===E?W:E;
   features.push({team:mirrored?'B':'A',kind:rect.kind,x:mirrored?mirrorX(Math.floor((rect.x0+rect.x1)/2)):Math.floor((rect.x0+rect.x1)/2),y:Math.floor((rect.y0+rect.y1)/2),
-   x0,x1,y0:rect.y0,y1:rect.y1,entrance:{x:insideX,y:ry,fromX:outsideX}});
+   x0,x1,y0:rect.y0,y1:rect.y1,entrance:{x:insideX,y:ry,fromX:outsideX},exit:{x:farInsideX,y:ry,toX:farOutsideX}});
  }
  board.floorLevel=levels;board.heightRamps=ramps;board.floorLevelRevision=(board.floorLevelRevision||0)+1;
  return features;
