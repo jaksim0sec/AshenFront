@@ -15,14 +15,14 @@ function hash(x,y,seed=0){
  return (n^(n>>>16))>>>0;
 }
 function visualRevision(board){
- return [board.width,board.height,board.seed,board.terrainRevision,board.obstacleRevision,board.terrain,board.obstacles,board.battlefield];
+ return [board.width,board.height,board.seed,board.terrainRevision,board.obstacleRevision,board.terrain,board.obstacles,board.battlefield,board.floorLevel,board.floorLevelRevision??0];
 }
 function sameRevision(a,b){return a?.length===b.length&&a.every((v,i)=>v===b[i]);}
 function unchangedMap(entry,board){
  const k=entry?.rev;
  return !!k&&k[0]===board.width&&k[1]===board.height&&k[2]===board.seed&&
   k[3]===board.terrainRevision&&k[4]===board.obstacleRevision&&
-  k[5]===board.terrain&&k[6]===board.obstacles&&k[7]===board.battlefield;
+  k[5]===board.terrain&&k[6]===board.obstacles&&k[7]===board.battlefield&&k[8]===board.floorLevel&&k[9]===(board.floorLevelRevision??0);
 }
 function rasterizeRoads(board,index){
  const w=board.width,h=board.height,paths=board.battlefield?.paths||[];
@@ -34,7 +34,7 @@ function rasterizeRoads(board,index){
    const x0=Math.max(0,Math.floor(Math.min(a.x,b.x)-radius-1)),x1=Math.min(w-1,Math.ceil(Math.max(a.x,b.x)+radius+1));
    const y0=Math.max(0,Math.floor(Math.min(a.y,b.y)-radius-1)),y1=Math.min(h-1,Math.ceil(Math.max(a.y,b.y)+radius+1));
    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
-    const n=y*w+x;if(index[n]!==1&&index[n]!==2&&index[n]!==6)continue;
+    const n=y*w+x;if(board.floorLevel?.[n]===0||index[n]!==1&&index[n]!==2&&index[n]!==6)continue;
     const t=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/len));
     const ex=x-a.x-t*dx,ey=y-a.y-t*dy;
     if(ex*ex+ey*ey<=radius*radius)index[n]=3;
@@ -53,6 +53,7 @@ function buildVisualMap(board){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
   const n=y*w+x,terrain=board.terrain[y]?.[x]||'void';
   const base=terrain==='void'?0:terrain==='forest'?(board.obstacles?.get(n)?.visual==='rock'?5:4):terrain==='soil'?2:terrain==='road'?3:1;
+  if(board.floorLevel?.[n]===0&&base!==0){out[n]=2;continue;}
   if(base!==1){out[n]=base;continue;}
   const nx=(x-centerX)/radiusX,ny=(y-centerY)/radiusY,inside=nx*nx+ny*ny<1.2;
   // Seeded clusters, not one random mark per tile. Visual-only battlefield damage.
@@ -285,6 +286,17 @@ export class BattlefieldTerrainRenderer{
      if(x+1>=board.width||materialIndex[y*board.width+x+1]===0)t.drawImage(this.atlas,sx,(3+row)*TH,TW,TH,p.x-HX,p.y-HY,TW,TH);
      if(y+1>=board.height||materialIndex[(y+1)*board.width+x]===0)t.drawImage(this.atlas,sx,(6+row)*TH,TW,TH,p.x-HX,p.y-HY,TW,TH);
     }
+    if(terrainLevel(board,x,y)===0){
+     // Recessed earth bed and back-bank rim are baked once per viewport page.
+     diamond(t,p.x,p.y,'#211c1730');
+     const west=terrainLevel(board,x-1,y)>0,north=terrainLevel(board,x,y-1)>0;
+     if(west||north){
+      t.beginPath();
+      if(west){t.moveTo(p.x-HX,p.y);t.lineTo(p.x,p.y-HY);}
+      if(north){t.moveTo(p.x,p.y-HY);t.lineTo(p.x+HX,p.y);}
+      t.strokeStyle='#a18a6b';t.lineWidth=3;t.stroke();
+     }
+    }
    }
    if(tiles.length&&camera.scale>=.16)seams(t,board,tiles,materialIndex);
    if(tiles.length&&this.decorations&&!low&&camera.scale>=.2){
@@ -306,17 +318,26 @@ export class BattlefieldTerrainRenderer{
   this.cache=page;
   ctx.drawImage(page.canvas,position.x,position.y,position.width,position.height);
  }
- // Composite only exposed height transitions; do not rebake the terrain cache.
+ // Layered earth faces conceal only the feet in front, not whole soldiers.
  drawOccluder(ctx,board,face){
-  const p=project(face.x,face.y),material=terrainMaterial(board,face.x,face.y);
-  p.y-=(face.level-1)*LEVEL_PX;
-  // Ground tops live in the static cache. Never redraw a whole tile over a unit.
   if(face.kind!=='wall')return;
+  const p=project(face.x,face.y);p.y-=(face.level-1)*LEVEL_PX;
   const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],
    b=east?[p.x+HX,p.y]:[p.x,p.y+HY],drop=(face.level-face.low)*LEVEL_PX;
-  // The narrow bank lip can hide a boot, never the soldier's head.
-  ctx.beginPath();ctx.moveTo(a[0],a[1]-4);ctx.lineTo(b[0],b[1]-4);ctx.lineTo(b[0],b[1]+drop);
-  ctx.lineTo(a[0],a[1]+drop);ctx.closePath();
-  ctx.fillStyle=east?'#514b45':'#433f3b';ctx.fill();
+  const ax=a[0],ay=a[1],bx=b[0],by=b[1];
+  ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
+  ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();
+  ctx.fillStyle=east?'#665748':'#5b4b3e';ctx.fill();
+  ctx.beginPath();ctx.moveTo(ax,ay+drop*.56);ctx.lineTo(bx,by+drop*.56);
+  ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();
+  ctx.fillStyle='#42382f';ctx.fill();
+  ctx.beginPath();ctx.moveTo(ax,ay+1);ctx.lineTo(bx,by+1);
+  ctx.strokeStyle='#b09a7b';ctx.lineWidth=3;ctx.stroke();
+  const mark=(Math.imul(face.x+1,37)+Math.imul(face.y+1,17))&7;
+  if(mark<3){
+   const u=.25+mark*.20,mx=ax+(bx-ax)*u,my=ay+(by-ay)*u;
+   ctx.beginPath();ctx.moveTo(mx,my+5);ctx.lineTo(mx+2,my+drop*.72);
+   ctx.strokeStyle='#30282050';ctx.lineWidth=1.5;ctx.stroke();
+  }
  }
 }

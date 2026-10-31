@@ -74,9 +74,11 @@ test('elevated renderer paints front earth faces separately from the cached back
  const {BattlefieldTerrainRenderer}=await import('../src/fw/terrain-art.mjs');
  const b=board();b.floorLevel[2*b.width+2]=2;b.floorLevelRevision++;
  const wall=terrainOccluders(b,bounds).find(v=>v.kind==='wall');
- const calls=[],ctx={beginPath(){calls.push('begin')},moveTo(){},lineTo(){},closePath(){},fill(){calls.push('fill')},drawImage(){calls.push('image')}};
+ const calls=[],ctx={beginPath(){calls.push('begin')},moveTo(){},lineTo(){},closePath(){},fill(){calls.push('fill')},stroke(){calls.push('stroke')},drawImage(){calls.push('image')}};
  BattlefieldTerrainRenderer.prototype.drawOccluder.call({kind:'new',surface:{}},ctx,{...b,terrain:Array.from({length:b.height},()=>Array(b.width).fill('grass')),seed:1,obstacles:new Map(),battlefield:{clearing:{x:4,y:4,rx:5,ry:5}}},wall);
- assert.deepEqual(calls,['begin','fill']);
+ assert.ok(calls.filter(x=>x==='fill').length>=2,'two earth layers');
+ assert.ok(calls.includes('stroke'),'rim visible');
+ assert.ok(!calls.includes('image'),'do not overpaint soldier');
 });
 
 test('height-adjusted actor foot controls terrain and unit order without rerender math',()=>{

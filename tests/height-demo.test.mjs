@@ -116,3 +116,23 @@ test('units can leave trenches and hills through the opposite ramp',()=>{
   assert.deepEqual([runner.x,runner.y],[exit.toX,exit.y],feature.kind+' exit transition');
  }
 });
+
+test('the mirrored trenches are narrow connected zigzags, not lowered square pads',()=>{
+ const b=new Board(512,384,{seed:1977});createBattlefield(b);
+ for(const f of b.battlefield.heightDemo.filter(x=>x.kind==='trench')){
+  const centers=[];
+  for(let x=f.x0;x<=f.x1;x++){
+   const dug=[];
+   for(let y=f.y0;y<=f.y1;y++)if(b.floorLevel[i(b,x,y)]===0)dug.push(y);
+   assert.equal(dug.length,3,'trench cross-section must stay three cells wide');
+   assert.equal(dug[2]-dug[0],2,'no severed lane');
+   centers.push(dug[1]);
+  }
+  assert.ok(new Set(centers).size>=3,'trench needs bends');
+  assert.ok(centers.every((v,j)=>!j||Math.abs(v-centers[j-1])<=1),'turns remain connected');
+  assert.equal(b.floorLevel[i(b,f.entrance.x,f.entrance.y)],0);
+  assert.equal(b.floorLevel[i(b,f.exit.x,f.exit.y)],0);
+  assert.ok(canTraverseHeight(b,i(b,f.entrance.fromX,f.entrance.y),i(b,f.entrance.x,f.entrance.y)));
+  assert.ok(canTraverseHeight(b,i(b,f.exit.x,f.exit.y),i(b,f.exit.toX,f.exit.y)));
+ }
+});

@@ -155,3 +155,13 @@ test('restoring a suspended canvas rebuilds the cached terrain and derived textu
   assert.ok(calls.draws>0);
  }finally{globalThis.document=oldDocument;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
 });
+
+test('trench bottom uses soil art and visual index changes after height revision',()=>{
+ const b=board(28,25),n=11*b.width+8;
+ b.floorLevel=new Uint8Array(b.width*b.height).fill(1);
+ const original=terrainMaterial(b,8,11);
+ b.floorLevel[n]=0;b.floorLevelRevision=1;
+ assert.equal(terrainMaterial(b,8,11),'soil');
+ b.floorLevel[n]=1;b.floorLevelRevision++;
+ assert.equal(terrainMaterial(b,8,11),original);
+});

@@ -20,7 +20,10 @@ export function installHeightDemo(board){
  const levels=new Uint8Array(w*h).fill(1),ramps=new Uint8Array(w*h),features=[];
  const center=Math.round(w*.34),mid=Math.floor(h/2),mirrorX=x=>w-1-x;
  const rects=[
-  {kind:'trench',level:0,x0:center-5,x1:center,y0:mid,y1:mid+5,entrance:{x:center-5,y:mid+2,fromX:center-6}},
+  {kind:'trench',level:0,x0:center-14,x1:center+2,y0:mid-2,y1:mid+2,
+   // Three cells across a gentle zigzag: connected and wide enough for traffic.
+   bed:(x,y)=>Math.abs(y-(mid+(x<center-10?0:x<center-7?1:x<center-4?0:x<center-1?-1:0)))<=1,
+   entrance:{x:center-14,y:mid,fromX:center-15}},
   {kind:'hill',level:2,x0:center+4,x1:center+9,y0:mid-5,y1:mid,entrance:{x:center+4,y:mid-2,fromX:center+3}}
  ];
  for(const mirrored of [false,true])for(const rect of rects){
@@ -31,7 +34,8 @@ export function installHeightDemo(board){
   for(let y=rect.y0-1;y<=rect.y1+1&&clear;y++)
    for(let x=x0-1;x<=x1+1;x++)if(board.navigation.blocked(y*w+x)){clear=false;break;}
   if(!clear)continue;
-  for(let y=rect.y0;y<=rect.y1;y++)for(let x=x0;x<=x1;x++)levels[y*w+x]=rect.level;
+  for(let y=rect.y0;y<=rect.y1;y++)for(let x=x0;x<=x1;x++)
+   if(!rect.bed||rect.bed(mirrored?mirrorX(x):x,y))levels[y*w+x]=rect.level;
   const insideX=mirrored?mirrorX(rect.entrance.x):rect.entrance.x;
   const outsideX=mirrored?mirrorX(rect.entrance.fromX):rect.entrance.fromX;
   const ry=rect.entrance.y,from=ry*w+outsideX,to=ry*w+insideX;
