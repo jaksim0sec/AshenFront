@@ -397,6 +397,9 @@ export class BattlefieldTerrainRenderer{
    const east=face.edge==='east',drop=(face.level-face.low)*LEVEL_PX;
    const ax=east?p.x:p.x-HX,ay=east?p.y+HY:p.y;
    const bx=east?p.x+HX:p.x,by=east?p.y:p.y+HY;
+   // The bottom of a cut recedes into the LOWER tile. A vertical quad
+   // reads as an upright board; a shallow earth bevel reads as excavation.
+   const toeX=east?12:-12,toeY=4;
    const noise=hash(face.x,face.y,board.seed);
    // Disrupt an otherwise geometrically perfect tile boundary. Endpoints
    // stay fixed so consecutive 144px segments cannot open visible cracks.
@@ -413,7 +416,8 @@ export class BattlefieldTerrainRenderer{
     }
     for(let k=8;k>=0;k--){
      const u=k/8;
-     ctx.lineTo(ax+(bx-ax)*u,ay+(by-ay)*u+drop+(k===0||k===8?0:ripple(k)*.55));
+     ctx.lineTo(ax+(bx-ax)*u+toeX,ay+(by-ay)*u+drop+toeY+
+      (k===0||k===8?0:ripple(k)*.55));
     }
     ctx.closePath();
    };
@@ -425,15 +429,16 @@ export class BattlefieldTerrainRenderer{
    // ordinary screen coordinates, preserving natural grain proportions.
    const col=terrainVariant(face.x,face.y);
    const sx=col*TW+18,sy=TH+16;
-   const x0=Math.min(ax,bx)-6,y0=Math.min(ay,by)-5;
+   const x0=Math.min(ax,bx,ax+toeX,bx+toeX)-6,y0=Math.min(ay,by)-5;
+   const right=Math.max(ax,bx,ax+toeX,bx+toeX)+6;
    ctx.globalAlpha=.94;
-   ctx.drawImage(this.atlas,sx,sy,108,72,x0,y0,Math.abs(bx-ax)+12,Math.abs(by-ay)+drop+10);
+   ctx.drawImage(this.atlas,sx,sy,108,72,x0,y0,right-x0,Math.abs(by-ay)+drop+toeY+10);
    ctx.globalAlpha=1;
    if(typeof ctx.createLinearGradient==='function'){
     const shade=ctx.createLinearGradient(0,Math.min(ay,by),0,Math.max(ay,by)+drop);
     shade.addColorStop(0,'rgba(65,51,39,.04)');
     shade.addColorStop(.45,'rgba(45,36,28,.12)');
-    shade.addColorStop(1,'rgba(31,26,21,.37)');
+    shade.addColorStop(1,'rgba(31,26,21,.28)');
     outline();ctx.fillStyle=shade;ctx.fill();
    }
    // Sparse clods on the freshly cut face. World-seeded, so the result is
@@ -455,6 +460,16 @@ export class BattlefieldTerrainRenderer{
     ctx.lineTo(ax+(bx-ax)*u,ay+(by-ay)*u+ripple(k));
    }
    ctx.strokeStyle='#b4a38a64';ctx.lineWidth=1.15;ctx.stroke();
+   // Broken crumbs sit on the natural shoulder, visually joining the
+   // adjacent surface instead of tracing a ruler-straight side panel.
+   if(typeof ctx.ellipse==='function'){
+    for(let k=0;k<5;k++){
+     const n=hash(face.x+k*7,face.y-k*3,board.seed),u=(k+.48)/5;
+     const x=ax+(bx-ax)*u+(n%5-2),y=ay+(by-ay)*u-(2+n%4);
+     ctx.beginPath();ctx.ellipse(x,y,.9+(n%4)*.65,.6+(n%3)*.28,0,0,Math.PI*2);
+     ctx.fillStyle=k%2?'#8d796347':'#43362b44';ctx.fill();
+    }
+   }
    return;
   }
   const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],

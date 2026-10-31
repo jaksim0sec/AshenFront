@@ -172,3 +172,13 @@ test('only rising changes terrain-ascent pose and two-leg movement uses the righ
  u.step.duration=0;
  assert.equal(terrainRiseProgress(b,u),null,'invalid movement never animates');
 });
+
+test('bank toe occlusion follows the same shallow soil bevel as the wall renderer',()=>{
+ const b=board(16,16);b.floorLevel[5*b.width+5]=2;b.floorLevelRevision++;
+ const mask=terrainCoverPolygons(b,actor(5,5));
+ const py=(5+5)*42-(2-1)*22;
+ // East high bank: bottom of the painted cut leans 12px toward lower tile
+ // and 4px down, not directly below the top edge like a vertical fence.
+ assert.ok(mask.some(poly=>poly.length===4&&poly.some(p=>p.x===12&&p.y===py+42+22+4)),
+  'depth mask must include the sloped earth toe');
+});

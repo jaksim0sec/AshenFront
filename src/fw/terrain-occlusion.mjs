@@ -157,7 +157,12 @@ export function terrainCoverPolygons(board,u){
    const split=Math.max(0,Math.min(1,depth-base));
    if(split>=1)continue;
    const mx=ax+(bx-ax)*split,my=ay+(by-ay)*split;
-   add([{x:mx,y:my},{x:bx,y:by},{x:bx,y:by+drop},{x:mx,y:my+drop}]);
+   // Match the cut's shallow bank toe. Its foreground footprint must
+   // occlude the same pixels that terrain-art actually paints.
+   const toeX=edge==='east'?12:-12,toeY=4;
+   add([{x:mx,y:my},{x:bx,y:by},
+    {x:bx+toeX,y:by+drop+toeY},
+    {x:mx+toeX,y:my+drop+toeY}]);
   }
  }
  return out.length?out:EMPTY;
