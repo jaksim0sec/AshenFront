@@ -223,6 +223,25 @@ try:
   trial.goto('http://127.0.0.1:8000/?terrainTest=1',wait_until='domcontentloaded',timeout=20000)
   trial.wait_for_function('window.__ashenFlower && __ashenFlower.match.phase==="battle"',timeout=30000)
   trial.wait_for_function('__ashenFlower.renderStats.trenchAsset.ready',timeout=12000)
+  # Pixel-level regression: mud overlays must preserve the original ground
+  # texture below. Last version rendered dark opaque slabs and plank stripes.
+  texture=trial.evaluate("""async()=>{
+   const img=new Image();
+   img.src='/assets/world/terrain/trench-atlas.svg';
+   await img.decode();
+   const canvas=document.createElement('canvas');
+   canvas.width=720;canvas.height=214;
+   const t=canvas.getContext('2d',{willReadFrequently:true});
+   t.drawImage(img,0,0);
+   const alpha=(x,y)=>t.getImageData(x,y,1,1).data[3];
+   return {width:img.naturalWidth,height:img.naturalHeight,
+    mud:[0,1,2,3].map(i=>alpha(i*144+72,44)),
+    wall:alpha(576+120,70),outside:alpha(576+10,10)};
+  }""")
+  assert texture['width']==720 and texture['height']==214,texture
+  assert all(0<a<125 for a in texture['mud']),texture
+  assert texture['wall']>175 and texture['outside']==0,texture
+
   result=trial.evaluate("""()=>{
    const {board,match}=__ashenFlower;
    const demo=board.battlefield.heightDemo.find(x=>x.team==='A'&&x.kind==='trench');

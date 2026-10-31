@@ -21,8 +21,8 @@ export function installHeightDemo(board){
  const center=Math.round(w*.34),mid=Math.floor(h/2),mirrorX=x=>w-1-x;
  const rects=[
   {kind:'trench',level:0,x0:center-14,x1:center+2,y0:mid-2,y1:mid+2,
-   // Three cells across a gentle zigzag: connected and wide enough for traffic.
-   bed:(x,y)=>Math.abs(y-(mid+(x<center-10?0:x<center-7?1:x<center-4?0:x<center-1?-1:0)))<=1,
+   // Two cells across a connected zigzag; a narrower cut instead of a broad dark strip.
+   bed:(x,y)=>{const cy=mid+(x<center-10?0:x<center-7?1:x<center-4?0:x<center-1?-1:0);return y===cy||y===cy+1;},
    entrance:{x:center-14,y:mid,fromX:center-15}},
   {kind:'hill',level:2,x0:center+4,x1:center+9,y0:mid-5,y1:mid,entrance:{x:center+4,y:mid-2,fromX:center+3}}
  ];

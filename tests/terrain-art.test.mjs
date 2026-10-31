@@ -235,3 +235,13 @@ test('trench image renders mud floor, reciprocal ramp and exposed bank into cach
   assert.equal(calls.length,drawn,'filled trench clears sprites from the viewport');
  }finally{globalThis.document=oldDoc;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
 });
+
+test('new trench asset is transparent soil treatment, not opaque slabs, ladders or picket fences',()=>{
+ const svg=readFileSync(new URL('../assets/world/terrain/trench-atlas.svg',import.meta.url),'utf8');
+ assert.match(svg,/id="diamond"/);
+ assert.match(svg,/fill="url\(#bed\)"/);
+ assert.match(svg,/fill="url\(#earth\)"/);
+ assert.match(svg,/feTurbulence/);
+ assert.doesNotMatch(svg,/(wooden fence|palisade|ladder|railroad sleeper|fence post)/i);
+ assert.ok((svg.match(/clip-path="url\(#diamond\)"/g)||[]).length>=6,'floor and ramp overlays stay inside diamond');
+});
