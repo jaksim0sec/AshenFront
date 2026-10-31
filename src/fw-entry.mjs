@@ -19,6 +19,7 @@ const terrainArt=new BattlefieldTerrainRenderer();
 const soldiers=new SoldierRenderer();soldiers.ready.catch(e=>alert('군복 이미지 오류: '+e.message));
 const params=new URLSearchParams(location.search);
 const seed=Number(params.get('seed'))||1977;
+const terrainTest=params.get('terrainTest')==='1';
 let armySize=ASHEN_ARMY_CHOICES.includes(Number(params.get('army')))?Number(params.get('army')):40;
 let {board,match}=createAshenMatch({seed,count:armySize}),selected=new Set(),mode=null,hover=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
 let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1,lastResumeAt=-Infinity;
@@ -148,7 +149,27 @@ function setCommand(m){if(m)closeTacticalPanels();mode=m;document.body.dataset.c
 function deploy(p){const s=match.deploy('A','infantry',p);if(!s){notice('배치 불가 · 진영의 빈 공간을 선택하세요');return;}if(deployFormation!=='line')configureSquad(board,s.id,{formation:deployFormation});notice('제'+match.squadIds.A.length+'분대 배치 · 예비 '+match.reserve.A+'명');if(!match.reserve.A)switchMode('control');roster();hud();}
 function autoDeploy(){const r=autoDeployPlayer(match);notice(r.complete?'배치 완료':'배치할 공간이 부족합니다');if(r.complete)switchMode('control');roster();hud();return r.complete;}
 function start(){if(match.phase!=='preparation')return;closeTacticalPanels();setHudExpanded(false);if(!autoDeploy())return;match.start();if(match.phase!=='battle'){notice('전투 시작 실패');return;}switchMode('control');document.body.dataset.phase='battle';if(!selected.size&&squads().length)selected.add(squads()[0].id);notice('전투 시작 · 개나리워즈 원본 지휘 체계 가동');roster();hud();}
-function restart(){closeTacticalPanels();setPanelOpen($('game-tools'),false);setHudExpanded(false);({board,match}=createAshenMatch({seed,count:armySize}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();setMapOpen(true);notice('아군 진영에 병력을 배치하세요');roster();hud();}
+function startHeightTest(){
+ if(!terrainTest)return false;
+ const feature=board.battlefield?.heightDemo?.find(f=>f.team==='A'&&f.kind==='trench');
+ if(!feature)return false;
+ // Use the real squad deployment/commands. No duplicate test-only movement.
+ let squad=null;
+ for(const dx of [3,6,9,12]){
+  squad=match.deploy('A','infantry',{x:feature.entrance.fromX-dx,y:feature.entrance.y});
+  if(squad)break;
+ }
+ if(!squad)return false;
+ autoDeployPlayer(match);
+ match.start();
+ if(match.phase!=='battle')return false;
+ choose(squad.id);switchMode('control');
+ document.body.dataset.phase='battle';
+ focus(feature.x+4,feature.y-3);
+ notice('참호·고지 테스트 · 분대 이동 지점을 터치하세요');
+ return true;
+}
+function restart(){closeTacticalPanels();setPanelOpen($('game-tools'),false);setHudExpanded(false);({board,match}=createAshenMatch({seed,count:armySize}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();setMapOpen(true);if(!startHeightTest())notice('아군 진영에 병력을 배치하세요');roster();hud();}
 function locate(px,py){const r=unproject((px-camera.x)/camera.scale,(py-camera.y)/camera.scale),x=Math.round(r.x),y=Math.round(r.y);return board.inside(x,y)?{x,y}:null;}
 function hit(px,py){let closest=null,d=25;for(const u of board.units){if(u.health.current<=0)continue;const p=projectElevatedFoot(board,u),dist=Math.hypot(px-camera.x-p.x*camera.scale,py-camera.y-p.y*camera.scale+25*camera.scale);if(dist<d){d=dist;closest=u;}}return closest;}
 function tap(px,py,shift=false){const p=locate(px,py);if(!p)return;if(playMode==='deploy'&&match.phase==='preparation'){deploy(p);return;}const u=hit(px,py);
@@ -480,5 +501,5 @@ function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  if(t-lastPaint>=33){const begin=performance.now();paint();const ms=performance.now()-begin;if(renderSamples.length>=90)renderSamples.shift();renderSamples.push(ms);renderedFrames++;lastPaint=t;}if(t-lastUI>=250){hud();lastUI=t;}if(t-lastRoster>=800||match.statusRevision!==lastRosterRevision||board.teamAlive.A!==lastRosterAlive){roster();lastRoster=t;lastRosterRevision=match.statusRevision;lastRosterAlive=board.teamAlive.A;}if(t-lastMini>=500){if(document.body.classList.contains('map-open'))paintMini();lastMini=t;}
  requestAnimationFrame(frame);
 }
-bind();resize();fit();switchMode('deploy');hud();roster();setMapOpen(true);requestAnimationFrame(frame);
+bind();resize();fit();switchMode('deploy');if(!startHeightTest())notice('아군 진영에 병력을 배치하세요');hud();roster();setMapOpen(true);requestAnimationFrame(frame);
 window.__ashenFlower={get board(){return board;},get camera(){return {...camera};},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},get armySize(){return armySize;},get renderStats(){const samples=[...renderSamples].sort((a,b)=>a-b);const sum=samples.reduce((n,v)=>n+v,0);return {frames:renderedFrames,visibleTroops,heightFaces:visibleHeightFaces,avgMs:sum/(samples.length||1),p95Ms:samples[Math.floor((samples.length-1)*.95)]||0,terrainRebuilds:terrainArt.rebuilds,terrainCacheHits:terrainArt.cacheHits,terrainZoomReuses:terrainArt.zoomReuses,terrainEvictions:terrainArt.evictions,terrainPages:terrainArt.pages.length,terrainCacheBytes:terrainArt.cacheBytes,terrainVisibleTiles:terrainArt.cache?.tiles??0,miniQueries,miniArea,spriteCache:soldiers.stats};},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};

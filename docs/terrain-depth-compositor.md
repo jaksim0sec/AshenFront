@@ -29,3 +29,6 @@ The original active renderer blitted the entire cached terrain first and then re
 
 ## Verification
 Tests cover no-height fast path, face-unit interleaving, trench cap occlusion, deterministic equal-depth ordering, cached viewport results and revision invalidation, height interpolation across both ordinary/allied passage, and map-size independence.
+
+## Interactive browser scenario
+Append `?terrainTest=1` to the deployed game URL. This mode uses the normal match deployment logic to place an already-selected 10-person A squad beside the sample trench, deploys the remaining troops, starts the real bot battle and focuses the camera on the height features. Tap the map to issue squad orders onto/through the trenches and ridges. An ordinary URL preserves manual deployment. Restart keeps the debug mode.
