@@ -247,12 +247,34 @@ try:
      window.__ascentObservations.push({state:options.state,progress:options.riseProgress,low});
     return drawn;
    };
-   // Walk out of the trench along its actual reciprocal ramp.
-   const {x,y,toX}=trench.exit;
-   const u=board.spawn(x,y,null,{team:'A',autoCombat:false,movement:{stepTime:1.25},stats:{maxHealth:100}});
-   if(!u)return {error:'trench exit blocked',x,y,toX};
+   // Try every authored A-side reciprocal ascent. Do not place a probe
+   // into a real soldier or ignore the team's normal deployment limit.
+   const candidates=[];
+   for(const f of board.battlefield.heightDemo.filter(f=>f.team==='A')){
+    if(f.kind==='trench'){
+     candidates.push({x:f.exit.x,y:f.exit.y,toX:f.exit.toX});
+     candidates.push({x:f.entrance.x,y:f.entrance.y,toX:f.entrance.fromX});
+    }else{
+     candidates.push({x:f.entrance.fromX,y:f.entrance.y,toX:f.entrance.x});
+     candidates.push({x:f.exit.toX,y:f.exit.y,toX:f.exit.x});
+    }
+   }
+   const available=candidates.find(p=>
+    !board.navigation.blocked(p.y*board.width+p.x)&&
+    !board.navigation.blocked(p.y*board.width+p.toX)&&
+    !board.occupied(p.x,p.y)&&!board.occupied(p.toX,p.y));
+   if(!available)return {error:'no free authored ascent',candidates};
+   const {x,y,toX}=available,originalLimit=board.match.limit;
+   let u;
+   try{
+    // Reserve one test-only slot. The live simulation retains its usual cap.
+    board.match.limit=originalLimit+1;
+    u=board.spawn(x,y,null,{team:'A',autoCombat:false,movement:{stepTime:1.25},stats:{maxHealth:100}});
+   }finally{board.match.limit=originalLimit;}
+   if(!u)return {error:'probe spawn rejected',x,y,toX};
    board.beginStep(u,{x:toX,y});
    return {id:u.id,x,y,toX};
+
   }""")
   assert 'id' in ascent,ascent
   trial.wait_for_function("window.__ascentObservations?.some(p=>p.state==='walk')",timeout=6000)
