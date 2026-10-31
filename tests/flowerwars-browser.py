@@ -302,23 +302,18 @@ try:
   trial.wait_for_function("window.__ascentObservations?.some(p=>p.state==='walk')",timeout=6000)
   assert not trial_errors,trial_errors
   trial.screenshot(path=str(out/'terrain-interaction-mobile.png'))
-  # Regression capture at the same kind of close mobile zoom as the reported
-  # black/woodgrain wall screenshots. The old CI only captured tiny tiles.
-  focus=trial.evaluate("""()=>{
-   const f=__ashenFlower.board.battlefield.heightDemo.find(x=>x.team==='A'&&x.kind==='trench');
-   const camera=__ashenFlower.camera,rect=document.getElementById('battlefield').getBoundingClientRect();
-   return {x:rect.left+camera.x+(f.x-f.y)*72*camera.scale,
-    y:rect.top+camera.y+(f.x+f.y)*42*camera.scale};
-  }""")
-  trial.mouse.move(focus['x'],focus['y'])
-  trial.mouse.down()
-  trial.mouse.move(195,370,steps=12)
-  trial.mouse.up()
-  trial.mouse.move(195,370)
-  for _ in range(10):trial.mouse.wheel(0,-120)
-  trial.wait_for_timeout(900)
-  assert trial.evaluate('__ashenFlower.camera.scale')>1.2,'closeup requires >= 1.2x zoom'
-  trial.screenshot(path=str(out/'terrain-cut-closeup-mobile.png'))
+  # Capture both actual world features at a reproducible mobile zoom.
+  # Gestures used to drift away from the trench yet still passed CI.
+  for kind,name in [('trench','terrain-cut-closeup-mobile.png'),('hill','hill-cut-closeup-mobile.png')]:
+   focus=trial.evaluate("kind=>__ashenFlower.testFocusHeight(kind,'A',1.35)",kind)
+   assert focus is not None and focus['kind']==kind and focus['scale']>1.2,focus
+   trial.wait_for_timeout(650)
+   camera=trial.evaluate('__ashenFlower.camera')
+   feature=trial.evaluate("kind=>__ashenFlower.board.battlefield.heightDemo.find(f=>f.kind===kind&&f.team==='A')",kind)
+   px=camera['x']+(feature['x']-feature['y'])*72*camera['scale']
+   py=camera['y']+(feature['x']+feature['y'])*42*camera['scale']
+   assert abs(px-195)<1 and abs(py-422)<1,'wrong world point in zoomed capture'
+   trial.screenshot(path=str(out/name))
 
   debug.close()
   browser.close()
