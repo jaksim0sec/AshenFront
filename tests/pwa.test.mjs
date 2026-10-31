@@ -13,7 +13,7 @@ const root=fileURLToPath(new URL('../',import.meta.url));
 test('offline files cover game engines, artwork and workshop',async()=>{
  const {assets,version}=await pwaRelease(root);
  assert.match(version,/^[0-9a-f]{20}$/);
- for(const path of ['/index.html','/soldier-workshop.html','/src/boot.mjs','/src/fw-entry.mjs','/src/main.mjs','/src/characters/workshop.mjs','/assets/soldiers/manifest.json','/assets/world/terrain/ashenfront-atlas.webp.b64','/assets/world/terrain/atlas.webp.b64','/assets/factions/arken/flag.webp','/icons/32.png','/icons/180.png','/icons/192.png','/icons/512.png','/icons/192-maskable.png','/icons/512-maskable.png']){
+ for(const path of ['/index.html','/soldier-workshop.html','/src/boot.mjs','/src/fw-entry.mjs','/src/main.mjs','/src/characters/workshop.mjs','/assets/soldiers/manifest.json','/assets/world/terrain/ashenfront-atlas.webp.b64','/assets/world/terrain/trench-atlas.svg','/assets/world/terrain/atlas.webp.b64','/assets/factions/arken/flag.webp','/icons/32.png','/icons/180.png','/icons/192.png','/icons/512.png','/icons/192-maskable.png','/icons/512-maskable.png']){
   assert.ok(assets.includes(path),'missing offline resource: '+path);
  }
  assert.equal(assets.length,new Set(assets).size);
@@ -131,5 +131,6 @@ test('Vercel static build produces installable worker and icon resources',async(
   assert.equal((await readFile(join(dist,'icons/180.png'))).readUInt32BE(16),180);
   assert.equal((await readFile(join(dist,'icons/32.png'))).readUInt32BE(16),32);
   assert.ok((await readFile(join(dist,'assets/world/terrain/ashenfront-atlas.webp.b64'))).length>1000);
+  assert.match(await readFile(join(dist,'assets/world/terrain/trench-atlas.svg'),'utf8'),/width="720" height="214"/);
  }finally{await rm(dist,{recursive:true,force:true});}
 });

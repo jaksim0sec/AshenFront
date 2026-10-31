@@ -1,6 +1,7 @@
 import {LEVEL_PX,terrainLevel} from './terrain-occlusion.mjs';
 // AshenFront terrain visuals. All tactical/movement data remains immutable.
 const HX=72,HY=42,TW=144,TH=107,PAD=160;
+export const TRENCH_ATLAS={width:720,height:214,columns:5,rows:2,tileWidth:144,tileHeight:107};
 const NAMES=['void','grass','soil','road','marsh','rock','scorched'];
 const COLORS={void:'#272e31',grass:'#777b70',soil:'#756b60',road:'#a2967f',marsh:'#566a67',rock:'#686861',scorched:'#423d36'};
 const NEW_ROWS={grass:0,soil:1,road:2,marsh:3,rock:4,scorched:5};
@@ -9,6 +10,22 @@ const visualMaps=new WeakMap(),cachedDecor=new WeakMap();
 const project=(x,y)=>({x:(x-y)*HX,y:(x+y)*HY});
 const unproject=(x,y)=>({x:(x/HX+y/HY)/2,y:(y/HY-x/HX)/2});
 export const terrainVariant=(x,y)=>((x%5+5)%5)+5*((y%2+2)%2);
+export const trenchBedTile=(x,y,seed=0)=>hash(x,y,seed)%4;
+export function trenchRampTile(board,x,y){
+ if(terrainLevel(board,x,y)!==0)return null;
+ const mask=board.heightRamps?.[y*board.width+x]??0;
+ if(mask&4&&terrainLevel(board,x-1,y)>0)return 6;
+ if(mask&1&&terrainLevel(board,x+1,y)>0)return 7;
+ return null;
+}
+export function trenchWallTile(face,seed=0){
+ if(face.kind!=='wall'||face.low!==0||face.level!==1)return null;
+ const alt=hash(face.x,face.y,seed)%3===0;
+ return face.edge==='east'?(alt?8:4):face.edge==='south'?(alt?9:5):null;
+}
+function drawTrenchCell(ctx,atlas,index,p){
+ ctx.drawImage(atlas,index%5*TW,Math.floor(index/5)*TH,TW,TH,p.x-HX,p.y-44,TW,TH);
+}
 function hash(x,y,seed=0){
  let n=(Math.imul(x+1987,0x9e3779b1)^Math.imul(y+1776,0x85ebca77)^(seed>>>0))>>>0;
  n=Math.imul(n^(n>>>16),0x7feb352d);n=Math.imul(n^(n>>>15),0x846ca68b);
@@ -161,6 +178,13 @@ function surfaceOnly(image){
  }
  return canvas;
 }
+async function imageFromSVG(path){
+ const image=new Image();image.src=new URL(path,import.meta.url).href;
+ await image.decode();
+ if(image.naturalWidth!==TRENCH_ATLAS.width||image.naturalHeight!==TRENCH_ATLAS.height)
+  throw new Error('Expected trench atlas 720x214');
+ return image;
+}
 async function imageFromBase64(path){
  const response=await fetch(new URL(path,import.meta.url));
  if(!response.ok)throw Error('Terrain asset unavailable: '+path);
@@ -187,8 +211,8 @@ function seams(ctx,board,tiles,map){
 const PAGE_LIMIT=6,BYTE_LIMIT=40*1024*1024,IDLE_TTL=20000,ZOOM_SETTLE=120;
 export class BattlefieldTerrainRenderer{
  constructor(){
-  this.atlas=null;this.surface=null;this.kind='pending';this.decorations=null;this.version=0;
-  this.sourceAtlas=null;this.sourceDecorations=null;
+  this.atlas=null;this.surface=null;this.kind='pending';this.decorations=null;this.trenchAtlas=null;this.version=0;
+  this.sourceAtlas=null;this.sourceDecorations=null;this.sourceTrenchAtlas=null;
   this.cache=null;this.pages=[];this.baseKey=null;this.cacheBytes=0;this.rebuilds=0;
   this.cacheHits=0;this.zoomReuses=0;this.evictions=0;this.lastScale=null;this.zoomChangedAt=0;this.lastPrune=0;this.failures=[];
   const next=imageFromBase64('../../assets/world/terrain/ashenfront-atlas.webp.b64').then(img=>{
@@ -203,7 +227,10 @@ export class BattlefieldTerrainRenderer{
   const decor=imageFromBase64('../../assets/world/terrain/decorations.webp.b64').then(img=>{
    this.sourceDecorations=img;this.decorations=toneOld(img,true);this.version++;
   }).catch(e=>{this.failures.push(e.message);});
-  this.ready=Promise.allSettled([next,decor]);
+  const trenches=imageFromSVG('../../assets/world/terrain/trench-atlas.svg').then(img=>{
+   this.sourceTrenchAtlas=img;this.trenchAtlas=img;this.version++;
+  }).catch(e=>{this.failures.push('Trench atlas: '+e.message);});
+  this.ready=Promise.allSettled([next,decor,trenches]);
  }
  // Backgrounded mobile browsers can discard canvas backing stores while JS
  // still considers viewport pages reusable. Never trust those pages on return.
@@ -220,6 +247,7 @@ export class BattlefieldTerrainRenderer{
    else if(this.kind==='legacy')this.atlas=toneOld(this.sourceAtlas);
   }
   if(this.sourceDecorations)this.decorations=toneOld(this.sourceDecorations,true);
+   if(this.sourceTrenchAtlas)this.trenchAtlas=this.sourceTrenchAtlas;
   this.version++;
  }
  draw(ctx,board,camera,width,height,drawDpr=1,low=false,now=performance.now()){
@@ -287,14 +315,13 @@ export class BattlefieldTerrainRenderer{
      if(y+1>=board.height||materialIndex[(y+1)*board.width+x]===0)t.drawImage(this.atlas,sx,(6+row)*TH,TW,TH,p.x-HX,p.y-HY,TW,TH);
     }
     if(terrainLevel(board,x,y)===0){
-     // Recessed earth bed and back-bank rim are baked once per viewport page.
-     diamond(t,p.x,p.y,'#211c1730');
-     const west=terrainLevel(board,x-1,y)>0,north=terrainLevel(board,x,y-1)>0;
-     if(west||north){
-      t.beginPath();
-      if(west){t.moveTo(p.x-HX,p.y);t.lineTo(p.x,p.y-HY);}
-      if(north){t.moveTo(p.x,p.y-HY);t.lineTo(p.x+HX,p.y);}
-      t.strokeStyle='#a18a6b';t.lineWidth=3;t.stroke();
+     if(this.trenchAtlas){
+      drawTrenchCell(t,this.trenchAtlas,trenchBedTile(x,y,board.seed),p);
+      const ramp=trenchRampTile(board,x,y);
+      if(ramp!==null)drawTrenchCell(t,this.trenchAtlas,ramp,p);
+     }else{
+      // Temporary fallback until the SVG tileset finishes decoding.
+      diamond(t,p.x,p.y,'#211c1730');
      }
     }
    }
@@ -331,6 +358,11 @@ export class BattlefieldTerrainRenderer{
  drawOccluder(ctx,board,face){
   if(face.kind!=='wall')return;
   const p=project(face.x,face.y);p.y-=(face.level-1)*LEVEL_PX;
+  const tile=trenchWallTile(face,board.seed);
+  if(tile!==null&&this.trenchAtlas){
+   // Exact 22px earth face; same boundary as terrain-occlusion masks.
+   drawTrenchCell(ctx,this.trenchAtlas,tile,p);return;
+  }
   const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],
    b=east?[p.x+HX,p.y]:[p.x,p.y+HY],drop=(face.level-face.low)*LEVEL_PX;
   const ax=a[0],ay=a[1],bx=b[0],by=b[1];

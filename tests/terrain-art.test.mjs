@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-import {terrainVariant,terrainMaterial,terrainMaterialCounts,visibleTerrainTiles,terrainDecorations,visibleTerrainDecorations,BattlefieldTerrainRenderer} from '../src/fw/terrain-art.mjs';
+import {terrainVariant,terrainMaterial,terrainMaterialCounts,visibleTerrainTiles,terrainDecorations,visibleTerrainDecorations,BattlefieldTerrainRenderer,TRENCH_ATLAS,trenchBedTile,trenchRampTile,trenchWallTile} from '../src/fw/terrain-art.mjs';
 
 function board(width=80,height=70){
  return {width,height,seed:1977,terrainRevision:1,obstacleRevision:1,
@@ -187,5 +187,51 @@ test('walls paint into the terrain cache and never redraw over a soldier every f
   b.floorLevel[10*b.width+10]=1;b.floorLevelRevision++;
   r.draw(screen,b,cam,390,844,1,false,1100);
   assert.equal(drawn.length,n,'filling trench erases bank');
+ }finally{globalThis.document=oldDoc;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
+});
+
+test('real trench sprite atlas is exactly 5x2 image cells at 144x107',()=>{
+ const svg=readFileSync(new URL('../assets/world/terrain/trench-atlas.svg',import.meta.url),'utf8');
+ assert.match(svg,/<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="720" height="214" viewBox="0 0 720 214"/);
+ assert.deepEqual(TRENCH_ATLAS,{width:720,height:214,columns:5,rows:2,tileWidth:144,tileHeight:107});
+ const transforms=[...svg.matchAll(/<g transform="translate\((\d+) (\d+)\)">/g)]
+  .map(m=>[Number(m[1]),Number(m[2])]);
+ assert.equal(transforms.length,10,'all ten finished graphics have distinct atlas cells');
+ assert.deepEqual([...new Set(transforms.map(p=>p.join(',')))].sort(),[...Array(10)].map((_,i)=>[(i%5)*144,Math.floor(i/5)*107].join(',')).sort());
+ for(const [x,y] of transforms)assert(x>=0&&x<=576&&y>=0&&y<=107);
+ for(let i=0;i<8;i++)assert(trenchBedTile(i,11,1977)>=0&&trenchBedTile(i,11,1977)<4);
+ for(const edge of ['east','south']){
+  const tile=trenchWallTile({kind:'wall',edge,x:3,y:8,level:1,low:0},1977);
+  assert(edge==='east'?[4,8].includes(tile):[5,9].includes(tile));
+ }
+ assert.equal(trenchWallTile({kind:'wall',edge:'east',level:2,low:1}),null,'hill cliffs keep their existing visuals');
+});
+test('trench image renders mud floor, reciprocal ramp and exposed bank into cached map',()=>{
+ const oldDoc=globalThis.document,oldFetch=globalThis.fetch,oldImage=globalThis.Image;
+ const calls=[],atlas={width:720,height:214};
+ const ctx=()=>({setTransform(){},clearRect(){},fillRect(){},translate(){},scale(){},save(){},restore(){},
+  beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clip(){},drawImage(...args){if(args[0]===atlas)calls.push(args);}});
+ try{
+  globalThis.document={createElement:()=>({width:0,height:0,getContext:ctx})};
+  globalThis.fetch=async()=>({ok:false});
+  globalThis.Image=class {};
+  const r=new BattlefieldTerrainRenderer();
+  r.kind='new';r.atlas={};r.surface={};r.trenchAtlas=atlas;r.version++;
+  const b=board(30,24),i=10*b.width+10;
+  b.floorLevel=new Uint8Array(b.width*b.height).fill(1);b.floorLevel[i]=0;
+  b.heightRamps=new Uint8Array(b.width*b.height);b.heightRamps[i]=4;b.floorLevelRevision=1;
+  assert.equal(trenchRampTile(b,10,10),6);
+  const screen=ctx(),camera={x:0,y:0,scale:.3};
+  r.draw(screen,b,camera,390,844,1,false,1000);
+  assert(calls.some(a=>a[1]%144===0&&a[2]===0),'mud must render as a sprite from the first row');
+  assert(calls.some(a=>a[1]===144&&a[2]===107),'reciprocal W ramp must use tile 6');
+  assert(calls.some(a=>[0,432,576].includes(a[1])&&a[2]>=0),'walls must render as sprites');
+  assert(calls.every(a=>a.length===9&&a[3]===144&&a[4]===107&&a[7]===144&&a[8]===107));
+  const drawn=calls.length;
+  r.draw(screen,b,camera,390,844,1,false,1050);
+  assert.equal(calls.length,drawn,'background atlas sprites are cached');
+  b.floorLevel[i]=1;b.floorLevelRevision++;
+  r.draw(screen,b,camera,390,844,1,false,1100);
+  assert.equal(calls.length,drawn,'filled trench clears sprites from the viewport');
  }finally{globalThis.document=oldDoc;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
 });

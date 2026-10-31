@@ -222,16 +222,19 @@ try:
   trial.on('pageerror',lambda e:trial_errors.append(str(e)))
   trial.goto('http://127.0.0.1:8000/?terrainTest=1',wait_until='domcontentloaded',timeout=20000)
   trial.wait_for_function('window.__ashenFlower && __ashenFlower.match.phase==="battle"',timeout=30000)
+  trial.wait_for_function('__ashenFlower.renderStats.trenchAsset.ready',timeout=12000)
   result=trial.evaluate("""()=>{
    const {board,match}=__ashenFlower;
    const demo=board.battlefield.heightDemo.find(x=>x.team==='A'&&x.kind==='trench');
    const squad=match.squadIds.A[0],actor=board.units.find(u=>u.squadId===squad);
    const accepted=__ashenFlower.order([squad],'advance',{x:demo.entrance.x,y:demo.entrance.y}).accepted.length;
-   return {demo,actorX:actor?.x,accepted,phase:match.phase,alive:board.teamAlive.A};
+   return {demo,actorX:actor?.x,accepted,phase:match.phase,alive:board.teamAlive.A,
+    trenchAtlas:__ashenFlower.renderStats.trenchAsset};
   }""")
   assert result['phase']=='battle' and result['accepted']==1,result
   assert abs(result['actorX']-result['demo']['entrance']['x'])<12,result
   assert result['alive']==40,result
+  assert result['trenchAtlas']['ready'] is True and result['trenchAtlas']['width']==720 and result['trenchAtlas']['height']==214,result
   trial.wait_for_function('__ashenFlower.renderStats.heightFaces>0',timeout=10000)
   # Exercise a real uphill step through the deployed renderer, not only an
   # isolated pose unit test. The earlier browser test never reached the ramp.
