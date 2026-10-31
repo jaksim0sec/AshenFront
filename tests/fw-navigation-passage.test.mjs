@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Board,soldierRenderDepth} from '../src/fw/model.mjs';
+import {Board,soldierRenderDepth,soldierRenderCompare} from '../src/fw/model.mjs';
 
 const soldier=(b,x,y,team='A')=>b.spawn(x,y,null,{team,movement:{stepTime:.4},stats:{maxHealth:100},autoCombat:false});
 const key=(b,x,y)=>y*b.width+x;
@@ -130,4 +130,27 @@ test('a passer on the lower lane naturally renders in front, without any special
  b.advance(passer.step.duration/2);
  assert.ok(passer.visualX+passer.visualY>owner.visualX+owner.visualY,'passer did not reach lower lane');
  assert.ok(soldierRenderDepth(passer)>soldierRenderDepth(owner),'lower passer must draw later');
+});
+
+test('equal-depth adjacent sprites use their screen X, not spawn id, for deterministic layering',()=>{
+ const left={id:99,visualX:3,visualY:4},right={id:1,visualX:4,visualY:3};
+ assert.equal(soldierRenderDepth(left),soldierRenderDepth(right));
+ // Equal Y, left is 144 screen pixels to the left. Its draw should precede the right sprite.
+ assert.ok(soldierRenderCompare(left,right)<0);
+ assert.ok(soldierRenderCompare(right,left)>0);
+ assert.deepEqual([right,left].sort(soldierRenderCompare),[left,right]);
+});
+test('adjacent moving soldiers retain strictly projected-foot depth even across a passing lane',()=>{
+ const b=new Board(16,12),owner=soldier(b,3,4),neighbor=soldier(b,2,3),blocker=soldier(b,3,5),passer=soldier(b,2,4);
+ b.move(passer.id,6,4,{direct:true});
+ assert.deepEqual(passer.step.buffer,{x:3,y:3});
+ b.navigation.schedule=()=>{};
+ for(let i=0;i<8;i++){
+  b.advance(.08);
+  for(const other of [owner,neighbor,blocker]){
+   const diff=passer.visualX+passer.visualY-other.visualX-other.visualY;
+   if(diff<0)assert.ok(soldierRenderCompare(passer,other)<0);
+   if(diff>0)assert.ok(soldierRenderCompare(passer,other)>0);
+  }
+ }
 });

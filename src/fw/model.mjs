@@ -38,6 +38,13 @@ export function project(x, y) {
 export function soldierRenderDepth(u){
  return u.visualX+u.visualY;
 }
+// On the same ground-depth row use screen X rather than spawn order.
+// This matters when wide death poses overlap across neighboring diamonds.
+export function soldierRenderCompare(a,b){
+ return soldierRenderDepth(a)-soldierRenderDepth(b)
+  ||(a.visualX-a.visualY)-(b.visualX-b.visualY)
+  ||a.id-b.id;
+}
 
 export function unproject(x, y) {
   return { x: (x / HALF_W + y / HALF_H) / 2, y: (y / HALF_H - x / HALF_W) / 2 };
