@@ -208,15 +208,19 @@ test('real trench sprite atlas is exactly 5x2 image cells at 144x107',()=>{
 });
 test('trench image renders mud floor, reciprocal ramp and exposed bank into cached map',()=>{
  const oldDoc=globalThis.document,oldFetch=globalThis.fetch,oldImage=globalThis.Image;
- const calls=[],atlas={width:720,height:214};
+ const calls=[],textures=[],transforms=[],atlas={width:720,height:214},soil={width:1440,height:642};
  const ctx=()=>({setTransform(){},clearRect(){},fillRect(){},translate(){},scale(){},save(){},restore(){},
-  beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clip(){},drawImage(...args){if(args[0]===atlas)calls.push(args);}});
+  transform(...args){transforms.push(args);},createLinearGradient(){return {addColorStop(){}};},
+  beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clip(){},drawImage(...args){
+   if(args[0]===atlas)calls.push(args);
+   if(args[0]===soil&&args.length===9)textures.push(args);
+  }});
  try{
   globalThis.document={createElement:()=>({width:0,height:0,getContext:ctx})};
   globalThis.fetch=async()=>({ok:false});
   globalThis.Image=class {};
   const r=new BattlefieldTerrainRenderer();
-  r.kind='new';r.atlas={};r.surface={};r.trenchAtlas=atlas;r.version++;
+  r.kind='new';r.atlas=soil;r.surface={};r.trenchAtlas=atlas;r.version++;
   const b=board(30,24),i=10*b.width+10;
   b.floorLevel=new Uint8Array(b.width*b.height).fill(1);b.floorLevel[i]=0;
   b.heightRamps=new Uint8Array(b.width*b.height);b.heightRamps[i]=4;b.floorLevelRevision=1;
@@ -225,11 +229,13 @@ test('trench image renders mud floor, reciprocal ramp and exposed bank into cach
   r.draw(screen,b,camera,390,844,1,false,1000);
   assert(calls.some(a=>a[1]%144===0&&a[2]===0),'mud must render as a sprite from the first row');
   assert(calls.some(a=>a[1]===144&&a[2]===107),'reciprocal W ramp must use tile 6');
-  assert(calls.some(a=>[0,432,576].includes(a[1])&&a[2]>=0),'walls must render as sprites');
+  assert(transforms.some(m=>m.length===6&&m[3]>0&&m[3]<=1.05),'bank dirt texture must be projected along cut face');
+  assert(textures.some(a=>a[3]===52&&a[4]===23&&a[2]===107+33),'wall texture must come from opaque soil interior, not dark tile rim');
   assert(calls.every(a=>a.length===9&&a[3]===144&&a[4]===107&&a[7]===144&&a[8]===107));
-  const drawn=calls.length;
+  const drawn=calls.length,projected=transforms.length;
   r.draw(screen,b,camera,390,844,1,false,1050);
   assert.equal(calls.length,drawn,'background atlas sprites are cached');
+  assert.equal(transforms.length,projected,'bank projection must be cached rather than repeated every frame');
   b.floorLevel[i]=1;b.floorLevelRevision++;
   r.draw(screen,b,camera,390,844,1,false,1100);
   assert.equal(calls.length,drawn,'filled trench clears sprites from the viewport');
@@ -274,4 +280,27 @@ test('excavated floor receives directional inward shadow only beside higher bank
   r.draw(screen,b,camera,390,844,1,false,1100);
   assert.equal(shades-first,3,'open west ramp is not blocked by a dark wall shadow');
  }finally{globalThis.document=oldDoc;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
+});
+
+test('trench cut geometry uses photographic soil, light broken lip and no black 2D slab',()=>{
+ const r=Object.create(BattlefieldTerrainRenderer.prototype);
+ r.atlas={};r.trenchAtlas={};r.kind='new';
+ const strokes=[],textures=[],gradients=[],ops=[];
+ const ctx={save(){ops.push('save');},restore(){ops.push('restore');},
+  beginPath(){},moveTo(){},lineTo(){},closePath(){},clip(){},fill(){},
+  stroke(){strokes.push([this.strokeStyle,this.lineWidth]);},
+  transform(...args){ops.push('project');},
+  createLinearGradient(){const stops=[];gradients.push(stops);return {addColorStop(...args){stops.push(args);}};},
+  drawImage(...args){textures.push(args);}};
+ r.drawOccluder(ctx,{seed:45},{kind:'wall',x:10,y:11,edge:'east',level:1,low:0});
+ assert.equal(textures.length,1,'one photographic soil crop per cut face');
+ assert.equal(textures[0][3],52);
+ assert.equal(textures[0][4],23);
+ assert.equal(ops.filter(o=>o==='project').length,1);
+ assert.equal(ops.filter(o=>o==='save').length,ops.filter(o=>o==='restore').length);
+ assert.ok(strokes.some(([color,width])=>color==='#b09b7f9a'&&width<=1.3),'rim must be fine and irregular');
+ assert.ok(gradients.every(stops=>stops.at(-1)?.[1]!=='rgba(24,20,17,.69)'),'no old heavy black wall band');
+ textures.length=0;
+ r.drawOccluder(ctx,{seed:45},{kind:'wall',x:10,y:11,edge:'east',level:2,low:1});
+ assert.equal(textures.length,0,'existing high-ground art remains unchanged');
 });

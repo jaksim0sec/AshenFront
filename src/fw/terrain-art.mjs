@@ -47,8 +47,8 @@ function drawTrenchInset(ctx,board,x,y,p){
   const vx=p.x-mx,vy=p.y-my,len=Math.hypot(vx,vy)||1;
   const ix=vx/len*36,iy=vy/len*36;
   const shade=ctx.createLinearGradient(mx,my,mx+ix,my+iy);
-  shade.addColorStop(0,'rgba(25,21,17,.61)');
-  shade.addColorStop(.52,'rgba(35,28,22,.26)');
+  shade.addColorStop(0,'rgba(30,24,19,.34)');
+  shade.addColorStop(.52,'rgba(40,31,24,.14)');
   shade.addColorStop(1,'rgba(35,28,22,0)');
   ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
   ctx.lineTo(bx+ix,by+iy);ctx.lineTo(ax+ix,ay+iy);ctx.closePath();
@@ -391,29 +391,61 @@ export class BattlefieldTerrainRenderer{
   const p=project(face.x,face.y);p.y-=(face.level-1)*LEVEL_PX;
   const tile=trenchWallTile(face,board.seed);
   if(tile!==null&&this.trenchAtlas&&this.atlas&&typeof ctx.clip==='function'){
-   // The exposed bank is SOIL, not a wooden railing: crop the existing
-   // photographic dirt through the physical face and shade its cut surface.
+   // A trench is cut EARTH, not a flat black beam. Project a real interior
+   // soil patch across the exposed face instead of sampling the dark tile rim.
    const east=face.edge==='east';
    const ax=east?p.x:p.x-HX,ay=east?p.y+HY:p.y;
    const bx=east?p.x+HX:p.x,by=east?p.y:p.y+HY;
    const drop=(face.level-face.low)*LEVEL_PX;
-   ctx.save();ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
-   ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();ctx.clip();
-   ctx.globalAlpha=.72;
-   const sx=terrainVariant(face.x,face.y)*TW;
-   ctx.drawImage(this.atlas,sx,TH,TW,TH,p.x-HX,p.y-44,TW,TH);
-   ctx.globalAlpha=.16;
-   drawTrenchCell(ctx,this.trenchAtlas,tile,p);
-   ctx.globalAlpha=1;
-   if(typeof ctx.createLinearGradient==='function'){
-    const shade=ctx.createLinearGradient(0,Math.min(ay,by),0,Math.max(ay,by)+drop);
-    shade.addColorStop(0,'rgba(50,40,30,.04)');
-    shade.addColorStop(.55,'rgba(37,29,22,.24)');
-    shade.addColorStop(1,'rgba(24,20,17,.69)');
-    ctx.fillStyle=shade;ctx.fillRect(Math.min(ax,bx),Math.min(ay,by),
-      Math.abs(ax-bx)||1,Math.abs(ay-by)+drop);
+   const noise=hash(face.x,face.y,board.seed);
+   const faceTop=t=>{
+    // Deterministic 0-2px erosion at sub-tile intervals, no temporal jitter.
+    const k=Math.min(7,Math.max(0,Math.round(t*7)));
+    return ((Math.imul(noise^(k*991),0x85ebca77)>>>27)%5-2)*.52;
+   };
+   ctx.save();ctx.beginPath();ctx.moveTo(ax,ay+faceTop(0));
+   for(let k=1;k<=7;k++){
+    const t=k/7;
+    ctx.lineTo(ax+(bx-ax)*t,ay+(by-ay)*t+faceTop(t));
    }
-   ctx.restore();return;
+   ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();
+   ctx.clip();
+   ctx.fillStyle='#786551';ctx.fill();
+   if(typeof ctx.transform==='function'){
+    // Source is the opaque CENTRE of the photographed soil diamond.
+    // An affine projection preserves grit along the slanted cut face.
+    const sw=52,sh=23,sx=terrainVariant(face.x,face.y)*TW+46,sy=TH+33;
+    ctx.save();
+    ctx.transform((bx-ax)/sw,(by-ay)/sw,0,drop/sh,ax,ay);
+    ctx.globalAlpha=.95;
+    ctx.drawImage(this.atlas,sx,sy,sw,sh,0,0,sw,sh);
+    ctx.restore();
+   }
+   const shade=ctx.createLinearGradient?.(0,Math.min(ay,by),0,Math.max(ay,by)+drop);
+   if(shade){
+    shade.addColorStop(0,'rgba(43,34,27,.05)');
+    shade.addColorStop(.48,'rgba(40,32,26,.13)');
+    shade.addColorStop(1,'rgba(29,24,20,.43)');
+    ctx.fillStyle=shade;
+    ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
+    ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();ctx.fill();
+   }
+   // Granular exposed cut, baked once in the viewport page.
+   for(let n=0;n<5;n++){
+    const t=(n+.3)/5, grain=hash(face.x+n,face.y-n,board.seed);
+    const x=ax+(bx-ax)*t,y=ay+(by-ay)*t+3+(grain%14);
+    ctx.beginPath();ctx.moveTo(x,y);
+    ctx.lineTo(x+((grain&1)?1.4:-1.4),y+.8);ctx.lineTo(x,y+1.6);
+    ctx.closePath();ctx.fillStyle=n%3===0?'#b7a18a77':'#362d2670';ctx.fill();
+   }
+   ctx.restore();
+   // Fine broken lip instead of a thick constant-width top rail.
+   ctx.beginPath();ctx.moveTo(ax,ay+faceTop(0));
+   for(let k=1;k<=7;k++){
+    const t=k/7;ctx.lineTo(ax+(bx-ax)*t,ay+(by-ay)*t+faceTop(t));
+   }
+   ctx.strokeStyle='#b09b7f9a';ctx.lineWidth=1.3;ctx.stroke();
+   return;
   }
   const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],
    b=east?[p.x+HX,p.y]:[p.x,p.y+HY],drop=(face.level-face.low)*LEVEL_PX;
