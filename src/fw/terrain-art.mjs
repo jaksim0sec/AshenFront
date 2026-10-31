@@ -26,6 +26,37 @@ export function trenchWallTile(face,seed=0){
 function drawTrenchCell(ctx,atlas,index,p){
  ctx.drawImage(atlas,index%5*TW,Math.floor(index/5)*TH,TW,TH,p.x-HX,p.y-44,TW,TH);
 }
+// Inset dirt shadows into the LOW floor. This gives the cut a believable
+// recessed edge without drawing a wall/fence ON TOP of the high ground.
+function drawTrenchInset(ctx,board,x,y,p){
+ if(typeof ctx.createLinearGradient!=='function')return;
+ const edges=[
+  [-1,0,[-HX,0],[0,-HY],4],
+  [0,-1,[0,-HY],[HX,0],8],
+  [1,0,[HX,0],[0,HY],1],
+  [0,1,[0,HY],[-HX,0],2]
+ ];
+ ctx.save();
+ ctx.beginPath();ctx.moveTo(p.x,p.y-HY);ctx.lineTo(p.x+HX,p.y);
+ ctx.lineTo(p.x,p.y+HY);ctx.lineTo(p.x-HX,p.y);ctx.closePath();ctx.clip();
+ for(const [dx,dy,aa,bb,bit] of edges){
+  if(terrainLevel(board,x+dx,y+dy)<=0)continue;
+  if((board.heightRamps?.[y*board.width+x]??0)&bit)continue; // open ramp entrance
+  const ax=p.x+aa[0],ay=p.y+aa[1],bx=p.x+bb[0],by=p.y+bb[1];
+  const mx=(ax+bx)/2,my=(ay+by)/2;
+  const vx=p.x-mx,vy=p.y-my,len=Math.hypot(vx,vy)||1;
+  const ix=vx/len*36,iy=vy/len*36;
+  const shade=ctx.createLinearGradient(mx,my,mx+ix,my+iy);
+  shade.addColorStop(0,'rgba(25,21,17,.61)');
+  shade.addColorStop(.52,'rgba(35,28,22,.26)');
+  shade.addColorStop(1,'rgba(35,28,22,0)');
+  ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
+  ctx.lineTo(bx+ix,by+iy);ctx.lineTo(ax+ix,ay+iy);ctx.closePath();
+  ctx.fillStyle=shade;ctx.fill();
+ }
+ ctx.restore();
+}
+
 function hash(x,y,seed=0){
  let n=(Math.imul(x+1987,0x9e3779b1)^Math.imul(y+1776,0x85ebca77)^(seed>>>0))>>>0;
  n=Math.imul(n^(n>>>16),0x7feb352d);n=Math.imul(n^(n>>>15),0x846ca68b);
@@ -319,8 +350,8 @@ export class BattlefieldTerrainRenderer{
       drawTrenchCell(t,this.trenchAtlas,trenchBedTile(x,y,board.seed),p);
       const ramp=trenchRampTile(board,x,y);
       if(ramp!==null)drawTrenchCell(t,this.trenchAtlas,ramp,p);
+      drawTrenchInset(t,board,x,y,p);
      }else{
-      // Temporary fallback until the SVG tileset finishes decoding.
       diamond(t,p.x,p.y,'#211c1730');
      }
     }
@@ -359,9 +390,30 @@ export class BattlefieldTerrainRenderer{
   if(face.kind!=='wall')return;
   const p=project(face.x,face.y);p.y-=(face.level-1)*LEVEL_PX;
   const tile=trenchWallTile(face,board.seed);
-  if(tile!==null&&this.trenchAtlas){
-   // Exact 22px earth face; same boundary as terrain-occlusion masks.
-   drawTrenchCell(ctx,this.trenchAtlas,tile,p);return;
+  if(tile!==null&&this.trenchAtlas&&this.atlas&&typeof ctx.clip==='function'){
+   // The exposed bank is SOIL, not a wooden railing: crop the existing
+   // photographic dirt through the physical face and shade its cut surface.
+   const east=face.edge==='east';
+   const ax=east?p.x:p.x-HX,ay=east?p.y+HY:p.y;
+   const bx=east?p.x+HX:p.x,by=east?p.y:p.y+HY;
+   const drop=(face.level-face.low)*LEVEL_PX;
+   ctx.save();ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
+   ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();ctx.clip();
+   ctx.globalAlpha=.72;
+   const sx=terrainVariant(face.x,face.y)*TW;
+   ctx.drawImage(this.atlas,sx,TH,TW,TH,p.x-HX,p.y-44,TW,TH);
+   ctx.globalAlpha=.16;
+   drawTrenchCell(ctx,this.trenchAtlas,tile,p);
+   ctx.globalAlpha=1;
+   if(typeof ctx.createLinearGradient==='function'){
+    const shade=ctx.createLinearGradient(0,Math.min(ay,by),0,Math.max(ay,by)+drop);
+    shade.addColorStop(0,'rgba(50,40,30,.04)');
+    shade.addColorStop(.55,'rgba(37,29,22,.24)');
+    shade.addColorStop(1,'rgba(24,20,17,.69)');
+    ctx.fillStyle=shade;ctx.fillRect(Math.min(ax,bx),Math.min(ay,by),
+      Math.abs(ax-bx)||1,Math.abs(ay-by)+drop);
+   }
+   ctx.restore();return;
   }
   const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],
    b=east?[p.x+HX,p.y]:[p.x,p.y+HY],drop=(face.level-face.low)*LEVEL_PX;

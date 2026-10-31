@@ -245,3 +245,33 @@ test('new trench asset is transparent soil treatment, not opaque slabs, ladders 
  assert.doesNotMatch(svg,/(wooden fence|palisade|ladder|railroad sleeper|fence post)/i);
  assert.ok((svg.match(/clip-path="url\(#diamond\)"/g)||[]).length>=6,'floor and ramp overlays stay inside diamond');
 });
+
+test('excavated floor receives directional inward shadow only beside higher banks',()=>{
+ const oldDoc=globalThis.document,oldFetch=globalThis.fetch,oldImage=globalThis.Image;
+ let shades=0;
+ const ctx=()=>({setTransform(){},clearRect(){},fillRect(){},translate(){},scale(){},
+  save(){},restore(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},
+  fill(){},stroke(){},clip(){},drawImage(){},
+  createLinearGradient(){shades++;return {addColorStop(){}};}});
+ try{
+  globalThis.document={createElement:()=>({width:0,height:0,getContext:ctx})};
+  globalThis.fetch=async()=>({ok:false});globalThis.Image=class {};
+  const r=new BattlefieldTerrainRenderer();r.atlas={};r.surface={};
+  r.trenchAtlas={width:720,height:214};r.kind='new';r.version++;
+  // Suppress bank painting: inspect actual floor inset shadow cost and geometry.
+  r.drawOccluder=()=>{};
+  const b=board(20,20),ix=(x,y)=>y*b.width+x;
+  b.floorLevel=new Uint8Array(b.width*b.height).fill(1);
+  b.floorLevel[ix(10,10)]=0;b.floorLevelRevision=1;
+  b.heightRamps=new Uint8Array(b.width*b.height);
+  const screen=ctx(),camera={x:0,y:0,scale:.3};
+  r.draw(screen,b,camera,390,844,1,false,1000);
+  assert.equal(shades,4,'all four high banks cast directional shadows into the cut');
+  const first=shades;
+  r.draw(screen,b,camera,390,844,1,false,1050);
+  assert.equal(shades,first,'no per-frame shadow recalculation on a cache hit');
+  b.heightRamps[ix(10,10)]=4;b.floorLevelRevision++;
+  r.draw(screen,b,camera,390,844,1,false,1100);
+  assert.equal(shades-first,3,'open west ramp is not blocked by a dark wall shadow');
+ }finally{globalThis.document=oldDoc;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
+});

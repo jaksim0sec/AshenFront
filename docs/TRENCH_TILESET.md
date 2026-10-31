@@ -31,3 +31,17 @@ cache invalidation and absence of old ladders. Chromium's mobile run also
 checks actual image decode and sampled mud alpha: the overlays must be
 transparent enough not to hide existing ground textures. Appearance still
 requires manual review of the real gameplay scene.
+
+## Second-pass screenshot verification
+
+Automated Chromium screenshots revealed that removing opaque dark flooring
+alone was insufficient: regular bank-face polygons still read as a long
+raised beam. The renderer now clips the existing natural soil atlas into the
+actual wall face, then darkens the cut from the upper rim toward the bottom.
+It uses the new atlas for subtle tonal variation only, not as a sharp
+palisade. Inside the low floor, directional ambient-occlusion shadows from
+each neighboring higher tile fade 36 pixels into the existing soil texture.
+Open reciprocal ramp faces do not cast a blocking shadow.
+
+All changes are still static texture composition inside a cached terrain
+page. They do not add per-unit animation, layout, movement or AI costs.
