@@ -233,6 +233,29 @@ try:
   assert abs(result['actorX']-result['demo']['entrance']['x'])<12,result
   assert result['alive']==40,result
   trial.wait_for_function('__ashenFlower.renderStats.heightFaces>0',timeout=10000)
+  # Exercise a real uphill step through the deployed renderer, not only an
+  # isolated pose unit test. The earlier browser test never reached the ramp.
+  ascent=trial.evaluate("""async()=>{
+   const {board}=__ashenFlower;
+   const trench=board.battlefield.heightDemo.find(f=>f.team==='A'&&f.kind==='trench');
+   const {SoldierRenderer}=await import('/src/characters/renderer.mjs');
+   const original=SoldierRenderer.prototype.draw;
+   window.__ascentObservations=[];
+   SoldierRenderer.prototype.draw=function(ctx,team,rank,options,low){
+    const drawn=original.call(this,ctx,team,rank,options,low);
+    if(drawn&&options.riseProgress!=null&&options.riseProgress>.1&&options.riseProgress<.9)
+     window.__ascentObservations.push({state:options.state,progress:options.riseProgress,low});
+    return drawn;
+   };
+   // Walk out of the trench along its actual reciprocal ramp.
+   const {x,y,toX}=trench.exit;
+   const u=board.spawn(x,y,null,{team:'A',autoCombat:false,movement:{stepTime:1.25},stats:{maxHealth:100}});
+   if(!u)return {error:'trench exit blocked',x,y,toX};
+   board.beginStep(u,{x:toX,y});
+   return {id:u.id,x,y,toX};
+  }""")
+  assert 'id' in ascent,ascent
+  trial.wait_for_function("window.__ascentObservations?.some(p=>p.state==='walk')",timeout=6000)
   assert not trial_errors,trial_errors
   trial.screenshot(path=str(out/'terrain-interaction-mobile.png'))
   debug.close()

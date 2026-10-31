@@ -80,7 +80,7 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
    rotate(upperAngle+climb*.045-riseBrace*.09+riseHaul*.045)));
  // An occasional horizontal glance, NOT a nod. Keep helmet and head attached.
  // A front-view drawing cannot perform real 3D yaw without new art.
- const head=multiply(upper,multiply(translate(look*11,0),
+ const head=multiply(translate(look*11,0),multiply(upper,
   multiply(translate(parts.head.x,parts.head.y),
    multiply(rotate(breath*.009+recoil*.035+crouchBlend*.09+(guarding?Math.sin(time*.8+phase)*.012:0)+(dying?-impactKick*.2+buckle*.13:0)),
     translate(-parts.head.x,-parts.head.y)))));
