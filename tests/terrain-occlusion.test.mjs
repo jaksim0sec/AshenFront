@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,terrainLevel,terrainOcclusionStats,compareProjectedUnits,terrainTransitionPose} from '../src/fw/terrain-occlusion.mjs';
+import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,terrainLevel,terrainOcclusionStats,compareProjectedUnits,terrainTransitionPose,terrainCoverPolygons,clipSoldierAgainstTerrain} from '../src/fw/terrain-occlusion.mjs';
 const board=(w=8,h=8)=>({width:w,height:h,floorLevel:new Uint8Array(w*h).fill(1),floorLevelRevision:0,terrainRevision:0});
 const bounds={x0:0,x1:7,y0:0,y1:7};
 const actor=(x,y,id=1)=>({visualX:x,visualY:y,x,y,id});
@@ -116,4 +116,41 @@ test('climbing and descending pose signals are smooth and disabled on flat walki
  b.floorLevel[3*b.width+3]=2;
  u.step={x:3,y:3,duration:1,elapsed:.5};
  assert.equal(terrainTransitionPose(b,u),0);
+});
+
+test('same-tile face competes with soldier while a front-neighbor soldier stays visible',()=>{
+ const b=board(16,16);b.floorLevel[5*b.width+5]=2;b.floorLevelRevision++;
+ const rear=actor(5,5),front=actor(6,5);
+ assert.ok(terrainCoverPolygons(b,rear).some(p=>p.length===4));
+ assert.deepEqual(terrainCoverPolygons(b,front),[]);
+});
+test('trench soldier is locally masked by elevated front tile, not rear tiles',()=>{
+ const b=board(18,18);b.floorLevel[7*b.width+7]=0;b.floorLevelRevision++;
+ assert.ok(terrainCoverPolygons(b,actor(7,7)).length>0);
+ assert.deepEqual(terrainCoverPolygons(b,actor(8,7)),[]);
+});
+test('wall occlusion boundary follows fractional motion rather than snapping at cell centers',()=>{
+ const b=board(16,16);b.floorLevel[5*b.width+5]=2;b.floorLevelRevision++;
+ const first=terrainCoverPolygons(b,actor(5,5));
+ const moving={...actor(5,5),visualX:5.55};
+ const mid=terrainCoverPolygons(b,moving);
+ const face=poly=>poly.length===4&&poly.some(p=>p.y>430);
+ const a=first.find(face),m=mid.find(face);
+ assert.ok(a&&m);
+ assert.notDeepEqual(a[0],m[0],'same wall is clipped to moving foot depth');
+ assert.equal(terrainCoverPolygons(b,actor(6,5)).filter(face).length,0);
+});
+test('per-soldier exclusion clips use an even-odd hole for every overlapping face',()=>{
+ const b=board(16,16);b.floorLevel[5*b.width+5]=2;b.floorLevelRevision++;
+ const log=[],ctx={beginPath(){log.push('begin')},rect(){log.push('rect')},moveTo(){},lineTo(){},
+  closePath(){},clip(rule){log.push(rule)}};
+ const n=clipSoldierAgainstTerrain(ctx,b,actor(5,5));
+ assert.ok(n>0);assert.equal(log.filter(v=>v==='evenodd').length,n);
+ assert.equal(log.filter(v=>v==='rect').length,n);
+ assert.equal(clipSoldierAgainstTerrain(ctx,{width:16,height:16},actor(5,5)),0);
+});
+test('occlusion complexity remains local on a much bigger battlefield',()=>{
+ const big=board(512,384),small=board(64,64);
+ for(const b of [big,small]){b.floorLevel[30*b.width+31]=0;b.floorLevelRevision++;}
+ assert.equal(terrainCoverPolygons(big,actor(31,30)).length,terrainCoverPolygons(small,actor(31,30)).length);
 });

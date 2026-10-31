@@ -73,7 +73,9 @@ export function terrainOcclusionStats(board){
 export function compareProjectedUnits(a,b){
  const ay=a._renderFoot?.y??(a.visualX+a.visualY)*HALF_H;
  const by=b._renderFoot?.y??(b.visualX+b.visualY)*HALF_H;
- return ay-by
+ // Ground X+Y determines camera depth; projected foot Y includes elevation.
+ return (a.visualX+a.visualY)-(b.visualX+b.visualY)
+  ||ay-by
   ||(a._renderFoot?.x??(a.visualX-a.visualY)*HALF_W)-(b._renderFoot?.x??(b.visualX-b.visualY)*HALF_W)
   ||a.id-b.id;
 }
@@ -85,6 +87,85 @@ export function terrainTransitionPose(board,u){
  const t=Math.max(0,Math.min(1,step.elapsed/step.duration));
  return Math.sign(destination-origin)*Math.sin(Math.PI*t);
 }
+
+const MASK_RANGE=4,MASK_HALF_WIDTH=260,MASK_UP=320,MASK_DOWN=160;
+function surfaceDiamond(x,y,h){
+ const px=(x-y)*HALF_W,py=(x+y)*HALF_H-(h-1)*LEVEL_PX;
+ return [{x:px,y:py-HALF_H,d:x+y-1},{x:px+HALF_W,y:py,d:x+y},
+  {x:px,y:py+HALF_H,d:x+y+1},{x:px-HALF_W,y:py,d:x+y}];
+}
+function surfaceInFront(vertices,depth){
+ const out=[];
+ for(let k=0;k<vertices.length;k++){
+  const a=vertices[k],b=vertices[(k+1)%vertices.length];
+  const inside=a.d>depth,next=b.d>depth;
+  if(inside)out.push({x:a.x,y:a.y});
+  if(inside!==next){
+   const t=(depth-a.d)/(b.d-a.d);
+   out.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+  }
+ }
+ return out;
+}
+function overlapsSprite(poly,foot){
+ if(poly.length<3)return false;
+ let l=Infinity,r=-Infinity,t=Infinity,b=-Infinity;
+ for(const p of poly){l=Math.min(l,p.x);r=Math.max(r,p.x);t=Math.min(t,p.y);b=Math.max(b,p.y);}
+ return l<foot.x+MASK_HALF_WIDTH&&r>foot.x-MASK_HALF_WIDTH&&t<foot.y+MASK_DOWN&&b>foot.y-MASK_UP;
+}
+/** Return ONLY the physically foreground fragments relevant to this one actor.
+ * Camera depth is continuous world X+Y. Screen Y is not a depth coordinate.
+ * Slicing a face at the actor's position handles competition within one tile.
+ */
+export function terrainCoverPolygons(board,u){
+ if(!source(board))return EMPTY;
+ const x=u.visualX,y=u.visualY,depth=x+y+1e-4;
+ const foot=u._renderFoot??projectElevatedFoot(board,u);
+ const altitude=1+((x+y)*HALF_H-foot.y)/LEVEL_PX;
+ const out=[];
+ const add=poly=>{if(overlapsSprite(poly,foot))out.push(poly);};
+ for(let ty=Math.max(0,Math.floor(y)-MASK_RANGE);ty<=Math.min(board.height-1,Math.ceil(y)+MASK_RANGE);ty++)
+ for(let tx=Math.max(0,Math.floor(x)-MASK_RANGE);tx<=Math.min(board.width-1,Math.ceil(x)+MASK_RANGE);tx++){
+  const h=terrainLevel(board,tx,ty),base=tx+ty;
+  // Upper ground in front of a trench occupant can occlude their feet.
+  // Ground at or below the soldier's supporting height never obscures them.
+  if(h>altitude+.01&&base+1>depth)
+   add(surfaceInFront(surfaceDiamond(tx,ty,h),depth));
+  if(base+1<=depth)continue;
+  for(const [dx,dy,edge] of [[1,0,'east'],[0,1,'south']]){
+   const low=terrainLevel(board,tx+dx,ty+dy);
+   if(h<=low)continue;
+   const px=(tx-ty)*HALF_W,py=(tx+ty)*HALF_H-(h-1)*LEVEL_PX;
+   const ax=edge==='east'?px+HALF_W:px-HALF_W,bx=px;
+   const ay=py,by=py+HALF_H,drop=(h-low)*LEVEL_PX;
+   const split=Math.max(0,Math.min(1,depth-base));
+   if(split>=1)continue;
+   const mx=ax+(bx-ax)*split,my=ay+(by-ay)*split;
+   add([{x:mx,y:my},{x:bx,y:by},{x:bx,y:by+drop},{x:mx,y:my+drop}]);
+  }
+ }
+ return out.length?out:EMPTY;
+}
+/** Subtract foreground coverage from this sprite alone, so one wall cannot
+ * accidentally paint across a different soldier.
+ * Call inside save/translate at the projected actor foot.
+ */
+export function clipSoldierAgainstTerrain(ctx,board,u){
+ const pieces=terrainCoverPolygons(board,u);
+ if(!pieces.length)return 0;
+ const foot=u._renderFoot??projectElevatedFoot(board,u);
+ for(const poly of pieces){
+  ctx.beginPath();ctx.rect(-MASK_HALF_WIDTH,-MASK_UP,2*MASK_HALF_WIDTH,MASK_UP+MASK_DOWN);
+  for(let i=0;i<poly.length;i++){
+   const px=poly[i].x-foot.x,py=poly[i].y-foot.y;
+   if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }
+  ctx.closePath();ctx.clip('evenodd');
+ }
+ return pieces.length;
+}
+
+// Legacy merge exported for existing callers; the active scene uses local masks.
 // Both streams are independently sorted; no combined sort or per-soldier terrain search.
 export function mergeDepthLayers(units,faces,drawUnit,drawFace){
  let j=0;

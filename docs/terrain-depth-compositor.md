@@ -1,34 +1,29 @@
-# Terrain × Soldier Depth Composition
+# Terrain and Soldier Depth Composition
 
-Status: integrated into the active AshenFront `fw-entry.mjs` renderer. This is a **render-only contract**, not a new pathfinding, collision, or trench gameplay system.
+The old strategy of rendering every wall before or after entire actors is
+incorrect. A soldier can be behind one surface and in front of another.
 
-## Why
-The original active renderer blitted the entire cached terrain first and then rendered all units. A raised face in front of a lower unit could never partially conceal that unit. A single zIndex bonus cannot solve tile/actor and tile/tile overlap.
+## Active renderer
 
-## Chosen design
-- Preserve `BattlefieldTerrainRenderer` viewport LRU, atlas decoding, and terrain material calculation.
-- Optional `board.floorLevel` indexed by `y * width + x`, same convention as the earlier `src/render/projection.mjs`: **0 trench/recessed, 1 normal ground, 2 raised**.
-- The existing background surface is drawn at projected foot elevation; visible elevated **caps** and exposed **south/east wall faces** become separate foreground occluders.
-- Static face geometry is built only when the floor level reference, dimensions, or explicit `floorLevelRevision` changes. Index 16×16 tile regions; cache the sorted set for an unchanged viewport cell bounds.
-- Actor and face lists are independently sorted by logical isometric ground depth. Merge the two sorted streams in linear time, preserving the existing sprite/canvas drawing path.
-- Elevation-aware actor projection interpolates height for direct and allied-through-pass movement, and is also used for unit hit-testing and culling.
+- Keep terrain caps, walls and textures in the viewport canvas cache.
+- Order actors by continuous world X+Y (camera depth), NOT projected Y offset
+  by elevation.
+- Before rendering each actor, calculate local occluders in at most a 9x9
+  neighborhood of their current interpolated visual position.
+- Surfaces above the actor's interpolated foot level are clipped by a
+  continuous world-depth plane. Same-height supporting ground cannot mask
+  its own soldier.
+- Exposed east/south faces are also clipped along their diagonal depth range.
+  A soldier may cover part of the same tile while that tile covers another
+  part of the soldier.
+- Apply each geometry piece using a sequential even-odd canvas clip inside
+  the actor's own save/restore. No bank is repainted over earlier actors.
+- Flat/no-height boards skip this work.
 
-## Alternatives rejected
-1. Per-tile actor comparison every frame: excessive for 512×384 maps with hundreds of units.
-2. Full terrain rerasterization on every unit move: defeats viewport page caching.
-3. More actor zIndex exceptions: does not handle wall/actor partial occlusion.
+Navigation, pathfinding, terrain texture caching, and gameplay occupancy
+remain unchanged. Legacy mergeDepthLayers remains exported for compatibility
+but is no longer used by the active scene.
 
-## Performance
-`U` visible units, `F` visible front faces: **O(U log U + F)** each render. Height index rebuild is O(map tiles) only on a static height revision. Zero-height-map baseline has no face indexing. No O(U×F) collision checks and no scene canvas layers or DOM nodes. No GPU readbacks.
-
-## Authoring and constraints
-- Set a `Uint8Array(width * height)` as `board.floorLevel`, initialized to 1; 0/2 mark trench/ridge. Increment `floorLevelRevision` after mutating array contents.
-- This does not automatically construct trenches, ramps, cover, or change physics. Those must use the same height contract when implemented.
-- Dynamic destructible elevation and depth-sensitive props/flags are future integration points; currently headquarters, effects, and team overlays retain their existing drawing order.
-- Never feed `visualY - height` back into navigation. Depth ordering uses ground footprint, altitude affects only screen projection.
-
-## Verification
-Tests cover no-height fast path, face-unit interleaving, trench cap occlusion, deterministic equal-depth ordering, cached viewport results and revision invalidation, height interpolation across both ordinary/allied passage, and map-size independence.
-
-## Interactive browser scenario
-Append `?terrainTest=1` to the deployed game URL. This mode uses the normal match deployment logic to place an already-selected 10-person A squad beside the sample trench, deploys the remaining troops, starts the real bot battle and focuses the camera on the height features. Tap the map to issue squad orders onto/through the trenches and ridges. An ordinary URL preserves manual deployment. Restart keeps the debug mode.
+Tests cover same-cell competition, front and rear tiles, fractional movement,
+actor-local masks, and viewport-independent map size. Browser screenshots
+remain necessary to judge aesthetics and correct clipping in the UI.
