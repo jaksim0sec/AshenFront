@@ -389,62 +389,72 @@ export class BattlefieldTerrainRenderer{
  drawOccluder(ctx,board,face){
   if(face.kind!=='wall')return;
   const p=project(face.x,face.y);p.y-=(face.level-1)*LEVEL_PX;
-  const tile=trenchWallTile(face,board.seed);
-  if(tile!==null&&this.trenchAtlas&&this.atlas&&typeof ctx.clip==='function'){
-   // A trench is cut EARTH, not a flat black beam. Project a real interior
-   // soil patch across the exposed face instead of sampling the dark tile rim.
-   const east=face.edge==='east';
+  // Both 1->0 trench banks and 2->1 hill cuts are the SAME physical
+  // exposed-soil surface. Previously only the trench received textures,
+  // while hill edges remained featureless beige walls.
+  if(this.atlas&&typeof ctx.clip==='function'&&typeof ctx.save==='function'
+      &&typeof ctx.drawImage==='function'){
+   const east=face.edge==='east',drop=(face.level-face.low)*LEVEL_PX;
    const ax=east?p.x:p.x-HX,ay=east?p.y+HY:p.y;
    const bx=east?p.x+HX:p.x,by=east?p.y:p.y+HY;
-   const drop=(face.level-face.low)*LEVEL_PX;
    const noise=hash(face.x,face.y,board.seed);
-   const faceTop=t=>{
-    // Deterministic 0-2px erosion at sub-tile intervals, no temporal jitter.
-    const k=Math.min(7,Math.max(0,Math.round(t*7)));
-    return ((Math.imul(noise^(k*991),0x85ebca77)>>>27)%5-2)*.52;
+   // Disrupt an otherwise geometrically perfect tile boundary. Endpoints
+   // stay fixed so consecutive 144px segments cannot open visible cracks.
+   const ripple=k=>{
+    if(k===0||k===8)return 0;
+    const n=hash(face.x+k*(east?1:3),face.y+k*(east?3:1),noise);
+    return ((n%7)-3)*.62;
    };
-   ctx.save();ctx.beginPath();ctx.moveTo(ax,ay+faceTop(0));
-   for(let k=1;k<=7;k++){
-    const t=k/7;
-    ctx.lineTo(ax+(bx-ax)*t,ay+(by-ay)*t+faceTop(t));
+   const outline=()=>{
+    ctx.beginPath();ctx.moveTo(ax,ay);
+    for(let k=1;k<=8;k++){
+     const u=k/8;
+     ctx.lineTo(ax+(bx-ax)*u,ay+(by-ay)*u+ripple(k));
+    }
+    for(let k=8;k>=0;k--){
+     const u=k/8;
+     ctx.lineTo(ax+(bx-ax)*u,ay+(by-ay)*u+drop+(k===0||k===8?0:ripple(k)*.55));
+    }
+    ctx.closePath();
+   };
+   ctx.save();outline();ctx.clip();
+   ctx.fillStyle='#796954';ctx.fill();
+   // Do NOT shear a tiny dirt crop into a diagonal parallelogram. That
+   // stretched soil into diagonal wood-grain lines in the actual screenshot.
+   // Crop the center of the existing photographed soil tile and map it in
+   // ordinary screen coordinates, preserving natural grain proportions.
+   const col=terrainVariant(face.x,face.y);
+   const sx=col*TW+18,sy=TH+16;
+   const x0=Math.min(ax,bx)-6,y0=Math.min(ay,by)-5;
+   ctx.globalAlpha=.94;
+   ctx.drawImage(this.atlas,sx,sy,108,72,x0,y0,Math.abs(bx-ax)+12,Math.abs(by-ay)+drop+10);
+   ctx.globalAlpha=1;
+   if(typeof ctx.createLinearGradient==='function'){
+    const shade=ctx.createLinearGradient(0,Math.min(ay,by),0,Math.max(ay,by)+drop);
+    shade.addColorStop(0,'rgba(65,51,39,.04)');
+    shade.addColorStop(.45,'rgba(45,36,28,.12)');
+    shade.addColorStop(1,'rgba(31,26,21,.37)');
+    outline();ctx.fillStyle=shade;ctx.fill();
    }
-   ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();
-   ctx.clip();
-   ctx.fillStyle='#786551';ctx.fill();
-   if(typeof ctx.transform==='function'){
-    // Source is the opaque CENTRE of the photographed soil diamond.
-    // An affine projection preserves grit along the slanted cut face.
-    const sw=52,sh=23,sx=terrainVariant(face.x,face.y)*TW+46,sy=TH+33;
-    ctx.save();
-    ctx.transform((bx-ax)/sw,(by-ay)/sw,0,drop/sh,ax,ay);
-    ctx.globalAlpha=.95;
-    ctx.drawImage(this.atlas,sx,sy,sw,sh,0,0,sw,sh);
-    ctx.restore();
-   }
-   const shade=ctx.createLinearGradient?.(0,Math.min(ay,by),0,Math.max(ay,by)+drop);
-   if(shade){
-    shade.addColorStop(0,'rgba(43,34,27,.05)');
-    shade.addColorStop(.48,'rgba(40,32,26,.13)');
-    shade.addColorStop(1,'rgba(29,24,20,.43)');
-    ctx.fillStyle=shade;
-    ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
-    ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();ctx.fill();
-   }
-   // Granular exposed cut, baked once in the viewport page.
-   for(let n=0;n<5;n++){
-    const t=(n+.3)/5, grain=hash(face.x+n,face.y-n,board.seed);
-    const x=ax+(bx-ax)*t,y=ay+(by-ay)*t+3+(grain%14);
-    ctx.beginPath();ctx.moveTo(x,y);
-    ctx.lineTo(x+((grain&1)?1.4:-1.4),y+.8);ctx.lineTo(x,y+1.6);
-    ctx.closePath();ctx.fillStyle=n%3===0?'#b7a18a77':'#362d2670';ctx.fill();
+   // Sparse clods on the freshly cut face. World-seeded, so the result is
+   // identical between frames and cache rebuilds.
+   for(let k=0;k<6;k++){
+    const v=hash(face.x+k+4,face.y-k-9,board.seed);
+    const u=(k+.32)/6;
+    const x=ax+(bx-ax)*u+(v%5-2),y=ay+(by-ay)*u+3+(v%Math.max(1,drop-6));
+    ctx.beginPath();ctx.ellipse?.(x,y,1+(v%3)*.45,.7,0,0,Math.PI*2);
+    if(typeof ctx.ellipse==='function'){
+     ctx.fillStyle=k%3===0?'#bba88c77':'#3a302777';ctx.fill();
+    }
    }
    ctx.restore();
-   // Fine broken lip instead of a thick constant-width top rail.
-   ctx.beginPath();ctx.moveTo(ax,ay+faceTop(0));
-   for(let k=1;k<=7;k++){
-    const t=k/7;ctx.lineTo(ax+(bx-ax)*t,ay+(by-ay)*t+faceTop(t));
+   // Dusty broken top lip rather than a 2px straight rail.
+   ctx.beginPath();ctx.moveTo(ax,ay);
+   for(let k=1;k<=8;k++){
+    const u=k/8;
+    ctx.lineTo(ax+(bx-ax)*u,ay+(by-ay)*u+ripple(k));
    }
-   ctx.strokeStyle='#b09b7f9a';ctx.lineWidth=1.3;ctx.stroke();
+   ctx.strokeStyle='#b4a38a64';ctx.lineWidth=1.15;ctx.stroke();
    return;
   }
   const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],

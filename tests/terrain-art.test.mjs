@@ -229,8 +229,8 @@ test('trench image renders mud floor, reciprocal ramp and exposed bank into cach
   r.draw(screen,b,camera,390,844,1,false,1000);
   assert(calls.some(a=>a[1]%144===0&&a[2]===0),'mud must render as a sprite from the first row');
   assert(calls.some(a=>a[1]===144&&a[2]===107),'reciprocal W ramp must use tile 6');
-  assert(transforms.some(m=>m.length===6&&m[3]>0&&m[3]<=1.05),'bank dirt texture must be projected along cut face');
-  assert(textures.some(a=>a[3]===52&&a[4]===23&&a[2]===107+33),'wall texture must come from opaque soil interior, not dark tile rim');
+  assert.equal(transforms.length,0,'no UV shear that turns natural dirt into streaks');
+  assert(textures.some(a=>a[3]===108&&a[4]===72&&a[2]===107+16),'bank uses screen-space photo soil from the interior');
   assert(calls.every(a=>a.length===9&&a[3]===144&&a[4]===107&&a[7]===144&&a[8]===107));
   const drawn=calls.length,projected=transforms.length;
   r.draw(screen,b,camera,390,844,1,false,1050);
@@ -294,13 +294,37 @@ test('trench cut geometry uses photographic soil, light broken lip and no black 
   drawImage(...args){textures.push(args);}};
  r.drawOccluder(ctx,{seed:45},{kind:'wall',x:10,y:11,edge:'east',level:1,low:0});
  assert.equal(textures.length,1,'one photographic soil crop per cut face');
- assert.equal(textures[0][3],52);
- assert.equal(textures[0][4],23);
- assert.equal(ops.filter(o=>o==='project').length,1);
+ assert.equal(textures[0][3],108);
+ assert.equal(textures[0][4],72);
+ assert.equal(ops.filter(o=>o==='project').length,0,'do not shear a tiny dirt crop');
  assert.equal(ops.filter(o=>o==='save').length,ops.filter(o=>o==='restore').length);
- assert.ok(strokes.some(([color,width])=>color==='#b09b7f9a'&&width<=1.3),'rim must be fine and irregular');
+ assert.ok(strokes.some(([color,width])=>color==='#b4a38a64'&&width<=1.2),'rim must be fine and irregular');
  assert.ok(gradients.every(stops=>stops.at(-1)?.[1]!=='rgba(24,20,17,.69)'),'no old heavy black wall band');
  textures.length=0;
  r.drawOccluder(ctx,{seed:45},{kind:'wall',x:10,y:11,edge:'east',level:2,low:1});
- assert.equal(textures.length,0,'existing high-ground art remains unchanged');
+ assert.equal(textures.length,1,'raised cliffs must use the same earth bank texture');
+});
+
+test('trench and hill face geometry share the same undistorted soil shading',()=>{
+ const r=Object.create(BattlefieldTerrainRenderer.prototype);
+ r.atlas={};r.trenchAtlas={};r.kind='new';
+ const draw=(face)=>{
+  const calls=[],ctx={save(){},restore(){},beginPath(){},moveTo(){},
+   lineTo(x,y){calls.push(['line',x,y]);},closePath(){},clip(){},
+   fill(){},stroke(){},ellipse(){},drawImage(...args){calls.push(['photo',...args]);},
+   createLinearGradient(){return {addColorStop(){}};}};
+  r.drawOccluder(ctx,{seed:1977},face);return calls;
+ };
+ const trench={kind:'wall',x:7,y:9,edge:'south',level:1,low:0};
+ const hill={...trench,level:2,low:1};
+ const first=draw(trench),again=draw(trench),higher=draw(hill);
+ assert.deepEqual(first,again,'edge erosion remains deterministic');
+ assert.equal(first.filter(x=>x[0]==='photo').length,1);
+ assert.equal(higher.filter(x=>x[0]==='photo').length,1);
+ for(const seq of [first,higher]){
+  const photo=seq.find(x=>x[0]==='photo');
+  assert.equal(photo.length,10);
+  assert.equal(photo[4],108);assert.equal(photo[5],72);
+  assert.ok(seq.filter(v=>v[0]==='line').length>15,'lip silhouette is not a single rigid line');
+ }
 });
