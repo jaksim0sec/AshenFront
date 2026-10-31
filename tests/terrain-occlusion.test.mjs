@@ -10,7 +10,7 @@ test('flat maps remain a zero-occluder fast path',()=>{
  assert.equal(terrainOcclusionStats(flat).builds,0);
  const b=board();assert.equal(terrainOccluders(b,bounds).length,0);
 });
-test('front exposed face is sorted between upper unit and lower neighbor without touching terrain',()=>{
+test('front exposed wall covers the lower neighbor feet after the actor draw',()=>{
  const b=board();b.floorLevel[2*b.width+2]=2;b.floorLevelRevision++;
  const f=terrainOccluders(b,bounds);
  const wall=f.find(i=>i.kind==='wall'&&i.x===2&&i.y===2&&i.edge==='east');
@@ -18,7 +18,7 @@ test('front exposed face is sorted between upper unit and lower neighbor without
  assert.equal(wall.level,2);assert.equal(wall.low,1);
  const log=[];
  mergeDepthLayers([actor(2,2),actor(3,2,2)],[wall],u=>log.push('unit:'+u.id),i=>log.push(i.kind));
- assert.deepEqual(log,['unit:1','wall','unit:2']);
+ assert.deepEqual(log,['unit:1','unit:2','wall']);
 });
 test('foreground ground cap hides the lower trench occupant while retaining same-tile actor',()=>{
  const b=board();b.floorLevel[2*b.width+2]=0;b.floorLevelRevision++;
@@ -79,4 +79,15 @@ test('elevated renderer paints front earth faces separately from the cached back
  const calls=[],ctx={beginPath(){calls.push('begin')},moveTo(){},lineTo(){},closePath(){},fill(){calls.push('fill')},drawImage(){calls.push('image')}};
  BattlefieldTerrainRenderer.prototype.drawOccluder.call({kind:'new',surface:{}},ctx,{...b,terrain:Array.from({length:b.height},()=>Array(b.width).fill('grass')),seed:1,obstacles:new Map(),battlefield:{clearing:{x:4,y:4,rx:5,ry:5}}},wall);
  assert.deepEqual(calls,['begin','fill']);
+});
+
+test('height-adjusted actor foot controls terrain and unit order without rerender math',()=>{
+ const b=board();b.floorLevel[2*b.width+2]=2;b.floorLevelRevision++;
+ const hi=actor(2,2,1),lo=actor(3,2,2);
+ hi._renderFoot=projectElevatedFoot(b,hi);lo._renderFoot=projectElevatedFoot(b,lo);
+ assert.ok(hi._renderFoot.y<lo._renderFoot.y);
+ const faces=terrainOccluders(b,bounds),wall=faces.find(f=>f.kind==='wall'&&f.x===2&&f.y===2&&f.edge==='east');
+ const log=[];
+ mergeDepthLayers([hi,lo],[wall],u=>log.push(u.id),()=>log.push('wall'));
+ assert.deepEqual(log,[1,2,'wall']);
 });

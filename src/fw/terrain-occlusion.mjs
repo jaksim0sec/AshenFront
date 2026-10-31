@@ -39,9 +39,9 @@ function build(board,levels){
   const height=at(x,y);
   if(height===at(x-1,y)&&height===at(x,y-1)&&height===at(x+1,y)&&height===at(x,y+1))continue;
   if(height>at(x-1,y)||height>at(x,y-1))
-   push(x,y,'cap',null,height,0,x+y-.25,x-y,order++);
-  if(height>at(x+1,y))push(x,y,'wall','east',height,at(x+1,y),x+y+.5,x-y+.5,order++);
-  if(height>at(x,y+1))push(x,y,'wall','south',height,at(x,y+1),x+y+.5,x-y-.5,order++);
+   push(x,y,'cap',null,height,0,x+y-.25-(height-1)*LEVEL_PX/HALF_H,x-y,order++);
+  if(height>at(x+1,y))push(x,y,'wall','east',height,at(x+1,y),x+y+1-(at(x+1,y)-1)*LEVEL_PX/HALF_H+.02,x-y+.5,order++);
+  if(height>at(x,y+1))push(x,y,'wall','south',height,at(x,y+1),x+y+1-(at(x,y+1)-1)*LEVEL_PX/HALF_H+.02,x-y-.5,order++);
  }
  return {levels,revision:board.floorLevelRevision??0,width:w,height:h,buckets:byBucket,query:null,visible:EMPTY,builds:1,candidates:0};
 }
@@ -75,7 +75,8 @@ export function terrainOcclusionStats(board){
 export function mergeDepthLayers(units,faces,drawUnit,drawFace){
  let j=0;
  for(const unit of units){
-  const depth=unit.visualX+unit.visualY,lateral=unit.visualX-unit.visualY;
+  const depth=unit._renderFoot?unit._renderFoot.y/HALF_H:unit.visualX+unit.visualY;
+  const lateral=unit._renderFoot?unit._renderFoot.x/HALF_W:unit.visualX-unit.visualY;
   while(j<faces.length&&(faces[j].depth<depth||faces[j].depth===depth&&faces[j].screenX<=lateral))
    drawFace(faces[j++]);
   drawUnit(unit);

@@ -1,5 +1,5 @@
 import {SpatialIndex} from './spatial-index.mjs';
-import {terrainStepMultiplier} from './battlefield-terrain.mjs';
+import {terrainStepMultiplier,canTraverseHeight} from './battlefield-terrain.mjs';
 import {healingOptions} from './healing.mjs';
 import {mix,movementOptions} from './decision.mjs';
 import {combatOptions,inAttackRange,tryAutoAttack,hasLineOfSight,shotHitChance,BASE_ATTACK_DURATION} from './combat.mjs';
@@ -83,7 +83,7 @@ export class Board {
 
   reset() {
     if(this.movementPolicy?.matchOwner)this.movementPolicy=this.movementPolicy.previousPolicy;
-    this.match=null;this.battlefield=null;
+    this.match=null;this.battlefield=null;this.floorLevel=null;this.heightRamps=null;this.floorLevelRevision=0;
     this.terrainRevision=(this.terrainRevision||0)+1;
     this.decisionEpoch=0;
     this.units = []; this.byId=new Map(); this.cells=new Map(); this.reservations=new Map();this.passage=new Map();this.teamAlive={A:0,B:0};
@@ -99,8 +99,17 @@ export class Board {
     if(!Number.isInteger(width)||!Number.isInteger(height)||width<4||height<4||width>1024||height>1024||this.navigation.collecting)return false;
     const inside=p=>p.x>=0&&p.y>=0&&p.x<width&&p.y<height;
     if(this.units.some(u=>u.health.current>0&&(!inside(u)||u.step&&!inside(u.step)||u.command?.type==='move'&&!inside(u.command))))return false;
-    const oldWidth=this.width,terrain=this.terrain,obstacles=this.obstacles;
+    const oldWidth=this.width,terrain=this.terrain,obstacles=this.obstacles,levels=this.floorLevel,ramps=this.heightRamps;
     this.width=width;this.height=height;this.terrain=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>terrain[y]?.[x]||'grass'));
+    if(levels){
+      this.floorLevel=new Uint8Array(width*height).fill(1);this.heightRamps=new Uint8Array(width*height);
+      for(let y=0;y<Math.min(height,levels.length/oldWidth);y++)
+       for(let x=0;x<Math.min(width,oldWidth);x++){
+        this.floorLevel[y*width+x]=levels[y*oldWidth+x];
+        this.heightRamps[y*width+x]=ramps?.[y*oldWidth+x]??0;
+       }
+      this.floorLevelRevision++;
+    }
     this.obstacles=new Map();for(const[n,info]of obstacles){const p={x:n%oldWidth,y:Math.floor(n/oldWidth)};if(inside(p))this.obstacles.set(p.y*width+p.x,info);}
     this.cells=new Map();this.reservations=new Map();this.passage=new Map();this.spatial=new SpatialIndex(width,height);this.navigation=new Navigation(this);this.navClock=0;
     for(const u of this.units){u.guide=[];u.detourPotential=null;u.guideKey=null;u.route=[];if(u.health.current<=0)continue;this.cells.set(u.y*width+u.x,u.id);if(u.step)this.reservations.set(u.step.y*width+u.step.x,u.id);if(u.step?.via){this.passage.set(u.step.via.y*width+u.step.via.x,u.id);if(u.step.buffer)this.passage.set(u.step.buffer.y*width+u.step.buffer.x,u.id);}this.spatial.add(u);this.navigation.touch(u.x,u.y);}
@@ -174,7 +183,7 @@ export class Board {
       let previous=u.y*this.width+u.x;
       if(!plannedPath.length||plannedPath.at(-1)!==y*this.width+x||!plannedPath.every(n=>{
        const px=n%this.width,py=Math.floor(n/this.width),adjacent=Math.abs(px-previous%this.width)+Math.abs(py-Math.floor(previous/this.width))===1;
-       previous=n;return Number.isInteger(n)&&this.inside(px,py)&&adjacent&&!this.navigation.blocked(n)&&!this.occupied(px,py,u.id);
+       const source=previous;previous=n;return Number.isInteger(n)&&this.inside(px,py)&&adjacent&&canTraverseHeight(this,source,n)&&!this.navigation.blocked(n)&&!this.occupied(px,py,u.id);
       }))return false;
     }
     const field=direct?null:this.navigation.field(x,y);

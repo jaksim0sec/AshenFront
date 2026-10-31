@@ -23,7 +23,7 @@ let armySize=ASHEN_ARMY_CHOICES.includes(Number(params.get('army')))?Number(para
 let {board,match}=createAshenMatch({seed,count:armySize}),selected=new Set(),mode=null,hover=null,deployFormation='line',playMode='deploy',paused=false,low=false,additive=false;
 let last=0,lastPaint=0,lastUI=0,lastRoster=0,lastOrders=0,lastMini=0,drawDpr=1,lastResumeAt=-Infinity;
 let lastRosterRevision=-1,lastRosterAlive=-1;
-const renderSamples=[];let renderedFrames=0,visibleTroops=0;
+const renderSamples=[];let renderedFrames=0,visibleTroops=0,visibleHeightFaces=0;
 let miniGround=null,miniArea=null,miniQueries=0;
 const camera={x:0,y:0,scale:.40},pointers=new Map(),colors={A:'#a7c6dd',B:'#d39283'};
 const living=s=>s.memberIds.map(id=>board.unit(id)).filter(u=>u?.health.current>0);
@@ -187,7 +187,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
  }
  troops.sort(soldierRenderCompare);
  visibleTroops=troops.length;
- const faces=terrainOccluders(board,bounds());
+ const faces=terrainOccluders(board,bounds());visibleHeightFaces=faces.length;
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
  const shotStamp=renderedFrames+1;
  mergeDepthLayers(troops,faces,u=>{const p=projectElevatedFoot(board,u);
@@ -481,4 +481,4 @@ function frame(t){const dt=last?Math.min((t-last)/1000,.1):0;last=t;
  requestAnimationFrame(frame);
 }
 bind();resize();fit();switchMode('deploy');hud();roster();setMapOpen(true);requestAnimationFrame(frame);
-window.__ashenFlower={get board(){return board;},get camera(){return {...camera};},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},get armySize(){return armySize;},get renderStats(){const samples=[...renderSamples].sort((a,b)=>a-b);const sum=samples.reduce((n,v)=>n+v,0);return {frames:renderedFrames,visibleTroops,avgMs:sum/(samples.length||1),p95Ms:samples[Math.floor((samples.length-1)*.95)]||0,terrainRebuilds:terrainArt.rebuilds,terrainCacheHits:terrainArt.cacheHits,terrainZoomReuses:terrainArt.zoomReuses,terrainEvictions:terrainArt.evictions,terrainPages:terrainArt.pages.length,terrainCacheBytes:terrainArt.cacheBytes,terrainVisibleTiles:terrainArt.cache?.tiles??0,miniQueries,miniArea,spriteCache:soldiers.stats};},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};
+window.__ashenFlower={get board(){return board;},get camera(){return {...camera};},get match(){return match;},get flagsLoaded(){return Object.values(FLAG_IMAGES).every(i=>i.complete&&i.naturalWidth>0);},get armySize(){return armySize;},get renderStats(){const samples=[...renderSamples].sort((a,b)=>a-b);const sum=samples.reduce((n,v)=>n+v,0);return {frames:renderedFrames,visibleTroops,heightFaces:visibleHeightFaces,avgMs:sum/(samples.length||1),p95Ms:samples[Math.floor((samples.length-1)*.95)]||0,terrainRebuilds:terrainArt.rebuilds,terrainCacheHits:terrainArt.cacheHits,terrainZoomReuses:terrainArt.zoomReuses,terrainEvictions:terrainArt.evictions,terrainPages:terrainArt.pages.length,terrainCacheBytes:terrainArt.cacheBytes,terrainVisibleTiles:terrainArt.cache?.tiles??0,miniQueries,miniArea,spriteCache:soldiers.stats};},autoDeploy,start,order:(ids,act,target)=>orderSquads(board,ids,act,target)};

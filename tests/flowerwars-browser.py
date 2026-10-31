@@ -33,6 +33,11 @@ try:
    sample=page.evaluate('window.__ashenFlower.renderStats')
    assert sample['miniArea']['width']==120 and sample['miniArea']['height']==120,sample
    assert sample['miniQueries']<=3600,sample
+   # Inspect actual height geometry rather than a mock-only rendering helper.
+   demo=page.evaluate("({features:__ashenFlower.board.battlefield.heightDemo,faces:__ashenFlower.renderStats.heightFaces})")
+   assert len(demo['features'])==4,demo
+   assert demo['faces']>0,demo
+   page.screenshot(path=str(out/f'terrain-depth-{width}.png'))
    if width<=700:
     page.locator('#tools-toggle').click()
     page.locator('#tools-toggle').click()

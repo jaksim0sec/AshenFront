@@ -1,5 +1,49 @@
 import {planBattlefield,distanceToPath} from './battlefield-plan.mjs';
 export const terrainNames={grass:'개활지',soil:'흙',road:'길 · 이동 속도 +20%',forest:'연못 · 진입 불가'};
+const E=1,S=2,W=4,N=8;
+/** O(1) edge admission, reciprocal ramps are the only legal height transitions. */
+export function canTraverseHeight(board,from,to){
+ const levels=board.floorLevel;
+ if(!levels)return true;
+ if(from<0||to<0||from>=levels.length||to>=levels.length)return false;
+ const a=levels[from],b=levels[to];
+ if(a===b)return true;
+ if(Math.abs(a-b)!==1)return false;
+ const delta=to-from;
+ const bit=delta===1?E:delta===-1?W:delta===board.width?S:delta===-board.width?N:0;
+ return !!bit&&!!(board.heightRamps?.[from]&bit);
+}
+/** Previews for real in-game visual, depth and ramp/pathfinding tests. */
+export function installHeightDemo(board){
+ const w=board.width,h=board.height;
+ if(w<80||h<60)return [];
+ const levels=new Uint8Array(w*h).fill(1),ramps=new Uint8Array(w*h),features=[];
+ const center=Math.round(w*.34),mid=Math.floor(h/2),mirrorX=x=>w-1-x;
+ const rects=[
+  {kind:'trench',level:0,x0:center-5,x1:center,y0:mid,y1:mid+5,entrance:{x:center-5,y:mid+2,fromX:center-6}},
+  {kind:'hill',level:2,x0:center+4,x1:center+9,y0:mid-5,y1:mid,entrance:{x:center+4,y:mid-2,fromX:center+3}}
+ ];
+ for(const mirrored of [false,true])for(const rect of rects){
+  const x0=mirrored?mirrorX(rect.x1):rect.x0,x1=mirrored?mirrorX(rect.x0):rect.x1;
+  // Never create invisible or inaccessible geometry atop the river/coast.
+  if(x0<2||x1>=w-2||rect.y0<2||rect.y1>=h-2)continue;
+  let clear=true;
+  for(let y=rect.y0-1;y<=rect.y1+1&&clear;y++)
+   for(let x=x0-1;x<=x1+1;x++)if(board.navigation.blocked(y*w+x)){clear=false;break;}
+  if(!clear)continue;
+  for(let y=rect.y0;y<=rect.y1;y++)for(let x=x0;x<=x1;x++)levels[y*w+x]=rect.level;
+  const insideX=mirrored?mirrorX(rect.entrance.x):rect.entrance.x;
+  const outsideX=mirrored?mirrorX(rect.entrance.fromX):rect.entrance.fromX;
+  const ry=rect.entrance.y,from=ry*w+outsideX,to=ry*w+insideX;
+  // Keep one explicit approach per sample; no silently walkable cliff wall.
+  const bit=to===from+1?E:W,other=bit===E?W:E;
+  ramps[from]|=bit;ramps[to]|=other;
+  features.push({team:mirrored?'B':'A',kind:rect.kind,x:mirrored?mirrorX(Math.floor((rect.x0+rect.x1)/2)):Math.floor((rect.x0+rect.x1)/2),y:Math.floor((rect.y0+rect.y1)/2),
+   x0,x1,y0:rect.y0,y1:rect.y1,entrance:{x:insideX,y:ry,fromX:outsideX}});
+ }
+ board.floorLevel=levels;board.heightRamps=ramps;board.floorLevelRevision=(board.floorLevelRevision||0)+1;
+ return features;
+}
 export function terrainAt(board,x,y){return board.terrain[Math.round(y)]?.[Math.round(x)]||'grass';}
 export function terrainStepMultiplier(board,from,to){
  const speed=p=>terrainAt(board,p.x,p.y)==='road'?1.2:1;
@@ -68,6 +112,7 @@ export function createBattlefield(board){
  const outline=[];
  for(let x=1;x<w-1;x++)if(upper[x]<=lower[x])outline.push({x:x-.5,y:upper[x]-.5});
  for(let x=w-2;x>=1;x--)if(upper[x]<=lower[x])outline.push({x:x+.5,y:lower[x]+.5});
- board.battlefield={seed:board.seed,...plan,visualVersion:'autumn-v1',clearing:plan.rooms.find(r=>r.kind==='battle'),outline,upper,lower,protectedCells,decorations:[]};
+ const heightDemo=installHeightDemo(board);
+ board.battlefield={seed:board.seed,...plan,visualVersion:'autumn-v1',clearing:plan.rooms.find(r=>r.kind==='battle'),outline,upper,lower,protectedCells,decorations:[],heightDemo};
  board.terrainRevision++;board.obstacleRevision++;board.navigation.invalidate();
 }

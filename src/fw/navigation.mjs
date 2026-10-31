@@ -3,6 +3,7 @@ import {squadsFor} from './unit-groups.mjs';
 import {mix} from './decision.mjs';
 import {tryHeal} from './healing.mjs';
 import {hasLineOfSight} from './combat.mjs';
+import {canTraverseHeight} from './battlefield-terrain.mjs';
 // Shared static distance fields + conservative one-step cooperative reservations.
 // No visual/camera state participates in navigation.
 export const SEARCH_BUDGET = 2048;
@@ -22,7 +23,15 @@ export class Navigation {
   neighbors(index,unit=null) {
     const w=this.board.width,h=this.board.height,x=index%w,y=Math.floor(index/w);
     const orientation=this.orientation(unit);
-    const east=x+1<w?index+1:-1,west=x>0?index-1:-1;return orientation===-1?[west,y+1<h?index+w:-1,east,y>0?index-w:-1]:[east,y+1<h?index+w:-1,west,y>0?index-w:-1];
+    let east=x+1<w?index+1:-1,west=x>0?index-1:-1;
+    let south=y+1<h?index+w:-1,north=y>0?index-w:-1;
+    if(this.board.floorLevel){
+      if(east>=0&&!canTraverseHeight(this.board,index,east))east=-1;
+      if(west>=0&&!canTraverseHeight(this.board,index,west))west=-1;
+      if(south>=0&&!canTraverseHeight(this.board,index,south))south=-1;
+      if(north>=0&&!canTraverseHeight(this.board,index,north))north=-1;
+    }
+    return orientation===-1?[west,south,east,north]:[east,south,west,north];
   }
   orientation(unit){
     const target=unit?.command?.type==='attack'?this.board.unit(unit.command.target):unit?.command;
@@ -87,7 +96,7 @@ export class Navigation {
     if(this.pending)return null;
     const capacity=Math.max(1,Math.min(CACHE_LIMIT,Math.floor(FIELD_BYTES/(this.board.width*this.board.height*4))));
     if(this.fields.size>=capacity)this.fields.delete(this.fields.keys().next().value);
-    if(!this.board.obstacles.size) {
+    if(!this.board.obstacles.size&&!this.board.floorLevel) {
       // Empty terrain has an exact O(1) Manhattan distance; no map-sized BFS.
       const f={complete:true,at:index=>{const dx=Math.abs(index%this.board.width-x),dy=Math.abs(Math.floor(index/this.board.width)-y);const r=reach?.range||0;return reach?.shape==='king'?Math.max(0,dx-r)+Math.max(0,dy-r):Math.max(0,dx+dy-r);}};
       this.fields.set(key,f);return f;
@@ -291,7 +300,7 @@ export class Navigation {
     const lateralX=-dy,lateralY=dx,preferred=lateralX+lateralY>=0?1:-1;
     for(const side of [preferred,-preferred]){
       const x=via.x+lateralX*side,y=via.y+lateralY*side;
-      if(this.board.inside(x,y)&&this.free(this.index(x,y),u))return side;
+      if(this.board.inside(x,y)&&(!this.board.floorLevel||this.board.floorLevel[y*this.board.width+x]===this.board.floorLevel[via.y*this.board.width+via.x])&&this.free(this.index(x,y),u))return side;
     }
     return 0;
   }
@@ -302,6 +311,7 @@ export class Navigation {
     if(exit.x===u.x&&exit.y===u.y)return false;
     const middle=this.index(via.x,via.y),last=this.index(exit.x,exit.y);
     if(this.blocked(middle)||b.passage.has(middle)||!this.free(last,u))return false;
+    if(b.floorLevel&&(b.floorLevel[this.index(u.x,u.y)]!==b.floorLevel[middle]||b.floorLevel[middle]!==b.floorLevel[last]))return false;
     const owner=b.unit(b.cells.get(middle)??b.reservations.get(middle));
     return !!owner&&owner.id!==u.id&&owner.health.current>0&&owner.team===u.team&&!!this.passSide(u,via);
   }
@@ -378,7 +388,7 @@ export class Navigation {
       // Keep only the route, never a reference pinning an entire distance grid.
       // Cache eviction cannot force each agent to search again at every step.
       u.guide=[];let cell=start;
-      if(!b.obstacles.size&&command.type==='move')u.guide=this.openGuide(u,x,y);
+      if(!b.obstacles.size&&!b.floorLevel&&command.type==='move')u.guide=this.openGuide(u,x,y);
       else while(field.at(cell)>0) {
         const next=this.neighbors(cell,u).find(n=>n>=0&&!this.blocked(n)&&field.at(n)===field.at(cell)-1);
         if(next==null)break;
@@ -462,6 +472,7 @@ export class Navigation {
   requestStep(u,next,exitHint=null){
     const b=this.board,command=u.command,courtesy=u.courtesy,fromX=u.x,fromY=u.y;
     if(Math.abs(next.x-u.x)+Math.abs(next.y-u.y)!==1)return;
+    if(!canTraverseHeight(b,this.index(u.x,u.y),this.index(next.x,next.y)))return;
     const decision=b.movementPolicy?.beforeStep?.({board:b,unit:u,from:{x:u.x,y:u.y},to:{...next},obstacle:b.obstacles.get(this.index(next.x,next.y))})||'move';
     if(b.unit(u.id)!==u||u.health.current<=0||u.command!==command||u.step||u.x!==fromX||u.y!==fromY||courtesy&&(u.courtesy!==courtesy||u.combat.holdPosition)||!['idle','walk'].includes(u.state))return;
     if(decision==='cancel'){b.cancelCommand(u);return;}
