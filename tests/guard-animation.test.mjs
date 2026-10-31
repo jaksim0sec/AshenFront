@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createCatalog} from '../src/characters/model.mjs';
 import {poseCharacter,lookAround} from '../src/characters/animation.mjs';
-import {sampleAnimation} from '../src/characters/renderer.mjs';
+import {sampleAnimation,distantPoseState} from '../src/characters/renderer.mjs';
 
 const profile=createCatalog().profiles['arken:private'];
 const pose=(state,time,shootBlend)=>poseCharacter(profile,{state,time,shootBlend,aim:0,phase:0,facing:1});
@@ -173,10 +173,45 @@ test('look-around rotates attached head and helmet, not gun, and does not affect
   poseCharacter(profile,{...opts,state,lookBlend:0}),
   state+' may not look around'
  );
- assert.equal(lookAround(0,0),0);
- assert.equal(lookAround(8.6,0),0);
- const scan=Array.from({length:75},(_,i)=>lookAround(i/10,3));
- assert.ok(scan.some(v=>v<-.8)&&scan.some(v=>v>.8),'both directions should be visible');
+ // Rare, staggered glances rather than a constant crowd-wide nod.
+ const scan=Array.from({length:900},(_,i)=>lookAround(i/10,3));
+ assert.ok(scan.some(v=>v<-.8)&&scan.some(v=>v>.8),'both directions over long intervals');
+ assert.ok(scan.filter(v=>Math.abs(v)>.05).length<scan.length*.2,'scanning must be occasional');
+ const crowd=Array.from({length:40},(_,i)=>lookAround(10,i+1));
+ assert.ok(crowd.filter(v=>Math.abs(v)>.05).length<14,'not synchronized company-wide');
+ for(const current of [left,right])for(const key of ['head','hat']){
+  assert.equal(part(current,key)[5],part(normal,key)[5],'no vertical head bob on '+key);
+  assert(Math.abs(heading(part(current,key))-heading(part(normal,key)))<1e-9,'no head nod on '+key);
+ }
  assert.equal(sampleAnimation({...opts,lookBlend:1},true).lookBlend,0,'low detail disables glance');
  assert.ok(new Set(Array.from({length:100},(_,i)=>sampleAnimation({...opts,lookBlend:-1+i/50}).lookBlend)).size<=13,'cache glance buckets');
+});
+
+test('mobile low-detail mode preserves ascent while dropping ordinary walk frames',()=>{
+ assert.equal(distantPoseState('walk',{rising:true}),'walk');
+ assert.equal(distantPoseState('walk',{rising:false}),'idle');
+ assert.equal(distantPoseState('guard'),'guard');
+ assert.equal(distantPoseState('idle',{shot:true}),'shoot');
+ assert.equal(distantPoseState('idle',{hitNow:true}),'hit');
+ const base=poseCharacter(profile,sampleAnimation({state:'walk',time:.3,walkBlend:0},true));
+ const climb=poseCharacter(profile,sampleAnimation({state:'walk',time:.3,walkBlend:0,riseProgress:.42},true));
+ for(const key of ['legLeft','body'])assert.notDeepEqual(matrix(climb,key),matrix(base,key),key+' ascent must be drawn at LOD');
+});
+test('actual Board uphill step activates rise animation through real movement data',async()=>{
+ const {Board}=await import('../src/fw/model.mjs');
+ const {terrainRiseProgress}=await import('../src/fw/terrain-occlusion.mjs');
+ const board=new Board(20,20),idx=(x,y)=>y*board.width+x;
+ board.floorLevel=new Uint8Array(board.width*board.height).fill(1);
+ board.floorLevel[idx(9,8)]=2;
+ const soldier=board.spawn(8,8,null,{team:'A',movement:{stepTime:.7}});
+ assert.ok(soldier);
+ board.beginStep(soldier,{x:9,y:8});
+ soldier.step.elapsed=soldier.step.duration*.42;soldier.visualX=8.42;
+ const progress=terrainRiseProgress(board,soldier);
+ assert.ok(progress>.4&&progress<.44,'real uphill step passes progress into renderer');
+ const base=poseCharacter(profile,sampleAnimation({state:'walk',time:.3,walkBlend:0},true));
+ const pose=poseCharacter(profile,sampleAnimation({
+  state:distantPoseState(soldier.state,{rising:progress!==null}),time:.3,walkBlend:0,riseProgress:progress
+ },true));
+ assert.notDeepEqual(matrix(pose,'legLeft'),matrix(base,'legLeft'));
 });

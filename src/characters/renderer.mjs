@@ -2,6 +2,10 @@ import {createCatalog,importCatalog,STORAGE_KEY,profileId,migratePhysique} from 
 import {poseBounds,poseCharacter,transformPoint,DEATH_DURATION,contactShadow} from './animation.mjs';
 const ROOT=new URL('../../',import.meta.url);
 export const SOLDIER_SCALE=.285;
+/** Distant soldiers normally skip walk cycles. Never skip an actual ascent. */
+export function distantPoseState(state,{rising=false,shot=false,hitNow=false}={}){
+ return rising?'walk':shot?'shoot':state==='guard'?'guard':hitNow?'hit':'idle';
+}
 export function sampleAnimation(options={},low=false){
  const state=options.state??'idle',fps=low?6:state==='shoot'?30:state==='walk'?30:state==='guard'?30:24,time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:(state==='idle'||state==='guard')?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
  const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,state==='death'?DEATH_DURATION:1.4):index/count*duration;

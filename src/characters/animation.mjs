@@ -22,16 +22,16 @@ function mixRigid(a,b,t){
 function smooth(x){x=clamp(x);return x*x*(3-2*x);}
 /** Pure, intermittent left/right glance. Different soldiers look at different times. */
 export function lookAround(time,id=0){
- const cycle=((time+((Math.imul(id|0,1103515245)>>>0)%780)/100)%8.6+8.6)%8.6;
- if(cycle<1.1)return 0;
- if(cycle<1.85)return -smooth((cycle-1.1)/.75);
- if(cycle<3)return -1;
- if(cycle<3.75)return -1+smooth((cycle-3)/.75);
- if(cycle<4.3)return 0;
- if(cycle<5.05)return smooth((cycle-4.3)/.75);
- if(cycle<6.1)return 1;
- if(cycle<6.95)return 1-smooth((cycle-6.1)/.85);
- return 0;
+ const hash=Math.imul((id|0)^0x6d2b79f5,0x9e3779b1)>>>0;
+ const period=19+hash%13;
+ const offset=((hash>>>11)%1000)*period/1000;
+ const clock=time+offset,phase=((clock%period)+period)%period;
+ const start=period-2.5;
+ if(phase<start)return 0;
+ const t=phase-start;
+ const amount=t<.65?smooth(t/.65):t<1.35?1:t<2.1?1-smooth((t-1.35)/.75):0;
+ const direction=((Math.floor(clock/period)+(hash&1))&1)?1:-1;
+ return amount*direction;
 }
 function triangle(t,a,b,c){return t<a||t>c?0:t<b?smooth((t-a)/(b-a)):1-smooth((t-b)/(c-b));}
 function matrix(p,x=p.x,y=p.y,angle=p.rotation){return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));}
@@ -59,7 +59,8 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  const followStep=rising?triangle(r,.34,.69,1):0;
  const look=(state==='idle'||state==='guard')&&!moving?clamp(lookBlend,-1,1):0;
  const guarding=state==='guard';
- const parts=profile.parts,t=state==='shoot'?Math.max(0,time-fireAt):time,walk=walkBlend>.001,wave=Math.sin((gaitTime??time)*10+phase)*walkBlend,breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=-Math.abs(wave)*3+(1-walkBlend)*(breath*(guarding?.65:1.1)+weight);
+ const parts=profile.parts,t=state==='shoot'?Math.max(0,time-fireAt):time,walk=walkBlend>.001,
+  wave=Math.sin((gaitTime??time)*10+phase)*walkBlend*(1-(rising?triangle(r,0,.2,.95)*.8:0)),breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=-Math.abs(wave)*3+(1-walkBlend)*(breath*(guarding?.65:1.1)+weight);
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
  const dying=state==='death',impactKick=dying?triangle(time,0,.065,.24):0,buckle=dying?triangle(time,.12,.36,.82):0,slump=dying?smooth((time-.18)/.55):0;
  const hit=(state==='hit'?(1-smooth(time/.4)):clamp(hitReaction)) * Math.sin(time*30)*5,death=state==='death'?clamp((time-.14)/.62):0;
@@ -75,12 +76,13 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  const hipLean=multiply(translate(0,6*crouchBlend),
   multiply(translate(hipX,hipY),multiply(rotate(-.18*crouchBlend),translate(-hipX,-hipY))));
  const upper=dying?multiply(translate(parts.body.x,parts.body.y),multiply(rotate(upperAngle),translate(-parts.body.x,-parts.body.y)))
-  :multiply(hipLean,multiply(translate(recoil*5,bob+recoil*1.2-climbStrength*7+riseBrace*5-riseHaul*11),
+  :multiply(hipLean,multiply(translate(recoil*5,bob+recoil*1.2-climbStrength*7+riseBrace*7-riseHaul*18),
    rotate(upperAngle+climb*.045-riseBrace*.09+riseHaul*.045)));
- // One rigid head+hat group hints at a sideways survey without 3D yaw assets.
- const head=multiply(upper,multiply(translate(look*8,-Math.abs(look)*2),
+ // An occasional horizontal glance, NOT a nod. Keep helmet and head attached.
+ // A front-view drawing cannot perform real 3D yaw without new art.
+ const head=multiply(upper,multiply(translate(look*11,0),
   multiply(translate(parts.head.x,parts.head.y),
-   multiply(rotate(breath*.009+recoil*.035+crouchBlend*.09+(guarding?Math.sin(time*.8+phase)*.012:0)+(dying?-impactKick*.2+buckle*.13:0)+look*.115),
+   multiply(rotate(breath*.009+recoil*.035+crouchBlend*.09+(guarding?Math.sin(time*.8+phase)*.012:0)+(dying?-impactKick*.2+buckle*.13:0)),
     translate(-parts.head.x,-parts.head.y)))));
  const gun=parts.rifle,restCarry=dying?aim+(1.1-aim)*slump:-.9+wave*.025,readyAim=aim+(guarding?Math.sin(time*1.9+phase)*.013:0),carry=lerp(restCarry,readyAim,shootBlend),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
  let gunAngle=-lerp(desiredAngle,clamp(desiredAngle,-Math.PI/2,Math.PI/2),shootBlend)-upperAngle;
@@ -119,7 +121,7 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
    // Lift and brace actual limb sprites on slopes. No new images or scaling.
    // Ascent: plant the lead boot, haul the torso, then lift the trailing boot.
    // Descents retain the old lightweight slope pose.
-   const lift=rising?(key==='legLeft'?-47*leadStep:-33*followStep):
+   const lift=rising?(key==='legLeft'?-65*leadStep:-48*followStep):
     climb>=0?(key==='legLeft'?-42:-16)*climb:(key==='legRight'?42:16)*climb;
    const slopeAngle=rising?(key==='legLeft'?-.23*leadStep:.17*followStep):climb*(key==='legLeft'?-.22:.16);
    add(key,matrix(p,p.x,p.y+Math.max(0,-wave*(key==='legLeft'?1:-1))*5+lift,
