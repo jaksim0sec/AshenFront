@@ -1,5 +1,6 @@
 import {createAshenMatch,autoDeployPlayer,ASHEN_ARMY_CHOICES} from './fw/ashen-setup.mjs';
 import {project,unproject,soldierRenderCompare} from './fw/model.mjs';
+import {terrainOccluders,mergeDepthLayers,projectElevatedFoot} from './fw/terrain-occlusion.mjs';
 import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS} from './fw/squad-orders.mjs';
 import {squadsFor,platoonSquadIds} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
@@ -149,7 +150,7 @@ function autoDeploy(){const r=autoDeployPlayer(match);notice(r.complete?'배치 
 function start(){if(match.phase!=='preparation')return;closeTacticalPanels();setHudExpanded(false);if(!autoDeploy())return;match.start();if(match.phase!=='battle'){notice('전투 시작 실패');return;}switchMode('control');document.body.dataset.phase='battle';if(!selected.size&&squads().length)selected.add(squads()[0].id);notice('전투 시작 · 개나리워즈 원본 지휘 체계 가동');roster();hud();}
 function restart(){closeTacticalPanels();setPanelOpen($('game-tools'),false);setHudExpanded(false);({board,match}=createAshenMatch({seed,count:armySize}));selected.clear();mode=null;hover=null;paused=false;last=0;lastOrders=0;lastRoster=0;rosterEpoch=null;$('result').hidden=true;$('pause').textContent='Ⅱ';switchMode('deploy');fit();setMapOpen(true);notice('아군 진영에 병력을 배치하세요');roster();hud();}
 function locate(px,py){const r=unproject((px-camera.x)/camera.scale,(py-camera.y)/camera.scale),x=Math.round(r.x),y=Math.round(r.y);return board.inside(x,y)?{x,y}:null;}
-function hit(px,py){let closest=null,d=25;for(const u of board.units){if(u.health.current<=0)continue;const p=project(u.visualX,u.visualY),dist=Math.hypot(px-camera.x-p.x*camera.scale,py-camera.y-p.y*camera.scale+25*camera.scale);if(dist<d){d=dist;closest=u;}}return closest;}
+function hit(px,py){let closest=null,d=25;for(const u of board.units){if(u.health.current<=0)continue;const p=projectElevatedFoot(board,u),dist=Math.hypot(px-camera.x-p.x*camera.scale,py-camera.y-p.y*camera.scale+25*camera.scale);if(dist<d){d=dist;closest=u;}}return closest;}
 function tap(px,py,shift=false){const p=locate(px,py);if(!p)return;if(playMode==='deploy'&&match.phase==='preparation'){deploy(p);return;}const u=hit(px,py);
  if(u?.team==='A'&&!mode){choose(u.squadId,shift||additive);return;}
  if(mode==='attack'){if(u?.team==='B'&&command('focus',{unitId:u.id}))setCommand(null);else notice('적군을 선택하세요');return;}
@@ -180,15 +181,16 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
  for(const u of board.units){
   if(u.hasMoved&&!u._movementRecorded&&u.squadId){const s=squadIndex.get(u.squadId);if(s){s.hasMoved=true;u._movementRecorded=true;}}
   if(u.health.current<=0&&u.state!=='death')continue;
-  const p=project(u.visualX,u.visualY),sx=camera.x+p.x*camera.scale,sy=camera.y+p.y*camera.scale;
+  const p=projectElevatedFoot(board,u),sx=camera.x+p.x*camera.scale,sy=camera.y+p.y*camera.scale;
   if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
   troops.push(u);
  }
  troops.sort(soldierRenderCompare);
  visibleTroops=troops.length;
+ const faces=terrainOccluders(board,bounds());
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
  const shotStamp=renderedFrames+1;
- for(const u of troops){const p=project(u.visualX,u.visualY);
+ mergeDepthLayers(troops,faces,u=>{const p=projectElevatedFoot(board,u);
   ctx.save();ctx.translate(p.x,p.y);
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
@@ -223,7 +225,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   }
   if(shot)u._shotMuzzleStamp=muzzle.valid?shotStamp:-1;
   ctx.restore();
- }
+ },face=>terrainArt.drawOccluder(ctx,board,face));
  drawSquadTeamFlags(ctx,board,camera.scale,camera,w,h,[...selected]);
  drawBattleEffects(ctx,board,shotStamp);ctx.restore();
 }

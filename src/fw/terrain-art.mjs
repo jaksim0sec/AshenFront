@@ -1,3 +1,4 @@
+import {LEVEL_PX,terrainLevel} from './terrain-occlusion.mjs';
 // AshenFront terrain visuals. All tactical/movement data remains immutable.
 const HX=72,HY=42,TW=144,TH=107,PAD=160;
 const NAMES=['void','grass','soil','road','marsh','rock','scorched'];
@@ -171,6 +172,7 @@ function seams(ctx,board,tiles,map){
  for(const water of [false,true]){
   ctx.beginPath();
   for(const {x,y} of tiles){const material=NAMES[map[y*w+x]],p=project(x,y);
+   p.y-=(terrainLevel(board,x,y)-1)*LEVEL_PX;
    for(const [dx,dy,sign] of [[1,0,1],[0,1,-1]]){
     const nx=x+dx,ny=y+dy,other=nx>=w||ny>=h?'void':NAMES[map[ny*w+nx]];
     if(other==='void'||other===material||((material==='marsh'||other==='marsh')!==water))continue;
@@ -221,7 +223,7 @@ export class BattlefieldTerrainRenderer{
  }
  draw(ctx,board,camera,width,height,drawDpr=1,low=false,now=performance.now()){
   const density=Math.min(drawDpr,low||camera.scale<.12?1:1.5);
-  const baseKey=[board,board.terrainRevision,board.obstacleRevision,board.battlefield,this.version,width,height,density,low];
+  const baseKey=[board,board.terrainRevision,board.obstacleRevision,board.battlefield,board.floorLevel,board.floorLevelRevision??0,this.version,width,height,density,low];
   if(!sameRevision(this.baseKey,baseKey)){
    this.pages=[];this.cache=null;this.cacheBytes=0;this.baseKey=baseKey;this.lastScale=null;this.lastPrune=now;
   }
@@ -269,6 +271,7 @@ export class BattlefieldTerrainRenderer{
    const materialIndex=buildVisualMap(board);
    for(const {x,y} of tiles){
     const material=NAMES[materialIndex[y*board.width+x]],p=project(x,y);
+    p.y-=(terrainLevel(board,x,y)-1)*LEVEL_PX;
     if(!this.atlas){diamond(t,p.x,p.y,COLORS[material]);continue;}
     const col=terrainVariant(x,y),row=(newArt?NEW_ROWS:OLD_ROWS)[material],sx=col*TW,sy=row*TH;
     if(newArt){
@@ -302,5 +305,21 @@ export class BattlefieldTerrainRenderer{
   }
   this.cache=page;
   ctx.drawImage(page.canvas,position.x,position.y,position.width,position.height);
+ }
+ // Composite only exposed height transitions; do not rebake the terrain cache.
+ drawOccluder(ctx,board,face){
+  const p=project(face.x,face.y),material=terrainMaterial(board,face.x,face.y);
+  p.y-=(face.level-1)*LEVEL_PX;
+  if(face.kind==='cap'){
+   if(this.kind==='new'&&this.surface&&NEW_ROWS[material]!=null)
+    ctx.drawImage(this.surface,terrainVariant(face.x,face.y)*TW,NEW_ROWS[material]*TH,TW,TH,p.x-HX,p.y-44,TW,TH);
+   else diamond(ctx,p.x,p.y,COLORS[material]??COLORS.soil);
+   return;
+  }
+  const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],
+   b=east?[p.x+HX,p.y]:[p.x,p.y+HY],drop=(face.level-face.low)*LEVEL_PX;
+  ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.lineTo(b[0],b[1]+drop);
+  ctx.lineTo(a[0],a[1]+drop);ctx.closePath();
+  ctx.fillStyle=east?'#514b45':'#433f3b';ctx.fill();
  }
 }
