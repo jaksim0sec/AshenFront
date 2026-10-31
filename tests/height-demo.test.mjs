@@ -24,7 +24,7 @@ test('actual generated battlefield installs visible A/B trench and hill demo wit
   assert.equal(b.navigation.blocked(i(b,d.x,d.y)),false);
  }
  const faces=terrainOccluders(b,{x0:160,x1:191,y0:176,y1:211});
- assert.ok(faces.some(f=>f.kind==='wall')&&faces.some(f=>f.kind==='cap'));
+ assert.ok(faces.length>0&&faces.every(f=>f.kind==='wall'));
 });
 test('height walls cannot be traversed, authorized ramp transitions work both directions',()=>{
  const b=new Board(22,20);b.floorLevel=new Uint8Array(b.width*b.height).fill(1);
@@ -71,7 +71,7 @@ test('moving into and out of both levels interpolates feet and uses mixed static
  const u=unit(b,4,4);assert.ok(u);
  assert.equal(projectElevatedFoot(b,u).y,(4+4)*42+22);
  const f=terrainOccluders(b,{x0:0,x1:12,y0:0,y1:12});
- assert.ok(f.some(x=>x.kind==='cap')&&f.some(x=>x.kind==='wall'));
+ assert.ok(f.length>0&&f.every(x=>x.kind==='wall'));
  const sequence=[];mergeDepthLayers([u],[...f],()=>sequence.push('unit'),()=>sequence.push('face'));
  assert.ok(sequence.indexOf('unit')>=0&&sequence.lastIndexOf('face')>=0);
 });

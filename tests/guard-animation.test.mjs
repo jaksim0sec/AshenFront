@@ -114,3 +114,18 @@ test('the first movement step marks a soldier as formerly mobile, not a timer',a
  board.beginStep(soldier,{x:7,y:6});
  assert.equal(soldier.hasMoved,true);
 });
+
+test('ramp walking produces a visibly distinct step but keeps native limb proportions and sprite cache bounds',()=>{
+ const standing=poseCharacter(profile,{state:'walk',time:.25,gaitTime:.25,walkBlend:1,climbBlend:0});
+ const climbing=poseCharacter(profile,{state:'walk',time:.25,gaitTime:.25,walkBlend:1,climbBlend:1});
+ const leg=name=>climbing.draws.find(d=>d.part===name).matrix;
+ const normal=name=>standing.draws.find(d=>d.part===name).matrix;
+ assert.ok(Math.abs(leg('legLeft')[5]-normal('legLeft')[5])>10,'lead boot must lift during climb');
+ assert.ok(Math.abs(leg('legRight')[5]-normal('legRight')[5])>4,'rear boot must brace during climb');
+ for(const name of ['head','hat','body','legLeft','legRight','armLeft','armRight']){
+  const orig=normal(name),m=leg(name);
+  assert.ok(Math.abs((m[0]*m[3]-m[1]*m[2])-(orig[0]*orig[3]-orig[1]*orig[2]))<1e-8,name+' must not stretch');
+ }
+ const sampled=Array.from({length:101},(_,i)=>sampleAnimation({state:'walk',time:.25,climbBlend:i/100}).climbBlend);
+ assert.ok(new Set(sampled).size<=13,'animation atlas must not create a new pose for every ramp progress tick');
+});

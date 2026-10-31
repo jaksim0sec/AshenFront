@@ -1,6 +1,6 @@
 import {createAshenMatch,autoDeployPlayer,ASHEN_ARMY_CHOICES} from './fw/ashen-setup.mjs';
-import {project,unproject,soldierRenderCompare} from './fw/model.mjs';
-import {terrainOccluders,mergeDepthLayers,projectElevatedFoot} from './fw/terrain-occlusion.mjs';
+import {project,unproject} from './fw/model.mjs';
+import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,compareProjectedUnits,terrainTransitionPose} from './fw/terrain-occlusion.mjs';
 import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS} from './fw/squad-orders.mjs';
 import {squadsFor,platoonSquadIds} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
@@ -204,14 +204,15 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   if(u.health.current<=0&&u.state!=='death')continue;
   const p=projectElevatedFoot(board,u),sx=camera.x+p.x*camera.scale,sy=camera.y+p.y*camera.scale;
   if(sx< -100||sx>w+100||sy< -100||sy>h+100)continue;
+  u._renderFoot=p;
   troops.push(u);
  }
- troops.sort(soldierRenderCompare);
+ troops.sort(compareProjectedUnits);
  visibleTroops=troops.length;
  const faces=terrainOccluders(board,bounds());visibleHeightFaces=faces.length;
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
  const shotStamp=renderedFrames+1;
- mergeDepthLayers(troops,faces,u=>{const p=projectElevatedFoot(board,u);
+ mergeDepthLayers(troops,faces,u=>{const p=u._renderFoot;
   ctx.save();ctx.translate(p.x,p.y);
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
@@ -239,9 +240,10 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   const pose=distant&&state!=='death'
    ?{state:shot?'shoot':state==='guard'?'guard':hitNow?'hit':'idle',time:shot?Math.min(u.elapsed,.04):0,gaitTime:0,moving:false,facing,phase:0,aim:Math.round(rawAim*4)/4,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:shot?1:0,walkBlend:0,crouchBlend:fighting?1:state==='guard'?.10:0,hitReaction:hitNow?1:0}
    :{state,time:state==='shoot'||state==='death'?u.elapsed:state==='hit'?board.time-u.lastHitAt:board.time,gaitTime:board.time,moving:!!u.step,facing:u.facing,phase:(u.id%4)*.6,facing,aim:view.aim,fireAt:shot?u.strike?.impactTime??0:0,shootBlend:view.blend,walkBlend:view.walk,crouchBlend:view.crouch,hitReaction};
-  const muzzle=shot?(u._shotMuzzle??(u._shotMuzzle={})):null;
+  const climbBlend=state==='walk'?terrainTransitionPose(board,u):0;
+   const muzzle=shot?(u._shotMuzzle??(u._shotMuzzle={})):null;
   if(muzzle)muzzle.valid=false;
-  if(!soldiers.draw(ctx,u.team,rank,{...pose,muzzleOut:muzzle,pixelDensity:camera.scale*drawDpr*.285*1.8},distant)){
+  if(!soldiers.draw(ctx,u.team,rank,{...pose,muzzleOut:muzzle,pixelDensity:camera.scale*drawDpr*.285*1.8,climbBlend},distant)){
    ctx.fillStyle=colors[u.team];ctx.fillRect(-8,-37,16,30);
   }
   if(shot)u._shotMuzzleStamp=muzzle.valid?shotStamp:-1;

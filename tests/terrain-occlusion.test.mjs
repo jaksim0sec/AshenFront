@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,terrainLevel,terrainOcclusionStats} from '../src/fw/terrain-occlusion.mjs';
+import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,terrainLevel,terrainOcclusionStats,compareProjectedUnits,terrainTransitionPose} from '../src/fw/terrain-occlusion.mjs';
 const board=(w=8,h=8)=>({width:w,height:h,floorLevel:new Uint8Array(w*h).fill(1),floorLevelRevision:0,terrainRevision:0});
 const bounds={x0:0,x1:7,y0:0,y1:7};
 const actor=(x,y,id=1)=>({visualX:x,visualY:y,x,y,id});
@@ -20,14 +20,12 @@ test('front exposed wall covers the lower neighbor feet after the actor draw',()
  mergeDepthLayers([actor(2,2),actor(3,2,2)],[wall],u=>log.push('unit:'+u.id),i=>log.push(i.kind));
  assert.deepEqual(log,['unit:1','unit:2','wall']);
 });
-test('foreground ground cap hides the lower trench occupant while retaining same-tile actor',()=>{
+test('terrain cannot repaint a whole foreground tile over the upper half of a soldier',()=>{
  const b=board();b.floorLevel[2*b.width+2]=0;b.floorLevelRevision++;
  const fronts=terrainOccluders(b,bounds);
- const cap=fronts.find(i=>i.kind==='cap'&&i.x===3&&i.y===2);
- assert.ok(cap,'front high ground surface not emitted');
- const log=[];
- mergeDepthLayers([actor(2,2,1),actor(3,2,2)],[cap],u=>log.push('unit:'+u.id),()=>log.push('cap'));
- assert.deepEqual(log,['unit:1','cap','unit:2']);
+ assert.ok(fronts.length,'trench must have front-facing physical wall faces');
+ assert.ok(fronts.every(face=>face.kind==='wall'),'surface caps belong only to cached terrain, not the actor occlusion stream');
+ assert.ok(fronts.every(face=>face.level>face.low),'front layer must contain only height-changing surfaces');
 });
 test('scene-layer ordering is deterministic when two faces share depth',()=>{
  const b=board();b.floorLevel[2*b.width+2]=2;b.floorLevelRevision++;
@@ -90,4 +88,30 @@ test('height-adjusted actor foot controls terrain and unit order without rerende
  const log=[];
  mergeDepthLayers([hi,lo],[wall],u=>log.push(u.id),()=>log.push('wall'));
  assert.deepEqual(log,[1,2,'wall']);
+});
+
+test('real projected feet, not spawn order or flattened tile center, determine moving soldier order',()=>{
+ const b=board(),hi=actor(3,2,99),lo=actor(2,3,1);
+ b.floorLevel[2*b.width+3]=2;b.floorLevel[3*b.width+2]=0;
+ hi._renderFoot=projectElevatedFoot(b,hi);lo._renderFoot=projectElevatedFoot(b,lo);
+ assert.ok(hi._renderFoot.y<lo._renderFoot.y,'high ground is visually behind the lower trench');
+ assert.deepEqual([lo,hi].sort(compareProjectedUnits),[hi,lo]);
+ const t=actor(2,3,33);t._renderFoot=projectElevatedFoot(b,t);
+ t._renderFoot={...t._renderFoot,x:lo._renderFoot.x+144};
+ assert.ok(compareProjectedUnits(lo,t)<0,'same-height neighbors use screen X for deterministic order');
+});
+test('climbing and descending pose signals are smooth and disabled on flat walking',()=>{
+ const b=board(),u=actor(2,2);
+ b.floorLevel[2*b.width+3]=2;
+ u.step={x:3,y:2,duration:1,elapsed:0};
+ assert.equal(terrainTransitionPose(b,u),0);
+ u.step.elapsed=.25;assert.ok(terrainTransitionPose(b,u)>.6);
+ u.step.elapsed=.5;assert.ok(terrainTransitionPose(b,u)>.99);
+ u.step.elapsed=.75;assert.ok(terrainTransitionPose(b,u)>.6);
+ u.step.elapsed=1;assert.ok(Math.abs(terrainTransitionPose(b,u))<1e-10);
+ u.x=3;u.y=2;u.step={x:2,y:2,duration:1,elapsed:.5};
+ assert.ok(terrainTransitionPose(b,u)<-.99);
+ b.floorLevel[3*b.width+3]=2;
+ u.step={x:3,y:3,duration:1,elapsed:.5};
+ assert.equal(terrainTransitionPose(b,u),0);
 });

@@ -6,7 +6,7 @@ export function sampleAnimation(options={},low=false){
  const state=options.state??'idle',fps=low?6:state==='shoot'?30:state==='walk'?30:state==='guard'?30:24,time=Math.max(0,(options.time??0)+(state==='walk'?(options.phase??0)/10:(state==='idle'||state==='guard')?(options.phase??0)/2.6:0)),duration=state==='shoot'?1.5:state==='walk'?Math.PI*2/10:Math.PI*2/2.6,count=Math.max(2,Math.round(duration*fps)),index=Math.floor(((time%duration)/duration)*count);
  const sample=state==='hit'||state==='death'?Math.min(Math.floor(time*fps)/fps,state==='death'?DEATH_DURATION:1.4):index/count*duration;
  const gaitPeriod=Math.PI*2/10,gaitCount=Math.max(2,Math.round(gaitPeriod*fps)),gaitTime=options.gaitTime===undefined||!(options.moving||state==='walk'||(options.walkBlend??0)>0.001)?undefined:Math.floor((((Math.max(0,options.gaitTime)+(options.phase??0)/10)%gaitPeriod)/gaitPeriod)*gaitCount)/gaitCount*gaitPeriod;
- return {...options,state,time:sample,gaitTime,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,shootBlend:Math.round(Math.max(0,Math.min(1,options.shootBlend??(state==='shoot'?1:state==='guard'?.6:0)))*30)/30,hitReaction:Math.round(Math.max(0,Math.min(1,options.hitReaction??0))*4)/4,crouchBlend:Math.round(Math.max(0,Math.min(1,options.crouchBlend??0))*12)/12,walkBlend:Math.round(Math.max(0,Math.min(1,options.walkBlend??(state==='walk'?1:0)))*16)/16,phase:0};
+ return {...options,state,time:sample,gaitTime,aim:state==='shoot'?(options.aim??0):Math.round((options.aim??0)*8)/8,shootBlend:Math.round(Math.max(0,Math.min(1,options.shootBlend??(state==='shoot'?1:state==='guard'?.6:0)))*30)/30,hitReaction:Math.round(Math.max(0,Math.min(1,options.hitReaction??0))*4)/4,crouchBlend:Math.round(Math.max(0,Math.min(1,options.crouchBlend??0))*12)/12,climbBlend:Math.round(Math.max(-1,Math.min(1,options.climbBlend??0))*6)/6,walkBlend:Math.round(Math.max(0,Math.min(1,options.walkBlend??(state==='walk'?1:0)))*16)/16,phase:0};
 }
 export class SoldierRenderer {
  constructor(){this.catalog=createCatalog();this.images=new Map();this.metadata={};this.cache=new Map();this.cacheBytes=0;this.hits=0;this.misses=0;this.loaded=false;this.error=null;this.revision=0;this.margin=140;
@@ -43,7 +43,7 @@ export class SoldierRenderer {
   // Keeping a 0.57x offscreen bitmap at mobile zoom wastes ~9x raster area.
   const density=Number.isFinite(options.pixelDensity)?Math.max(.16,Math.min(.57,options.pixelDensity)):.57;
   const resolutionBucket=Math.round(density*100)/100;
-  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,resolutionBucket,sampled.fireAt??0,sampled.shootBlend,sampled.hitReaction,sampled.walkBlend,sampled.crouchBlend,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
+  const key=[this.revision,id,state,sample,aim,phase,!!options.moving,low,resolutionBucket,sampled.fireAt??0,sampled.shootBlend,sampled.hitReaction,sampled.walkBlend,sampled.crouchBlend,sampled.climbBlend,sampled.gaitTime??'',sampled.target?.x??'',sampled.target?.y??''].join(':');let canvas=this.cache.get(key);
   if(canvas){this.hits++;this.cache.delete(key);this.cache.set(key,canvas);}
   if(!canvas){this.misses++;
    const poseOptions={...sampled,facing:1},articulated=poseCharacter(profile,poseOptions),bounds=poseBounds(articulated),resolution=Math.min(resolutionBucket,384/Math.max(bounds.width,bounds.height));

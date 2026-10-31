@@ -33,10 +33,11 @@ function weaponMatrix(p,x,y,angle){
  // The supplied character art faces left; the SVG rifle points right.
  return multiply(translate(x,y),multiply(rotate(angle),multiply(scale(-p.scaleX,p.scaleY),translate(-p.w*p.pivotX,-p.h*p.pivotY))));
 }
-export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,walkBlend=(state==='walk'||moving)?1:0,shootBlend=state==='shoot'?1:0,crouchBlend=0,hitReaction=0,fireAt=0}={}){
+export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target=null,facing=1,phase=0,moving=false,walkBlend=(state==='walk'||moving)?1:0,shootBlend=state==='shoot'?1:0,crouchBlend=0,climbBlend=0,hitReaction=0,fireAt=0}={}){
  shootBlend=clamp(shootBlend);
  walkBlend=clamp(walkBlend);
  crouchBlend=clamp(crouchBlend);
+ const climb=clamp(climbBlend,-1,1),climbStrength=Math.abs(climb);
  const guarding=state==='guard';
  const parts=profile.parts,t=state==='shoot'?Math.max(0,time-fireAt):time,walk=walkBlend>.001,wave=Math.sin((gaitTime??time)*10+phase)*walkBlend,breath=state==='death'?0:Math.sin(time*(guarding?3.1:2.6)+phase),weight=guarding?Math.sin(time*.9+phase)*.7:0,bob=-Math.abs(wave)*3+(1-walkBlend)*(breath*(guarding?.65:1.1)+weight);
  const recoil=state==='shoot'?triangle(t,0,.025,.16):0,bolt=state==='shoot'?triangle(t,.13,.3,.68):0,settle=state==='shoot'?triangle(t,.68,.85,1.2):0;
@@ -54,7 +55,7 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
  const hipLean=multiply(translate(0,6*crouchBlend),
   multiply(translate(hipX,hipY),multiply(rotate(-.18*crouchBlend),translate(-hipX,-hipY))));
  const upper=dying?multiply(translate(parts.body.x,parts.body.y),multiply(rotate(upperAngle),translate(-parts.body.x,-parts.body.y)))
-  :multiply(hipLean,multiply(translate(recoil*5,bob+recoil*1.2),rotate(upperAngle)));
+  :multiply(hipLean,multiply(translate(recoil*5,bob+recoil*1.2-climbStrength*7),rotate(upperAngle+climb*.045)));
  const head=multiply(upper,multiply(translate(parts.head.x,parts.head.y),multiply(rotate(breath*.009+recoil*.035+crouchBlend*.09+(guarding?Math.sin(time*.8+phase)*.012:0)+(dying?-impactKick*.2+buckle*.13:0)),translate(-parts.head.x,-parts.head.y))));
  const gun=parts.rifle,restCarry=dying?aim+(1.1-aim)*slump:-.9+wave*.025,readyAim=aim+(guarding?Math.sin(time*1.9+phase)*.013:0),carry=lerp(restCarry,readyAim,shootBlend),desiredAngle=gun.rotation+carry-recoil*.045+settle*.025;
  let gunAngle=-lerp(desiredAngle,clamp(desiredAngle,-Math.PI/2,Math.PI/2),shootBlend)-upperAngle;
@@ -90,7 +91,10 @@ export function poseCharacter(profile,{state='idle',time=0,gaitTime,aim=0,target
    const stride=dying?(key==='legLeft'?-.35:.45)*smooth((time-.12)/.35):(key==='legLeft'?1:-1)*wave*.28;
    // A wider, slightly flexed stance, preserving each boot's unscaled artwork.
    const brace=(key==='legLeft'?1:-1)*crouchBlend*.21;
-   add(key,matrix(p,p.x,p.y+Math.max(0,-wave*(key==='legLeft'?1:-1))*5,p.rotation+stride+brace));
+   // Lift and brace actual limb sprites on slopes. No new images or scaling.
+   const lift=climb>=0?(key==='legLeft'?-42:-16)*climb:(key==='legRight'?42:16)*climb;
+   add(key,matrix(p,p.x,p.y+Math.max(0,-wave*(key==='legLeft'?1:-1))*5+lift,
+    p.rotation+stride+brace+climb*(key==='legLeft'?-.22:.16)));
    continue;
   }
   if(key==='head'||key==='hat'){add(key,multiply(head,matrix(p)));continue;}

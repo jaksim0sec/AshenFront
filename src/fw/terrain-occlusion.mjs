@@ -38,8 +38,7 @@ function build(board,levels){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
   const height=at(x,y);
   if(height===at(x-1,y)&&height===at(x,y-1)&&height===at(x+1,y)&&height===at(x,y+1))continue;
-  if(height>at(x-1,y)||height>at(x,y-1))
-   push(x,y,'cap',null,height,0,x+y-.25-(height-1)*LEVEL_PX/HALF_H,x-y,order++);
+  // Surface diamonds are already in the cached terrain. Do not repaint over actors.
   if(height>at(x+1,y))push(x,y,'wall','east',height,at(x+1,y),x+y+1-(at(x+1,y)-1)*LEVEL_PX/HALF_H+.02,x-y+.5,order++);
   if(height>at(x,y+1))push(x,y,'wall','south',height,at(x,y+1),x+y+1-(at(x,y+1)-1)*LEVEL_PX/HALF_H+.02,x-y-.5,order++);
  }
@@ -70,6 +69,21 @@ export function terrainOccluders(board,bounds){
 export function terrainOcclusionStats(board){
  const cache=indexes.get(board);
  return {builds:cache?.builds??0,candidates:cache?.candidates??0};
+}
+export function compareProjectedUnits(a,b){
+ const ay=a._renderFoot?.y??(a.visualX+a.visualY)*HALF_H;
+ const by=b._renderFoot?.y??(b.visualX+b.visualY)*HALF_H;
+ return ay-by
+  ||(a._renderFoot?.x??(a.visualX-a.visualY)*HALF_W)-(b._renderFoot?.x??(b.visualX-b.visualY)*HALF_W)
+  ||a.id-b.id;
+}
+export function terrainTransitionPose(board,u){
+ const step=u.step;
+ if(!step||!(step.duration>0))return 0;
+ const origin=terrainLevel(board,u.x,u.y),destination=terrainLevel(board,step.x,step.y);
+ if(origin===destination)return 0;
+ const t=Math.max(0,Math.min(1,step.elapsed/step.duration));
+ return Math.sign(destination-origin)*Math.sin(Math.PI*t);
 }
 // Both streams are independently sorted; no combined sort or per-soldier terrain search.
 export function mergeDepthLayers(units,faces,drawUnit,drawFace){

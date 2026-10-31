@@ -310,15 +310,12 @@ export class BattlefieldTerrainRenderer{
  drawOccluder(ctx,board,face){
   const p=project(face.x,face.y),material=terrainMaterial(board,face.x,face.y);
   p.y-=(face.level-1)*LEVEL_PX;
-  if(face.kind==='cap'){
-   if(this.kind==='new'&&this.surface&&NEW_ROWS[material]!=null)
-    ctx.drawImage(this.surface,terrainVariant(face.x,face.y)*TW,NEW_ROWS[material]*TH,TW,TH,p.x-HX,p.y-44,TW,TH);
-   else diamond(ctx,p.x,p.y,COLORS[material]??COLORS.soil);
-   return;
-  }
+  // Ground tops live in the static cache. Never redraw a whole tile over a unit.
+  if(face.kind!=='wall')return;
   const east=face.edge==='east',a=east?[p.x,p.y+HY]:[p.x-HX,p.y],
    b=east?[p.x+HX,p.y]:[p.x,p.y+HY],drop=(face.level-face.low)*LEVEL_PX;
-  ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.lineTo(b[0],b[1]+drop);
+  // The narrow bank lip can hide a boot, never the soldier's head.
+  ctx.beginPath();ctx.moveTo(a[0],a[1]-4);ctx.lineTo(b[0],b[1]-4);ctx.lineTo(b[0],b[1]+drop);
   ctx.lineTo(a[0],a[1]+drop);ctx.closePath();
   ctx.fillStyle=east?'#514b45':'#433f3b';ctx.fill();
  }
