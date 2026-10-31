@@ -302,6 +302,24 @@ try:
   trial.wait_for_function("window.__ascentObservations?.some(p=>p.state==='walk')",timeout=6000)
   assert not trial_errors,trial_errors
   trial.screenshot(path=str(out/'terrain-interaction-mobile.png'))
+  # Regression capture at the same kind of close mobile zoom as the reported
+  # black/woodgrain wall screenshots. The old CI only captured tiny tiles.
+  focus=trial.evaluate("""()=>{
+   const f=__ashenFlower.board.battlefield.heightDemo.find(x=>x.team==='A'&&x.kind==='trench');
+   const camera=__ashenFlower.camera,rect=document.getElementById('battlefield').getBoundingClientRect();
+   return {x:rect.left+camera.x+(f.x-f.y)*72*camera.scale,
+    y:rect.top+camera.y+(f.x+f.y)*42*camera.scale};
+  }""")
+  trial.mouse.move(focus['x'],focus['y'])
+  trial.mouse.down()
+  trial.mouse.move(195,370,steps=12)
+  trial.mouse.up()
+  trial.mouse.move(195,370)
+  for _ in range(10):trial.mouse.wheel(0,-120)
+  trial.wait_for_timeout(900)
+  assert trial.evaluate('__ashenFlower.camera.scale')>1.2,'closeup requires >= 1.2x zoom'
+  trial.screenshot(path=str(out/'terrain-cut-closeup-mobile.png'))
+
   debug.close()
   browser.close()
  print(json.dumps(reports,ensure_ascii=False))
