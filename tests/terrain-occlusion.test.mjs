@@ -121,7 +121,7 @@ test('climbing and descending pose signals are smooth and disabled on flat walki
 test('same-tile face competes with soldier while a front-neighbor soldier stays visible',()=>{
  const b=board(16,16);b.floorLevel[5*b.width+5]=2;b.floorLevelRevision++;
  const rear=actor(5,5),front=actor(6,5);
- assert.ok(terrainCoverPolygons(b,rear).some(p=>p.length===4));
+ assert.ok(terrainCoverPolygons(b,rear).some(p=>p.length>=4));
  assert.deepEqual(terrainCoverPolygons(b,front),[]);
 });
 test('trench soldier is locally masked by elevated front tile, not rear tiles',()=>{
@@ -134,7 +134,7 @@ test('wall occlusion boundary follows fractional motion rather than snapping at 
  const first=terrainCoverPolygons(b,actor(5,5));
  const moving={...actor(5,5),visualX:5.55};
  const mid=terrainCoverPolygons(b,moving);
- const face=poly=>poly.length===4&&poly.some(p=>p.y>430);
+ const face=poly=>poly.length>=4&&poly.some(p=>p.y>430);
  const a=first.find(face),m=mid.find(face);
  assert.ok(a&&m);
  assert.notDeepEqual(a[0],m[0],'same wall is clipped to moving foot depth');
@@ -179,6 +179,8 @@ test('bank toe occlusion follows the same shallow soil bevel as the wall rendere
  const py=(5+5)*42-(2-1)*22;
  // East high bank: bottom of the painted cut leans 12px toward lower tile
  // and 4px down, not directly below the top edge like a vertical fence.
- assert.ok(mask.some(poly=>poly.length===4&&poly.some(p=>p.x===12&&p.y===py+42+22+4)),
-  'depth mask must include the sloped earth toe');
+ assert.ok(mask.some(poly=>poly.length>=4&&poly.some(p=>p.x===48&&p.y===py+21+22+4)),
+  'depth mask must include the centre of the sloped earth toe');
+ assert.ok(mask.every(poly=>poly.length<4||!poly.some(p=>p.x===12&&p.y===py+42+22+4)),
+  'bank must not extend a full-width toe at shared corners');
 });

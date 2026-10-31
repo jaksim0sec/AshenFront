@@ -416,7 +416,10 @@ export class BattlefieldTerrainRenderer{
     }
     for(let k=8;k>=0;k--){
      const u=k/8;
-     ctx.lineTo(ax+(bx-ax)*u+toeX,ay+(by-ay)*u+drop+toeY+
+     // Zero-width toe at shared corners: neighboring bends meet cleanly.
+     const shoulder=Math.sin(Math.PI*u);
+     ctx.lineTo(ax+(bx-ax)*u+toeX*shoulder,
+      ay+(by-ay)*u+drop+toeY*shoulder+
       (k===0||k===8?0:ripple(k)*.55));
     }
     ctx.closePath();

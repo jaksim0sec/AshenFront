@@ -157,12 +157,21 @@ export function terrainCoverPolygons(board,u){
    const split=Math.max(0,Math.min(1,depth-base));
    if(split>=1)continue;
    const mx=ax+(bx-ax)*split,my=ay+(by-ay)*split;
-   // Match the cut's shallow bank toe. Its foreground footprint must
-   // occlude the same pixels that terrain-art actually paints.
+   // Clip the true bank footprint. A toe offset at the corners opens black
+   // triangular joins, so the bevel tapers to zero at each segment endpoint.
    const toeX=edge==='east'?12:-12,toeY=4;
-   add([{x:mx,y:my},{x:bx,y:by},
-    {x:bx+toeX,y:by+drop+toeY},
-    {x:mx+toeX,y:my+drop+toeY}]);
+   const poly=[{x:mx,y:my},{x:bx,y:by}];
+   let last=2;
+   for(let k=8;k>=0;k--){
+    const t=Math.max(split,k/8);
+    if(t>=last-1e-8)continue;
+    last=t;
+    const shoulder=Math.sin(Math.PI*t);
+    poly.push({x:ax+(bx-ax)*t+toeX*shoulder,
+     y:ay+(by-ay)*t+drop+toeY*shoulder});
+    if(t<=split+1e-8)break;
+   }
+   add(poly);
   }
  }
  return out.length?out:EMPTY;
