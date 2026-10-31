@@ -1,6 +1,6 @@
 import {createAshenMatch,autoDeployPlayer,ASHEN_ARMY_CHOICES} from './fw/ashen-setup.mjs';
 import {project,unproject} from './fw/model.mjs';
-import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,compareProjectedUnits,terrainTransitionPose} from './fw/terrain-occlusion.mjs';
+import {terrainOccluders,projectElevatedFoot,compareProjectedUnits,terrainTransitionPose} from './fw/terrain-occlusion.mjs';
 import {orderSquads,configureSquad,updateSquadOrders,squadSummary,SQUAD_ACTIONS} from './fw/squad-orders.mjs';
 import {squadsFor,platoonSquadIds} from './fw/unit-groups.mjs';
 import {SoldierRenderer} from './characters/renderer.mjs';
@@ -212,7 +212,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
  const faces=terrainOccluders(board,bounds());visibleHeightFaces=faces.length;
  const distant=low||camera.scale<.12||(board.units.length>280&&camera.scale<.45);
  const shotStamp=renderedFrames+1;
- mergeDepthLayers(troops,faces,u=>{const p=u._renderFoot;
+ for(const u of troops){const p=u._renderFoot;
   ctx.save();ctx.translate(p.x,p.y);
   if(selected.has(u.squadId)&&u.health.current>0){ctx.strokeStyle=colors.A;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,23,12,0,0,Math.PI*2);ctx.stroke();}
   ctx.fillStyle='#10161999';ctx.beginPath();ctx.ellipse(0,0,17,7,0,0,Math.PI*2);ctx.fill();
@@ -248,7 +248,7 @@ function paint(){const w=canvas.clientWidth,h=canvas.clientHeight;ctx.setTransfo
   }
   if(shot)u._shotMuzzleStamp=muzzle.valid?shotStamp:-1;
   ctx.restore();
- },face=>terrainArt.drawOccluder(ctx,board,face));
+ }
  drawSquadTeamFlags(ctx,board,camera.scale,camera,w,h,[...selected]);
  drawBattleEffects(ctx,board,shotStamp);ctx.restore();
 }

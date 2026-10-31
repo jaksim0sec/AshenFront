@@ -298,6 +298,15 @@ export class BattlefieldTerrainRenderer{
      }
     }
    }
+   // Draw physical banks into cached terrain BEFORE drawing actors.
+   // Global actor/wall depth merging amputated heads behind trench walls.
+   if(board.floorLevel)for(const {x,y} of tiles){
+    const upper=terrainLevel(board,x,y);
+    for(const [dx,dy,edge] of [[1,0,'east'],[0,1,'south']]){
+     const lower=terrainLevel(board,x+dx,y+dy);
+     if(upper>lower)this.drawOccluder(t,board,{kind:'wall',x,y,edge,level:upper,low:lower});
+    }
+   }
    if(tiles.length&&camera.scale>=.16)seams(t,board,tiles,materialIndex);
    if(tiles.length&&this.decorations&&!low&&camera.scale>=.2){
     const x0=Math.max(0,Math.min(...tiles.map(p=>p.x))-4),x1=Math.max(...tiles.map(p=>p.x))+4;
@@ -327,12 +336,15 @@ export class BattlefieldTerrainRenderer{
   const ax=a[0],ay=a[1],bx=b[0],by=b[1];
   ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
   ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();
-  ctx.fillStyle=east?'#665748':'#5b4b3e';ctx.fill();
-  ctx.beginPath();ctx.moveTo(ax,ay+drop*.56);ctx.lineTo(bx,by+drop*.56);
+  // Sunken earth wall with soil shading instead of charcoal block.
+  const shade=ctx.createLinearGradient?.(0,Math.min(ay,by),0,Math.max(ay,by)+drop);
+  if(shade){shade.addColorStop(0,'#96836c');shade.addColorStop(.52,'#705c4b');shade.addColorStop(1,'#463b32');}
+  ctx.fillStyle=shade||'#705c4b';ctx.fill();
+  ctx.beginPath();ctx.moveTo(ax,ay+drop*.66);ctx.lineTo(bx,by+drop*.66);
   ctx.lineTo(bx,by+drop);ctx.lineTo(ax,ay+drop);ctx.closePath();
-  ctx.fillStyle='#42382f';ctx.fill();
+  ctx.fillStyle='#453b3277';ctx.fill();
   ctx.beginPath();ctx.moveTo(ax,ay+1);ctx.lineTo(bx,by+1);
-  ctx.strokeStyle='#b09a7b';ctx.lineWidth=3;ctx.stroke();
+  ctx.strokeStyle='#b2a08a99';ctx.lineWidth=1.5;ctx.stroke();
   const mark=(Math.imul(face.x+1,37)+Math.imul(face.y+1,17))&7;
   if(mark<3){
    const u=.25+mark*.20,mx=ax+(bx-ax)*u,my=ay+(by-ay)*u;

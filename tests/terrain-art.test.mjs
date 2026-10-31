@@ -165,3 +165,27 @@ test('trench bottom uses soil art and visual index changes after height revision
  b.floorLevel[n]=1;b.floorLevelRevision++;
  assert.equal(terrainMaterial(b,8,11),original);
 });
+
+test('walls paint into the terrain cache and never redraw over a soldier every frame',()=>{
+ const oldDoc=globalThis.document,oldFetch=globalThis.fetch,oldImage=globalThis.Image;
+ const ctx=()=>({setTransform(){},clearRect(){},fillRect(){},translate(){},scale(){},save(){},restore(){},
+  beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clip(){},drawImage(){}});
+ try{
+  globalThis.document={createElement:()=>({width:0,height:0,getContext:ctx})};
+  globalThis.fetch=async()=>({ok:false});globalThis.Image=class {};
+  const r=new BattlefieldTerrainRenderer();r.kind='new';r.atlas={};r.surface={};r.version++;
+  const b=board(30,24);b.floorLevel=new Uint8Array(b.width*b.height).fill(1);
+  b.floorLevel[10*b.width+10]=0;b.floorLevelRevision=1;
+  const drawn=[],original=r.drawOccluder;
+  r.drawOccluder=function(t,b,f){drawn.push(f);return original.call(this,t,b,f);};
+  const screen=ctx(),cam={x:0,y:0,scale:.3};
+  r.draw(screen,b,cam,390,844,1,false,1000);
+  assert.ok(drawn.some(f=>f.low===0),'earth bank is part of terrain');
+  const n=drawn.length;
+  r.draw(screen,b,cam,390,844,1,false,1050);
+  assert.equal(drawn.length,n,'cached terrain reuses wall draw');
+  b.floorLevel[10*b.width+10]=1;b.floorLevelRevision++;
+  r.draw(screen,b,cam,390,844,1,false,1100);
+  assert.equal(drawn.length,n,'filling trench erases bank');
+ }finally{globalThis.document=oldDoc;globalThis.fetch=oldFetch;globalThis.Image=oldImage;}
+});
