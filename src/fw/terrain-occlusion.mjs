@@ -79,6 +79,22 @@ export function compareProjectedUnits(a,b){
   ||(a._renderFoot?.x??(a.visualX-a.visualY)*HALF_W)-(b._renderFoot?.x??(b.visualX-b.visualY)*HALF_W)
   ||a.id-b.id;
 }
+/** Only upward movement triggers an ascent, including the second half of
+ * a two-leg cooperative passage. No extra clock, event queue or state machine.
+ */
+export function terrainRiseProgress(board,u){
+ const step=u.step;
+ if(!step||!(step.duration>0))return null;
+ const t=Math.max(0,Math.min(1,step.elapsed/step.duration));
+ const from=terrainLevel(board,u.x,u.y);
+ if(step.via){
+  const mid=terrainLevel(board,step.via.x,step.via.y);
+  const to=terrainLevel(board,step.x,step.y);
+  if(t<.5)return mid>from?t*2:null;
+  return to>mid?(t-.5)*2:null;
+ }
+ return terrainLevel(board,step.x,step.y)>from?t:null;
+}
 export function terrainTransitionPose(board,u){
  const step=u.step;
  if(!step||!(step.duration>0))return 0;

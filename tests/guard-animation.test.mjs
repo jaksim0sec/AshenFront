@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createCatalog} from '../src/characters/model.mjs';
-import {poseCharacter} from '../src/characters/animation.mjs';
+import {poseCharacter,lookAround} from '../src/characters/animation.mjs';
 import {sampleAnimation} from '../src/characters/renderer.mjs';
 
 const profile=createCatalog().profiles['arken:private'];
@@ -128,4 +128,55 @@ test('ramp walking produces a visibly distinct step but keeps native limb propor
  }
  const sampled=Array.from({length:101},(_,i)=>sampleAnimation({state:'walk',time:.25,climbBlend:i/100}).climbBlend);
  assert.ok(new Set(sampled).size<=13,'animation atlas must not create a new pose for every ramp progress tick');
+});
+
+test('trench ascent plants lead boot, hauls torso, catches trailing boot and returns to walk',()=>{
+ const opts={state:'walk',time:.2,gaitTime:.2,walkBlend:1,climbBlend:0};
+ const normal=poseCharacter(profile,opts);
+ const rise=t=>poseCharacter(profile,{...opts,riseProgress:t});
+ const part=(p,key)=>p.draws.find(d=>d.part===key).matrix;
+ for(const key of ['body','head','hat','legLeft','legRight','armLeft','armRight']){
+  assert.deepEqual(part(rise(0),key),part(normal,key),'entry boundary: '+key);
+  assert.deepEqual(part(rise(1),key),part(normal,key),'exit boundary: '+key);
+  const base=part(normal,key),active=part(rise(.47),key);
+  const det=m=>m[0]*m[3]-m[1]*m[2];
+  assert(Math.abs(det(base)-det(active))<1e-8,'original part is never stretched: '+key);
+ }
+ assert(Math.abs(part(rise(.3),'legLeft')[5]-part(normal,'legLeft')[5])>20,'front boot plants');
+ assert(Math.abs(part(rise(.69),'legRight')[5]-part(normal,'legRight')[5])>15,'back boot catches');
+ assert(Math.abs(part(rise(.54),'body')[5]-part(normal,'body')[5])>5,'torso pulls upward');
+ let previous=rise(0);
+ for(let i=1;i<=24;i++){
+  const next=rise(i/24);
+  for(const key of ['body','head','hat','legLeft','legRight']){
+   const a=part(previous,key),b=part(next,key);
+   assert(Math.hypot(a[4]-b[4],a[5]-b[5])<21,'no pose teleport '+key+' '+i);
+  }
+  previous=next;
+ }
+ const frames=Array.from({length:100},(_,i)=>sampleAnimation({...opts,riseProgress:i/99}).riseProgress);
+ assert(new Set(frames).size<=13,'cache rise progress to 13 frames');
+ assert(new Set(Array.from({length:100},(_,i)=>sampleAnimation({...opts,riseProgress:i/99},true).riseProgress)).size<=7,'low detail rise frames');
+});
+test('look-around rotates attached head and helmet, not gun, and does not affect combat',()=>{
+ const opts={state:'guard',time:.2,shootBlend:0,walkBlend:0};
+ const normal=poseCharacter(profile,opts),left=poseCharacter(profile,{...opts,lookBlend:-1}),right=poseCharacter(profile,{...opts,lookBlend:1});
+ const part=(p,key)=>p.draws.find(d=>d.part===key).matrix;
+ assert.notDeepEqual(part(left,'head'),part(right,'head'));
+ assert.notDeepEqual(part(left,'hat'),part(right,'hat'));
+ const heading=m=>Math.atan2(m[1],m[0]);
+ const helmetOffset=p=>heading(part(p,'hat'))-heading(part(p,'head'));
+ assert(Math.abs(helmetOffset(left)-helmetOffset(right))<1e-8,'hat retains head relative angle');
+ for(const p of [left,right])assert.deepEqual(part(p,'rifle'),part(normal,'rifle'),'rifle is not affected');
+ for(const state of ['shoot','death','walk'])assert.deepEqual(
+  poseCharacter(profile,{...opts,state,lookBlend:1}),
+  poseCharacter(profile,{...opts,state,lookBlend:0}),
+  state+' may not look around'
+ );
+ assert.equal(lookAround(0,0),0);
+ assert.equal(lookAround(8.6,0),0);
+ const scan=Array.from({length:75},(_,i)=>lookAround(i/10,3));
+ assert.ok(scan.some(v=>v<-.8)&&scan.some(v=>v>.8),'both directions should be visible');
+ assert.equal(sampleAnimation({...opts,lookBlend:1},true).lookBlend,0,'low detail disables glance');
+ assert.ok(new Set(Array.from({length:100},(_,i)=>sampleAnimation({...opts,lookBlend:-1+i/50}).lookBlend)).size<=13,'cache glance buckets');
 });

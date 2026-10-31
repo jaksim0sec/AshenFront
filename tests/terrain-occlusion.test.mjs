@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,terrainLevel,terrainOcclusionStats,compareProjectedUnits,terrainTransitionPose,terrainCoverPolygons,clipSoldierAgainstTerrain} from '../src/fw/terrain-occlusion.mjs';
+import {terrainOccluders,mergeDepthLayers,projectElevatedFoot,terrainLevel,terrainOcclusionStats,compareProjectedUnits,terrainTransitionPose,terrainRiseProgress,terrainCoverPolygons,clipSoldierAgainstTerrain} from '../src/fw/terrain-occlusion.mjs';
 const board=(w=8,h=8)=>({width:w,height:h,floorLevel:new Uint8Array(w*h).fill(1),floorLevelRevision:0,terrainRevision:0});
 const bounds={x0:0,x1:7,y0:0,y1:7};
 const actor=(x,y,id=1)=>({visualX:x,visualY:y,x,y,id});
@@ -153,4 +153,22 @@ test('occlusion complexity remains local on a much bigger battlefield',()=>{
  const big=board(512,384),small=board(64,64);
  for(const b of [big,small]){b.floorLevel[30*b.width+31]=0;b.floorLevelRevision++;}
  assert.equal(terrainCoverPolygons(big,actor(31,30)).length,terrainCoverPolygons(small,actor(31,30)).length);
+});
+
+test('only rising changes terrain-ascent pose and two-leg movement uses the right half',()=>{
+ const b=board(),u=actor(2,2);
+ b.floorLevel[2*b.width+3]=2;
+ b.floorLevel[3*b.width+2]=0;
+ assert.equal(terrainRiseProgress(b,u),null);
+ u.step={x:3,y:2,elapsed:.25,duration:1};
+ assert.equal(terrainRiseProgress(b,u),.25);
+ u.step.elapsed=1;assert.equal(terrainRiseProgress(b,u),1);
+ u.x=3;u.y=2;u.step={x:2,y:2,elapsed:.4,duration:1};
+ assert.equal(terrainRiseProgress(b,u),null,'downhill walking has no climb animation');
+ u.x=2;u.y=2;u.step={x:3,y:2,via:{x:2,y:3},elapsed:.25,duration:1};
+ assert.equal(terrainRiseProgress(b,u),null,'first passage leg goes downward');
+ u.step.elapsed=.75;
+ assert.equal(terrainRiseProgress(b,u),.5,'second passage leg goes upward');
+ u.step.duration=0;
+ assert.equal(terrainRiseProgress(b,u),null,'invalid movement never animates');
 });
